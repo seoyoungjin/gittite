@@ -18,6 +18,16 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
+      path: '/gitcmd/init',
+      name: 'git-init',
+      component: () => import('../views/gitcmd/Init.vue')
+    },
+    {
+      path: '/gitcmd/clone',
+      name: 'git-clone',
+      component: () => import('../views/gitcmd/Clone.vue')
+    },
+    {
       path: '/gitcmd/status',
       name: 'git-tatus',
       component: () => import('../views/gitcmd/Status.vue')
@@ -26,6 +36,31 @@ const router = createRouter({
       path: '/gitcmd/logs',
       name: 'git-logs',
       component: () => import('../views/gitcmd/Logs.vue')
+    },
+    {
+      path: '/gitcmd/branch',
+      name: 'git-branch',
+      component: () => import('../views/gitcmd/Branch.vue')
+    },
+    {
+      path: '/gitcmd/tags',
+      name: 'git-tags',
+      component: () => import('../views/gitcmd/Tags.vue')
+    },
+    {
+      path: '/gitcmd/stash',
+      name: 'git-stash',
+      component: () => import('../views/gitcmd/Stash.vue')
+    },
+    {
+      path: '/gitcmd/addremove',
+      name: 'git-add-remove',
+      component: () => import('../views/gitcmd/AddRemove.vue')
+    },
+    {
+      path: '/gitcmd/remote',
+      name: 'git-remote',
+      component: () => import('../views/gitcmd/Remote.vue')
     },
     {
       path: '/gitcmd/settings',

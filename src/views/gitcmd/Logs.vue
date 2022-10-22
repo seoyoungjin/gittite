@@ -1,29 +1,44 @@
 <template>
   <div class="about">
-    <h2>Log</h2>
+    <h6>Log</h6>
+  </div>
 
-    <json-viewer :value="jsonData"></json-viewer>
+  <q-btn color="primary" no-caps @click="getCommits"> Git Logs</q-btn>
+  <br />
+
+  <div>
+    <vue-json-pretty :data=response />
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty';
+import { invoke } from '@tauri-apps/api/tauri';
 
-  var json = {
-      "name": "Molecule Man",
-      "age": 29,
-      "secretIdentity": "Dan Jukes",
-      "powers": [
-        "Radiation resistance",
-        "Turning tiny",
-        "Radiation blast"
-      ]
-    };
+export default {
+  components: {
+    VueJsonPretty,
+  },
+  data() {
+    return {
+      response: null
+    }
+  },
 
-  export default {
-    data() {
-      return {
-        jsonData: json
-      }
+  methods: {
+    getCommits() {
+      invoke('get_commits').then((message) => {
+        // alert("Got response. Iterationg....");
+        this.response = message;
+      }).catch((e) => {
+        if (typeof e == 'string') {
+          this.response = {"error": e};
+        } else {
+          this.response = {"error": JSON.stringify(e)};
+        }
+      });
     }
   }
+}
 </script>

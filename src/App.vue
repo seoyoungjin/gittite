@@ -24,7 +24,7 @@
           <q-btn round dense flat color="grey-8" icon="apps" v-if="$q.screen.gt.sm">
             <q-tooltip>Apps</q-tooltip>
           </q-btn>
-          <q-btn round dense flat color="grey-8" icon="message" v-if="$q.screen.gt.sm">
+          <q-btn round dense flat color="grey-8" icon="message">
             <q-tooltip>Messages</q-tooltip>
           </q-btn>
         </div>
@@ -116,8 +116,9 @@ export default {
 
       links1: [
         { icon: 'subscriptions', text: 'Init', link: '/gitcmd/init' },
+        { icon: 'subscriptions', text: 'Clone', link: '/gitcmd/clone' },
         { icon: 'home', text: 'Status', link: '/gitcmd/status' },
-        { icon: 'whatshot', text: 'Log', link: '/gitcmd/logs' },
+        { icon: 'whatshot', text: 'Logs', link: '/gitcmd/logs' },
         { icon: 'folder', text: 'Branch', link: '/gitcmd/branch' },
         { icon: 'restore', text: 'Tags', link: '/gitcmd/tags' },
         { icon: 'watch_later', text: 'Stash', link: '/gitcmd/stash' },
