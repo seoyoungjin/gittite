@@ -1,85 +1,163 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <q-layout view="hHh lpR fFf" class="bg-grey-1">
+    <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
+      <q-toolbar>
+        <q-btn
+          flat
+          dense
+          round
+          @click="toggleLeftDrawer"
+          aria-label="Menu"
+          icon="menu"
+        />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+        <q-btn flat no-caps no-wrap class="q-ml-xs" v-if="$q.screen.gt.xs">
+          <q-icon :name="Gittite" color="red" size="28px" />
+          <q-toolbar-title shrink class="text-weight-bold">
+            Gittite
+          </q-toolbar-title>
+        </q-btn>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <q-space />
 
-  <RouterView />
+        <div class="q-gutter-sm row items-center no-wrap">
+          <q-btn round dense flat color="grey-8" icon="apps" v-if="$q.screen.gt.sm">
+            <q-tooltip>Apps</q-tooltip>
+          </q-btn>
+          <q-btn round dense flat color="grey-8" icon="message" v-if="$q.screen.gt.sm">
+            <q-tooltip>Messages</q-tooltip>
+          </q-btn>
+        </div>
+      </q-toolbar>
+    </q-header>
+
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      class="bg-grey-2"
+      breakpoint="600"
+      :width="180"
+    >
+      <q-scroll-area class="fit">
+        <q-list padding>
+          <q-item v-for="link in links1" :key="link.text" @click="$router.push(link.link)" v-ripple clickable>
+            <q-item-section avatar>
+              <q-icon color="grey" :name="link.icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ link.text }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-separator class="q-my-md" />
+
+          <q-item v-for="link in links2" :key="link.text" v-ripple clickable>
+            <q-item-section avatar>
+              <q-icon color="grey" :name="link.icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ link.text }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-separator class="q-mt-md q-mb-lg" />
+
+          <div class="q-px-md text-grey-9">
+            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
+              <a
+                v-for="button in buttons1"
+                :key="button.text"
+                class="YL__drawer-footer-link"
+                href="javascript:void(0)"
+              >
+                {{ button.text }}
+              </a>
+            </div>
+          </div>
+          <div class="q-py-md q-px-md text-grey-9">
+            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
+              <a
+                v-for="button in buttons2"
+                :key="button.text"
+                class="YL__drawer-footer-link"
+                href="javascript:void(0)"
+              >
+                {{ button.text }}
+              </a>
+            </div>
+          </div>
+        </q-list>
+      </q-scroll-area>
+    </q-drawer>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+<script>
+import { ref } from 'vue'
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default {
+  name: 'MyLayout',
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+  setup () {
+    const leftDrawerOpen = ref(false)
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+    function toggleLeftDrawer () {
+      leftDrawerOpen.value = !leftDrawerOpen.value
+    }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+    return {
+      leftDrawerOpen,
+      toggleLeftDrawer,
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+      links1: [
+        { icon: 'subscriptions', text: 'Init', link: '/gitcmd/init' },
+        { icon: 'home', text: 'Status', link: '/gitcmd/status' },
+        { icon: 'whatshot', text: 'Log', link: '/gitcmd/logs' },
+        { icon: 'folder', text: 'Branch', link: '/gitcmd/branch' },
+        { icon: 'restore', text: 'Tags', link: '/gitcmd/tags' },
+        { icon: 'watch_later', text: 'Stash', link: '/gitcmd/stash' },
+        { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' }
+      ],
+      links2: [
+        { icon: 'settings', text: 'Settings' },
+      ],
+      buttons1: [
+        { text: 'About' },
+      ],
+      buttons2: [
+        { text: 'Test features' }
+      ]
+    }
   }
 }
+</script>
+
+<style lang="sass">
+.YL
+
+  &__toolbar-input-container
+    min-width: 100px
+    width: 55%
+
+  &__toolbar-input-btn
+    border-radius: 0
+    border-style: solid
+    border-width: 1px 1px 1px 0
+    border-color: rgba(0,0,0,.24)
+    max-width: 60px
+    width: 100%
+
+  &__drawer-footer-link
+    color: inherit
+    text-decoration: none
+    font-weight: 500
+    font-size: .75rem
+
+    &:hover
+      color: #000
 </style>

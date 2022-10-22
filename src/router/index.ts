@@ -16,6 +16,16 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
+    },
+    {
+      path: '/gitcmd/status',
+      name: 'git-tatus',
+      component: () => import('../views/gitcmd/Status.vue')
+    },
+    {
+      path: '/gitcmd/logs',
+      name: 'git-logs',
+      component: () => import('../views/gitcmd/Logs.vue')
     }
   ]
 })
