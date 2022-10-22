@@ -26,6 +26,11 @@ const router = createRouter({
       path: '/gitcmd/logs',
       name: 'git-logs',
       component: () => import('../views/gitcmd/Logs.vue')
+    },
+    {
+      path: '/gitcmd/settings',
+      name: 'git-settings',
+      component: () => import('../views/gitcmd/Settings.vue')
     }
   ]
 })

@@ -52,7 +52,7 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item v-for="link in links2" :key="link.text" v-ripple clickable>
+          <q-item v-for="link in links2" :key="link.text" @click="$router.push(link.link)" v-ripple clickable>
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -124,7 +124,7 @@ export default {
         { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' }
       ],
       links2: [
-        { icon: 'settings', text: 'Settings' },
+        { icon: 'settings', text: 'Settings', link: '/gitcmd/settings' },
       ],
       buttons1: [
         { text: 'About' },

@@ -1,0 +1,22 @@
+$ git log --pretty="%H %h %cn"
+d986b2ebcb54000a1bca8514458a9c8ec419c406 d986b2e Seo Youngjin
+9dea62f63abea5abced89d89ad6781c48e6cb9f0 9dea62f Seo Youngjin
+ddabe41d451b983a4b7662cec62edf43b049ef21 ddabe41 Seo Youngjin
+1451e67d7173e73f87fa25baf6b7e1795362294f 1451e67 Seo Youngjin
+...
+
+$ git show --pretty="" --name-status 1451e67d
+A       README-frontend.md
+A       README.md
+A       index.html
+A       package.json
+A       public/vite.svg
+...
+
+$ git st -b --porcelain --ahead-behind
+## main...origin/main [ahead 2]
+ M src-tauri/src/git_api/init.rs
+ M src-tauri/src/git_api/status.rs
+?? src/lib/response.d.ts
+?? yarn.lock
+
