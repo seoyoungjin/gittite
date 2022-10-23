@@ -1,32 +1,30 @@
 <template>
-  <h6>Clone</h6>
+  <h6>Init</h6>
 
   <q-card>
      <q-card-section>
 
-       <form id="git-init">
-         <div class="form-group">
-           <label for="gitURL">Git URL</label>
-           <input class="form-control" name="gitURL" placeholder="Enter directory" />
-         </div>
+       <form v-on:submit="gitInit" id="git-init">
          <div class="form-group">
            <label for="directory">Directory</label>
-           <input class="form-control" name="directory" placeholder="Enter directory">
+           <input class="form-control" v-model="directory" placeholder="Enter directory">
          </div>
          <div class="form-group form-check">
-           <input type="checkbox" class="form-check-input" name="bareCheck">
+           <input type="checkbox" class="form-check-input" v-model="bareCheck">
            <label class="form-check-label" for="bareCheck">Bare</label>
          </div>
          <div class="form-group">
-           <input type="checkbox" class="form-check-input" name="templateCheck">
+           <input type="checkbox" class="form-check-input" v-model="templateCheck">
            <label class="form-check-label" for="templateCheck">Template directory</label>
-           <input class="form-control" name="templateDir" placeholder="Enter template directory">
+           <input class="form-control" v-model="templateDir" placeholder="Enter template directory">
          </div>
          <div class="form-group">
-           <input type="checkbox" name="separateGitDir">
-           <label class="form-check-label" for="separateGitDir">Separate git directory</label>
-           <input class="form-control" name="templateDir" placeholder="Separate git directory">
+           <input type="checkbox" v-model="separateGitCheck">
+           <label class="form-check-label" for="separateGitCheck">Separate git directory</label>
+           <input class="form-control" v-model="separateGitDir" placeholder="Separate git directory">
          </div>
+
+         <button type="submit">login</button>
        </form>
 
     </q-card-section>
@@ -34,7 +32,7 @@
 
   <br />
 
-  <q-btn color="primary" no-caps @click="gitInit">Clone</q-btn>
+  <q-btn type=submit color="primary" no-caps @click="gitInit">Confirm</q-btn>
   <br />
 
   <div>
@@ -53,20 +51,29 @@ export default {
   },
   data() {
     return {
+      directory: '',
+      bareCheck: false,
+      templateCheck:false,
+      templateDir: '',
+      seprateGitCheck: false,
+      seprateGitDir: '',
       response: null
     }
   },
   methods: {
-    gitInit() {
-      const inputs = document.getElementById("git-init").elements;
-      const dirname = inputs["directory"].value;
-
+    gitInit: function() {
+      var dirname = this.directory;
+      // alert(dirname);
       // TODO argument
-      invoke('init', {args: [dirname]})
-      .then((message) => {
+      invoke('init', {args: ["dummy", dirname]}).then((message) => {
         response = message;
-      })
-      .catch(onMessage)
+      }).catch((e) => {
+        if (typeof e == 'string') {
+          this.response = {"error": e};
+        } else {
+          this.response = {"error": JSON.stringify(e)};
+        }
+      });
     }
   }
 }
