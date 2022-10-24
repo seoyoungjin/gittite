@@ -17,8 +17,10 @@
 use git2::{Error, Repository, RepositoryInitMode, RepositoryInitOptions};
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 pub struct Args {
     #[structopt(name = "directory")]
     arg_directory: String,

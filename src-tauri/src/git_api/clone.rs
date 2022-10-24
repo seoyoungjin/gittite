@@ -19,11 +19,13 @@ use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 // TODO
 // - progress
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 pub struct Args {
     #[structopt(name = "url")]
     arg_url: String,
@@ -39,6 +41,7 @@ struct State {
 }
 
 fn print(state: &mut State) {
+    println!("progress");
 }
 
 pub fn run(args: &Args) -> Result<(), git2::Error> {

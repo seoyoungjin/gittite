@@ -74,10 +74,12 @@ struct Payload {
 
 #[tauri::command]
 pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
-    let opt = init::Args::from_iter(args);
+    println!("clone args {:?}", args);
+    let opt = clone::Args::from_iter(args);
+
     // TODO can use for progress?
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
-    let ok = match init::run(&opt) {
+    let ok = match clone::run(&opt) {
         Ok(()) => Ok("Cloned".to_string()),
         Err(e) => throw!("error: {}", e),
     };

@@ -1,14 +1,16 @@
 <template>
-  <div class="about">
-    <h6>Log</h6>
-  </div>
+  <q-page class="q-ma-lg">
+    <div class="about">
+      <h6>Log</h6>
+    </div>
 
-  <q-btn color="primary" no-caps @click="getCommits"> Git Logs</q-btn>
-  <br />
+    <q-btn color="primary" no-caps @click="getCommits"> Git Logs</q-btn>
+    <br />
 
-  <div>
-    <vue-json-pretty :data=response />
-  </div>
+    <div>
+      <vue-json-pretty :data=response />
+    </div>
+  </q-page>
 </template>
 
 <script lang="ts">

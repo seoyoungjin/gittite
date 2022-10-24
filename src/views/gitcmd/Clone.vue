@@ -1,73 +1,71 @@
 <template>
-  <h6>Clone</h6>
+  <q-page class="q-ma-lg">
+    <h6>Clone</h6>
 
-  <q-card>
-     <q-card-section>
+    <q-card>
+      <q-card-section>
 
-       <form id="git-init">
-         <div class="form-group">
-           <label for="gitURL">Git URL</label>
-           <input class="form-control" name="gitURL" placeholder="Enter directory" />
-         </div>
-         <div class="form-group">
-           <label for="directory">Directory</label>
-           <input class="form-control" name="directory" placeholder="Enter directory">
-         </div>
-         <div class="form-group form-check">
-           <input type="checkbox" class="form-check-input" name="bareCheck">
-           <label class="form-check-label" for="bareCheck">Bare</label>
-         </div>
-         <div class="form-group">
-           <input type="checkbox" class="form-check-input" name="templateCheck">
-           <label class="form-check-label" for="templateCheck">Template directory</label>
-           <input class="form-control" name="templateDir" placeholder="Enter template directory">
-         </div>
-         <div class="form-group">
-           <input type="checkbox" name="separateGitDir">
-           <label class="form-check-label" for="separateGitDir">Separate git directory</label>
-           <input class="form-control" name="templateDir" placeholder="Separate git directory">
-         </div>
-       </form>
+        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+          <q-input v-model="form.gitURL" label="gitURL" hint="Enter git url" />
+          <q-input v-model="form.directory" label="Directory" hint="Enter directory" />
 
-    </q-card-section>
-  </q-card>
+          <div>
+            <q-btn label="Submit" type="submit" color="primary"/>
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+          </div>
+        </q-form>
 
-  <br />
+      </q-card-section>
+    </q-card>
 
-  <q-btn color="primary" no-caps @click="gitClone">Clone</q-btn>
-  <br />
-
-  <div>
-    <vue-json-pretty :data=response />
-  </div>
+  </q-page>
 </template>
 
 <script lang="ts">
-import 'vue-json-pretty/lib/styles.css';
-import VueJsonPretty from 'vue-json-pretty';
+import { useQuasar } from "quasar";
 import { invoke } from '@tauri-apps/api/tauri';
 
 export default {
-  components: {
-    VueJsonPretty,
-  },
   data() {
     return {
-      response: null
+      form : {
+        gitURL: null,
+        directory: null,
+      }
     }
   },
 
   methods: {
-    gitClone() {
-      const inputs = document.getElementById("git-clone").elements;
-      const gitURL = inputs["gitURL"].value;
-      const localDir = inputs["localDir"].value;
+    gitClone () {
+      // alert(JSON.stringify(this.form, null, 4));
+      const gitURL = this.form.gitURL;
+      const localDir = this.form.directory;
 
-      invoke('clone', { args: [ "--url=" + gitURL, localDir ] })
-      .then((message) => {
-        response = message;
+      invoke('clone', {
+        args: [ gitURL, localDir ] 
+      }).then((message) => {
+        this.$q.notify({
+          color: 'green-5',
+          textColor: 'white',
+          icon: 'cloud',
+          message: message
+        })
+      }).catch((e) => {
+        var message = (typeof e == 'string')? e : JSON.stringify(e, null, 4)
+        this.$q.notify({
+          color: 'red-5',
+          textColor: 'white',
+          icon: 'warning',
+          message: message
+        })
       })
-      .catch(onMessage)
+    },
+    onSubmit () {
+      this.gitClone();
+    },
+    onReset () {
+      this.form.gitURL = null
+      this.form.directory = null
     }
   }
 }

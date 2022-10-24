@@ -31,21 +31,21 @@ export default {
 </script>
 
 <template>
+  <q-page class="q-ma-lg">
+    <h5> Settings </h5>
 
-<h5> Settings </h5>
+    We can read settings file with two methods.
+    <br />
+    <br />
+    1. rust with tauri command
+    <br />
+    2. javascript using "@tauri-apps/api/fs"
 
-We can read settings file with two methods.
-<br />
-<br />
-1. rust with tauri command
-<br />
-2. javascript using "@tauri-apps/api/fs"
+    <h6> 1. via tauri::command </h6>
+    <vue-json-pretty :data=jsonData />
+    <br />
 
-<h6> 1. via tauri::command </h6>
-<vue-json-pretty :data=jsonData />
-<br />
-
-<h6> 2. with Javascript </h6>
-<vue-json-pretty :data=jsonData2 />
-
+    <h6> 2. with Javascript </h6>
+    <vue-json-pretty :data=jsonData2 />
+  </q-page>
 </template>

@@ -1,15 +1,17 @@
 <template>
-  <h6>Status</h6>
+  <q-page class="q-ma-lg">
+    <h6>Status</h6>
 
-  <q-btn color="primary" no-caps @click="getStatus('both')"> Both</q-btn>
-  <q-btn color="primary" no-caps @click="getStatus('stage')"> Stage</q-btn>
-  <q-btn color="primary" no-caps @click="getStatus('workdir')"> Work Dir</q-btn>
-  <br />
-  <br />
+    <q-btn color="primary" no-caps @click="getStatus('both')"> Both</q-btn>
+    <q-btn color="primary" no-caps @click="getStatus('stage')"> Stage</q-btn>
+    <q-btn color="primary" no-caps @click="getStatus('workdir')"> Work Dir</q-btn>
+    <br />
+    <br />
 
-  <div>
-    <vue-json-pretty :data=response />
-  </div>
+    <div>
+      <vue-json-pretty :data=response />
+    </div>
+  </q-page>
 </template>
 
 <script lang="ts">
