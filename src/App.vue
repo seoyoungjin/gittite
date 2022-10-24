@@ -133,7 +133,7 @@ export default {
         { text: 'About', link: '/about' },
       ],
       buttons2: [
-        { text: 'Test features', link: '/gitcmd/test' }
+        { text: 'Test features', link: '/test' }
       ]
     }
   }
