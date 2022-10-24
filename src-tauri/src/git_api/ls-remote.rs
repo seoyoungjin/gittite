@@ -1,29 +1,17 @@
-/*
- * libgit2 "ls-remote" example
- *
- * Written by the libgit2 contributors
- *
- * To the extent possible under law, the author(s) have dedicated all copyright
- * and related and neighboring rights to this software to the public domain
- * worldwide. This software is distributed without any warranty.
- *
- * You should have received a copy of the CC0 Public Domain Dedication along
- * with this software. If not, see
- * <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
-
 #![deny(warnings)]
 
 use git2::{Direction, Repository};
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
-struct Args {
+#[structopt(setting(AppSettings::NoBinaryName))]
+pub struct Args {
     #[structopt(name = "remote")]
     arg_remote: String,
 }
 
-fn run(args: &Args) -> Result<(), git2::Error> {
+pub fn run(args: &Args) -> Result<(), git2::Error> {
     let repo = Repository::open(".")?;
     let remote = &args.arg_remote;
     let mut remote = repo
@@ -42,10 +30,13 @@ fn run(args: &Args) -> Result<(), git2::Error> {
     Ok(())
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    fn main() {
+        let args = Args::from_args();
+        match run(&args) {
+            Ok(()) => {}
+            Err(e) => println!("error: {}", e),
+        }
     }
 }

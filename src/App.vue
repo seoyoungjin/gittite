@@ -70,6 +70,7 @@
                 :key="button.text"
                 class="YL__drawer-footer-link"
                 href="javascript:void(0)"
+                @click="$router.push(button.link)"
               >
                 {{ button.text }}
               </a>
@@ -82,6 +83,7 @@
                 :key="button.text"
                 class="YL__drawer-footer-link"
                 href="javascript:void(0)"
+                @click="$router.push(button.link)"
               >
                 {{ button.text }}
               </a>
@@ -128,10 +130,10 @@ export default {
         { icon: 'settings', text: 'Settings', link: '/gitcmd/settings' },
       ],
       buttons1: [
-        { text: 'About' },
+        { text: 'About', link: '/about' },
       ],
       buttons2: [
-        { text: 'Test features' }
+        { text: 'Test features', link: '/gitcmd/test' }
       ]
     }
   }
