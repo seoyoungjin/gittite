@@ -32,3 +32,4 @@ This is a toy project to study tauri.
 ## Misc Commands
 
 - `cargo install --list`
+- `cargo test -- --nocapture`

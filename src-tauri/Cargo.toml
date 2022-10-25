@@ -23,6 +23,8 @@ atomicwrites = "0.3.1"
 rfd = "0.10.0"
 structopt = "0.3.26"
 time = "0.1.39"
+env_logger = "0.9.1"
+log = "0.4.17"
 
 [features]
 # by default Tauri runs in production mode
@@ -31,3 +33,6 @@ default = [ "custom-protocol" ]
 # this feature is used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
+
+[dev-dependencies]
+tempfile = "3.3.0"

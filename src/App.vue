@@ -99,7 +99,7 @@
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from 'vue'
 
 export default {
@@ -120,9 +120,10 @@ export default {
         { icon: 'subscriptions', text: 'Init', link: '/gitcmd/init' },
         { icon: 'subscriptions', text: 'Clone', link: '/gitcmd/clone' },
         { icon: 'home', text: 'Status', link: '/gitcmd/status' },
-        { icon: 'whatshot', text: 'Logs', link: '/gitcmd/logs' },
-        { icon: 'folder', text: 'Branch', link: '/gitcmd/branch' },
-        { icon: 'restore', text: 'Tags', link: '/gitcmd/tags' },
+        { icon: 'restore', text: 'Logs', link: '/gitcmd/logs' },
+        { icon: 'folder', text: 'App/Remove', link: '/gitcmd/addremove' },
+        { icon: 'star_border', text: 'Branch', link: '/gitcmd/branch' },
+        { icon: 'whatshot', text: 'Tags', link: '/gitcmd/tags' },
         { icon: 'watch_later', text: 'Stash', link: '/gitcmd/stash' },
         { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' }
       ],

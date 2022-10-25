@@ -18,8 +18,8 @@ use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 // TODO
 // - progress
@@ -44,7 +44,7 @@ fn print(state: &mut State) {
     println!("progress");
 }
 
-pub fn run(args: &Args) -> Result<(), git2::Error> {
+pub fn clone(args: &Args) -> Result<(), git2::Error> {
     let state = RefCell::new(State {
         progress: None,
         total: 0,
@@ -80,11 +80,21 @@ pub fn run(args: &Args) -> Result<(), git2::Error> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::git_api::tests::{repo_init_bare, sandbox_config_files};
+    use tempfile::TempDir;
+
+    #[test]
     fn test_clone() {
-        let args = Args::from_args();
-        match run(&args) {
-            Ok(()) => {}
-            Err(e) => println!("error: {}", e),
-        }
+        sandbox_config_files();
+
+        let (r1_dir, _repo) = repo_init_bare().unwrap();
+        let r1_dir = r1_dir.path().to_str().unwrap();
+        let td = TempDir::new().unwrap();
+        let td_path = td.path().as_os_str().to_str().unwrap();
+
+        let args = Args::from_iter(vec![r1_dir, td_path]);
+        let res = clone(&args);
+        assert_eq!(res.is_ok(), true);
     }
 }

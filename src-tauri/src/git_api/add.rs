@@ -29,7 +29,7 @@ pub struct Args {
     flag_update: bool,
 }
 
-pub fn stage_add(repo: &Repository, args: &Args) -> Result<(), git2::Error> {
+pub fn stage_add_all(repo: &Repository, args: &Args) -> Result<(), git2::Error> {
     let mut index = repo.index()?;
 
     if args.flag_update {
@@ -37,28 +37,45 @@ pub fn stage_add(repo: &Repository, args: &Args) -> Result<(), git2::Error> {
     } else {
         index.add_all(args.arg_spec.iter(), git2::IndexAddOption::DEFAULT, None)?;
     }
-
     index.write()?;
     Ok(())
 }
 
-/*
-pub fn stage_remove(repo: &Repository, args: &Args) -> Result<(), git2::Error> {
+/// add a file diff from workingdir to stage
+pub fn stage_add_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
     let mut index = repo.index()?;
 
-    index.remove_path(args.arg_spec.iter())?;
+    index.add_path(path)?;
     index.write()?;
     Ok(())
 }
-*/
+
+/// stage a removed file
+pub fn stage_remove_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
+    let mut index = repo.index()?;
+
+    index.remove_path(path)?;
+    index.write()?;
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {
-    fn add() {
-        let args = Args::from_args();
-        match run(&args) {
-            Ok(()) => {}
-            Err(e) => println!("error: {}", e),
-        }
+    use super::*;
+    use crate::git_api::tests::repo_init_empty;
+
+    #[test]
+    fn test_stage_add_sooke() {
+        let file_path = Path::new("foo");
+        let (_td, repo) = repo_init_empty().unwrap();
+        // let root = repo.path().parent().unwrap();
+        // let repo_path = root.as_os_str().to_str().unwrap();
+        // let args = Args::from_iter(vec![ "foo" ]);
+        let res = stage_add_file(&repo, file_path);
+        assert_eq!(res.is_ok(), false);
+    }
+
+    #[test]
+    fn test_stage_remove() {
     }
 }

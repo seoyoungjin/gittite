@@ -1,56 +1,80 @@
+<template>
+  <q-page class="q-ma-lg">
+    <h6>Stage Add/Remove</h6>
+
+    <q-card>
+      <q-card-section>
+        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+          <q-input v-model="file" label="File to add" hint="Enter file name" />
+          <div>
+            <q-btn label="Add" type="submit" color="primary"/>
+            <q-btn label="Remove" type="reset" color="primary"/>
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+
+    <br />
+    <q-btn color="primary" no-caps @click="getStatus('stage')"> Stage</q-btn>
+    <q-btn color="primary" no-caps @click="getStatus('workdir')"> Work Dir</q-btn>
+    <br />
+    <br />
+
+    <div>
+      <vue-json-pretty :data=response />
+    </div>
+  </q-page>
+</template>
+
 <script lang="ts">
+import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
-import { configDir } from '@tauri-apps/api/path';
-import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
-
-let jsonData = await invoke('get_settings');
-/* TODO
-invoke('get_settings')
-  .then(function(data) {
-    jsonData = data;
-  })
-  .catch(function(error) {
-    jsonData = { error: error };
-  });
-  */
-
-var jsonData2 = await readTextFile('gittite/settings.json', { dir: BaseDirectory.Config});
-/*
-readTextFile('gittite/settings.json', { dir: BaseDirectory.Config})
-  .then(function(data) {
-    alert(data);
-    jsonData2 = JSON.parse(data);
-  }).catch(function(err) {
-    jsonData2 = { "error": err };
-  });
-  */
+import * as git2rs from '../../api/git2rs.ts';
 
 export default {
+  components: {
+    VueJsonPretty,
+  },
   data() {
     return {
-      jsonData: jsonData,
-      jsonData2: jsonData2,
+      response: null,
+      file : null
+    }
+  },
+
+  methods: {
+    onSubmit () {
+      this.gitAdd();
+    },
+
+    onReset () {
+      this.file = null;
+    },
+
+    gitAdd() {
+      git2rs.add().then((message) => {
+        this.response = message;
+      }).catch((e) => {
+        if (typeof e == 'string') {
+          this.response = {"error": e};
+        } else {
+          this.response = {"error": JSON.stringify(e)};
+        }
+      });
+    },
+
+    getStatus(args: string) {
+      invoke('get_status', {statusType: args}).then((message) => {
+        this.response = message;
+      }).catch((e) => {
+        if (typeof e == 'string') {
+          this.response = {"error": e};
+        } else {
+          this.response = {"error": JSON.stringify(e)};
+        }
+      });
     }
   }
 }
 </script>
-
-<template>
-
-<h5> Settings </h5>
-
-We can read settings file with two methods.
-<br />
-<br />
-1. rust with tauri command
-<br />
-2. javascript using "@tauri-apps/api/fs"
-
-<h6> 1. via tauri::command </h6>
-<json-viewer :value="jsonData"></json-viewer>
-<br />
-
-<h6> 2. with Javascript </h6>
-<json-viewer :value="jsonData2"></json-viewer>
-
-</template>

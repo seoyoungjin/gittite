@@ -16,8 +16,8 @@
 
 use git2::{Error, Repository, RepositoryInitMode, RepositoryInitOptions};
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -38,9 +38,9 @@ pub struct Args {
     flag_shared: Option<String>,
 }
 
-pub fn run(args: &Args) -> Result<(), Error> {
+pub fn init(args: &Args) -> Result<Repository, Error> {
     let mut path = PathBuf::from(&args.arg_directory);
-    let _repo = if !args.flag_bare
+    let repo = if !args.flag_bare
         && args.flag_template.is_none()
         && args.flag_shared.is_none()
         && args.flag_separate_git_dir.is_none()
@@ -67,7 +67,7 @@ pub fn run(args: &Args) -> Result<(), Error> {
         Repository::init_opts(&path, &opts)?
     };
 
-    Ok(())
+    Ok(repo)
 }
 
 fn parse_shared(shared: &str) -> Result<RepositoryInitMode, Error> {
@@ -90,11 +90,20 @@ fn parse_shared(shared: &str) -> Result<RepositoryInitMode, Error> {
 
 #[cfg(test)]
 mod tests {
-    fn main() {
-        let args = Args::from_args();
-        match run(&args) {
-            Ok(()) => {}
-            Err(e) => println!("error: {}", e),
-        }
+    use super::*;
+    use crate::git_api::tests::sandbox_config_files;
+    use tempfile::TempDir;
+
+    #[test]
+    fn test_init() {
+        sandbox_config_files();
+
+        let td = TempDir::new().unwrap();
+        let args = Args::from_iter(vec![td.path()]);
+        let res = init(&args);
+
+        assert_eq!(res.is_ok(), true);
+        log::trace!("repository created : {:?}", td.path());
+        // assert_eq!(td.path() + "/.git", res.unwrap().path());
     }
 }

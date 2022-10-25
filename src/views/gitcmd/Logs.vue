@@ -6,6 +6,7 @@
 
     <q-btn color="primary" no-caps @click="getCommits"> Git Logs</q-btn>
     <br />
+    <br />
 
     <div>
       <vue-json-pretty :data=response />
@@ -22,6 +23,7 @@ export default {
   components: {
     VueJsonPretty,
   },
+
   data() {
     return {
       response: null

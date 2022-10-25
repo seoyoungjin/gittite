@@ -1,9 +1,10 @@
 //! Git API
 
-use anyhow::{anyhow,Result, Error};
-use git2::{Branch, BranchType, Repository};
-
+use anyhow::{anyhow,Result};
+use std::path::Path;
+use git2::Repository;
 use structopt::StructOpt;
+
 use crate::throw;
 use crate::app_data::AppDataState;
 
@@ -61,8 +62,8 @@ pub use self::status::*;
 pub fn init(args: Vec<String>) -> Result<String, String> {
     println!("init args {:?}", args);
     let opt = init::Args::from_iter(args);
-    match init::run(&opt) {
-        Ok(()) => Ok("Initialized empty Git repository".to_string()),
+    match init::init(&opt) {
+        Ok(_repo) => Ok("Initialized empty Git repository".to_string()),
         Err(e) => throw!("error: {}", e),
     }
 }
@@ -79,7 +80,7 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
 
     // TODO can use for progress?
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
-    let ok = match clone::run(&opt) {
+    let ok = match clone::clone(&opt) {
         Ok(()) => Ok("Cloned".to_string()),
         Err(e) => throw!("error: {}", e),
     };
@@ -90,20 +91,82 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
 #[tauri::command]
 pub fn open(app_data: AppDataState<'_>) -> Result<(), String> {
     let mut app_data = app_data.0.lock().unwrap();
-    real_open(&mut app_data)
+
+    real_open(&mut app_data)?;
+    Ok(())
 }
 
 #[tauri::command]
-pub fn add(args: Vec<String>, app_data: AppDataState<'_>) -> Result<bool, String> {
+pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     let mut app_data = app_data.0.lock().unwrap();
 
     if app_data.repo.is_none() {
         real_open(&mut app_data)?;
     }
     let repo = app_data.repo.as_ref().unwrap();
-    let opt = add::Args::from_iter(args);
-    match add::stage_add(repo, &opt) {
+    let path = Path::new(&args);
+    match add::stage_add_file(repo, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+    use git2::Repository;
+    use tempfile::TempDir;
+
+    // init log
+    fn init_log() {
+        let _ = env_logger::builder()
+            .is_test(true)
+            .filter_level(log::LevelFilter::Trace)
+            .try_init();
+    }
+
+    /// Calling `set_search_path` with an empty directory makes sure that there
+    /// is no git config interfering with our tests (for example user-local
+    /// `.gitconfig`).
+    #[allow(unsafe_code)]
+    pub fn sandbox_config_files() {
+        use git2::{opts::set_search_path, ConfigLevel};
+        use std::sync::Once;
+
+        static INIT: Once = Once::new();
+
+        // Adapted from https://github.com/rust-lang/cargo/pull/9035
+        INIT.call_once(|| unsafe {
+            let temp_dir = TempDir::new().unwrap();
+            let path = temp_dir.path();
+
+            set_search_path(ConfigLevel::System, path).unwrap();
+            set_search_path(ConfigLevel::Global, path).unwrap();
+            set_search_path(ConfigLevel::XDG, path).unwrap();
+            set_search_path(ConfigLevel::ProgramData, path).unwrap();
+        });
+    }
+
+    ///
+    pub fn repo_init_empty() -> Result<(TempDir, Repository)> {
+        init_log();
+        sandbox_config_files();
+
+        let td = TempDir::new()?;
+        let repo = Repository::init(td.path())?;
+        {
+            let mut config = repo.config()?;
+            config.set_str("user.name", "name")?;
+            config.set_str("user.email", "email")?;
+        }
+        Ok((td, repo))
+    }
+
+    /// Same as `repo_init`, but the repo is a bare repo (--bare)
+    pub fn repo_init_bare() -> Result<(TempDir, Repository)> {
+        init_log();
+        let tmp_repo_dir = TempDir::new()?;
+        let bare_repo = Repository::init_bare(tmp_repo_dir.path())?;
+        Ok((tmp_repo_dir, bare_repo))
     }
 }
