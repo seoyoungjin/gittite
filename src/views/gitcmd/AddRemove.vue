@@ -4,29 +4,47 @@
 
     <q-card>
       <q-card-section>
-        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+        <q-form @reset="onReset" class="q-gutter-md">
           <q-input v-model="file" label="File to add" hint="Enter file name" />
-          <div>
-            <q-btn label="Add" type="submit" color="primary"/>
-            <q-btn label="Remove" type="reset" color="primary"/>
-          </div>
+          <q-btn label="Add" @click='onGitAdd' color="primary"/>
+          <q-btn label="Unstage" @click='onGitReset' color="primary"/>
+          <q-btn label="Reset" type="reset" color="primary"/>
         </q-form>
       </q-card-section>
     </q-card>
 
     <br />
-    <q-btn color="primary" no-caps @click="getStatus('stage')"> Stage</q-btn>
-    <q-btn color="primary" no-caps @click="getStatus('workdir')"> Work Dir</q-btn>
-    <br />
-    <br />
 
     <div>
       <vue-json-pretty :data=response />
     </div>
+    <br />
+
+    <div>
+      <q-splitter v-model="splitterModel">
+
+        <template v-slot:before>
+          <div class="text-h5 q-mb-md">Unstaged</div>
+          <div>
+            <vue-json-pretty :data=unstagedJson />
+          </div>
+        </template>
+
+        <template v-slot:after>
+          <div class="text-h5 q-mb-md">Staged</div>
+          <div>
+            <vue-json-pretty :data=stagedJson />
+          </div>
+        </template>
+
+      </q-splitter>
+    </div>
+
   </q-page>
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
 import 'vue-json-pretty/lib/styles.css';
 import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
@@ -36,24 +54,47 @@ export default {
   components: {
     VueJsonPretty,
   },
+
   data() {
     return {
       response: null,
-      file : null
+      stagedJson: null,
+      unstagedJson: null,
+
+      file : null,
+      splitterModel: ref(50)
     }
   },
 
+  async mounted() {
+    this.stagedJson = await this.getStatus('stage');
+    this.unstagedJson = await this.getStatus('workdir');
+  },
+
   methods: {
-    onSubmit () {
-      this.gitAdd();
-    },
-
-    onReset () {
+    onReset() {
       this.file = null;
+      this.response = null;
     },
 
-    gitAdd() {
-      git2rs.add().then((message) => {
+    onGitAdd() {
+      var name = this.file;
+      git2rs.add(name).then((message) => {
+        this.response = message;
+      }).catch((e) => {
+        if (typeof e == 'string') {
+          this.response = {"error": e};
+        } else {
+          this.response = {"error": JSON.stringify(e)};
+        }
+      });
+
+      // this.getStatus('stage').them((m) => { this.stagedJson = m;} );;
+    },
+
+    onGitReset() {
+      var name = this.file;
+      git2rs.reset(name).then((message) => {
         this.response = message;
       }).catch((e) => {
         if (typeof e == 'string') {
@@ -64,16 +105,17 @@ export default {
       });
     },
 
-    getStatus(args: string) {
-      invoke('get_status', {statusType: args}).then((message) => {
-        this.response = message;
-      }).catch((e) => {
+    async getStatus(args: string) {
+      try {
+        return await invoke('get_status', {statusType: args});
+      }
+      catch (e) {
         if (typeof e == 'string') {
-          this.response = {"error": e};
+          return {"error": e};
         } else {
-          this.response = {"error": JSON.stringify(e)};
+          return {"error": JSON.stringify(e)};
         }
-      });
+      };
     }
   }
 }

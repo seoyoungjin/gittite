@@ -51,7 +51,7 @@ pub fn stage_add_file(repo: &Repository, path: &Path) -> Result<(), git2::Error>
 }
 
 /// stage a removed file
-pub fn stage_remove_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_reset_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
     let mut index = repo.index()?;
 
     index.remove_path(path)?;

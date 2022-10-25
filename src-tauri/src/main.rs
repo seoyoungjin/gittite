@@ -4,6 +4,7 @@
 )]
 
 use crate::app_data::{ArcAppData, AppData};
+use log;
 
 mod app_data;
 mod settings;
@@ -26,6 +27,9 @@ fn error_popup_main_thread(msg: String) {
 }
 
 fn main() {
+  if cfg!(debug_assertions) {
+    env_logger::init();
+  }
   let settings = match settings::Settings::load() {
     Ok(v) => v,
     Err(e) => {
@@ -49,6 +53,7 @@ fn main() {
       git_api::init,
       git_api::open,
       git_api::add,
+      git_api::reset,
       git_api::get_commits,
       git_api::get_status,
     ])

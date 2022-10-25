@@ -30,12 +30,12 @@ pub mod clone;
 pub mod open;
 use open::real_open;
 
-pub mod add;
+pub mod addremove;
 // mv rm restore
 
 // pub mod diff;
-pub mod log;
-pub use self::log::*;
+pub mod revlog;
+pub use self::revlog::*;
 pub mod status;
 pub use self::status::*;
 // show grep
@@ -98,6 +98,7 @@ pub fn open(app_data: AppDataState<'_>) -> Result<(), String> {
 
 #[tauri::command]
 pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+    log::trace!("add() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
     if app_data.repo.is_none() {
@@ -105,7 +106,23 @@ pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     }
     let repo = app_data.repo.as_ref().unwrap();
     let path = Path::new(&args);
-    match add::stage_add_file(repo, path) {
+    match addremove::stage_add_file(repo, path) {
+        Ok(()) => Ok(true),
+        Err(e) => throw!("error: {}", e),
+    }
+}
+
+#[tauri::command]
+pub fn reset(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+    log::trace!("reset() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    if app_data.repo.is_none() {
+        real_open(&mut app_data)?;
+    }
+    let repo = app_data.repo.as_ref().unwrap();
+    let path = Path::new(&args);
+    match addremove::stage_reset_file(repo, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
     }
