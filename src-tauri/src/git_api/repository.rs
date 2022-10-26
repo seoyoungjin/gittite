@@ -39,7 +39,7 @@ impl From<&str> for RepoPath {
 	}
 }
 
-pub fn repo(repo_path: &RepoPath) -> Result<Repository> {
+pub fn repo_open(repo_path: &RepoPath) -> Result<Repository> {
 	let repo = Repository::open_ext(
 		repo_path.gitpath(),
 		RepositoryOpenFlags::empty(),
@@ -83,5 +83,16 @@ mod tests {
         repo_path.workdir = Some(PathBuf::from("./foo/bar"));
         assert_eq!(repo_path.workdir.is_none(), false);
         assert_eq!(repo_path.workdir(), Some(path));
+    }
+
+    #[test]
+    fn test_repo_open() {
+        let mut repo_path = RepoPath::from("/home/yjseo/work/git2-rs/examples");
+
+        let repo = Repository::open(repo_path.gitpath());
+        assert_eq!(repo.is_ok(), false);
+
+        let repo = repo_open(&repo_path);
+        assert_eq!(repo.is_ok(), true);
     }
 }

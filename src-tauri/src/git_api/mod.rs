@@ -28,7 +28,7 @@ pub(crate) fn get_branch_name_repo(
 pub mod init;
 pub mod clone;
 pub mod repository;
-use repository::{real_open, repo, RepoPath};
+use repository::{real_open, RepoPath};
 
 // add remove
 // TODO mv
@@ -56,7 +56,7 @@ pub use self::status::*;
 // pub mod cat-file;
 
 // remote head.oid, head.name (push, fetch)
-// pub mod ls-remote;
+pub mod remote;
 
 // spec revspec
 // pub mod rev-list;

@@ -12,7 +12,7 @@ pub struct Args {
 }
 
 pub fn run(args: &Args) -> Result<(), git2::Error> {
-    let repo = Repository::open(".")?;
+    let repo = Repository::open("/home/yjseo/work/tite")?;
     let remote = &args.arg_remote;
     let mut remote = repo
         .find_remote(remote)
@@ -25,14 +25,17 @@ pub fn run(args: &Args) -> Result<(), git2::Error> {
     // Get the list of references on the remote and print out their name next to
     // what they point to.
     for head in connection.list()?.iter() {
-        println!("{}\t{}", head.oid(), head.name());
+        log::trace!("{}\t{}", head.oid(), head.name());
     }
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    fn main() {
+    use super::*;
+
+    #[test]
+    fn test_remote() {
         let args = Args::from_args();
         match run(&args) {
             Ok(()) => {}

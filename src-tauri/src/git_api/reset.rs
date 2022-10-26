@@ -1,10 +1,10 @@
 use anyhow::Result;
 use git2::{build::CheckoutBuilder, ObjectType};
-use super::repository::{repo, RepoPath};
+use super::repository::{repo_open, RepoPath};
 
 ///
 pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {
-    let repo = repo(repo_path)?;
+    let repo = repo_open(repo_path)?;
     let head = repo.head()?.target();
 
     log::trace!("reset_stage head : {:?}", head);
@@ -20,7 +20,7 @@ pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {
 
 ///
 pub fn reset_workdir(repo_path: &RepoPath, path: &str) -> Result<()> {
-    let repo = repo(repo_path)?;
+    let repo = repo_open(repo_path)?;
 
     let mut checkout_opts = CheckoutBuilder::new();
     checkout_opts
