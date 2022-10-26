@@ -51,10 +51,11 @@ pub fn stage_add_file(repo: &Repository, path: &Path) -> Result<(), git2::Error>
 }
 
 /// stage a removed file
-pub fn stage_reset_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_remove_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
     let mut index = repo.index()?;
 
-    index.remove_path(path)?;
+    let res = index.remove_path(path)?;
+    log::trace!("remove_path : {:?}", res);
     index.write()?;
     Ok(())
 }
@@ -62,20 +63,34 @@ pub fn stage_reset_file(repo: &Repository, path: &Path) -> Result<(), git2::Erro
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::repo_init_empty;
+    use crate::git_api::tests::repo_init;
+    use std::{fs::File, io::Write, path::Path};
 
     #[test]
-    fn test_stage_add_sooke() {
+    fn test_stage_add_smoke() {
         let file_path = Path::new("foo");
-        let (_td, repo) = repo_init_empty().unwrap();
-        // let root = repo.path().parent().unwrap();
-        // let repo_path = root.as_os_str().to_str().unwrap();
-        // let args = Args::from_iter(vec![ "foo" ]);
+        let (_td, repo) = repo_init().unwrap();
+
         let res = stage_add_file(&repo, file_path);
         assert_eq!(res.is_ok(), false);
     }
 
     #[test]
     fn test_stage_remove() {
+        let file_path = Path::new("foo");
+        let (_td, repo) = repo_init().unwrap();
+        let root = repo.path().parent().unwrap();
+
+        File::create(&root.join(file_path))
+            .unwrap()
+            .write_all(b"test file1 content")
+            .unwrap();
+
+        stage_add_file(&repo, file_path).unwrap();
+        // TODO
+        // assert_eq!(get_statuses(repo_path), (1, 0));
+
+        let res = stage_remove_file(&repo, file_path);
+        assert_eq!(res.is_ok(), false);
     }
 }

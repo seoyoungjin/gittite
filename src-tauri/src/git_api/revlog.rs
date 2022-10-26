@@ -6,7 +6,7 @@ use git2::{Error, Pathspec};
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 
-use super::open::real_open;
+use super::repository::real_open;
 use crate::app_data::AppDataState;
 
 // author name <email> date

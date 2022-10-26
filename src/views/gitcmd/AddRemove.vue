@@ -66,15 +66,23 @@ export default {
     }
   },
 
-  async mounted() {
-    this.stagedJson = await this.getStatus('stage');
-    this.unstagedJson = await this.getStatus('workdir');
+  mounted() {
+    this.refreshStatus();
   },
 
   methods: {
+    refreshStatus() {
+      (async () => {
+        this.stagedJson = await this.getStatus('stage');
+        // alert(JSON.stringify(this.stagedJson, null, 4));
+        this.unstagedJson = await this.getStatus('workdir');
+      })();
+    },
+
     onReset() {
       this.file = null;
       this.response = null;
+      this.refreshStatus();
     },
 
     onGitAdd() {
@@ -88,13 +96,12 @@ export default {
           this.response = {"error": JSON.stringify(e)};
         }
       });
-
-      // this.getStatus('stage').them((m) => { this.stagedJson = m;} );;
+      this.refreshStatus();
     },
 
     onGitReset() {
       var name = this.file;
-      git2rs.reset(name).then((message) => {
+      git2rs.resetStage(name).then((message) => {
         this.response = message;
       }).catch((e) => {
         if (typeof e == 'string') {
@@ -103,6 +110,7 @@ export default {
           this.response = {"error": JSON.stringify(e)};
         }
       });
+      this.refreshStatus();
     },
 
     async getStatus(args: string) {

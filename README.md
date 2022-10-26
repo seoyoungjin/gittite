@@ -3,12 +3,6 @@
 Git gui based on tauri framework.
 This is a toy project to study tauri.
 
-## basic knowledge
-
-- rust, tauri
-- js framework i.e. svelte
-- git
-
 ## Schedule
 
 - [ ] decide feature set
@@ -18,18 +12,28 @@ This is a toy project to study tauri.
 ## Todo
 
 - [x] implement simple git command with tauri
-- [x] git history : log and changes
+- [x] one git function i.e. log and changes
 - [ ] all git2 function
 - [ ] test scheme and data
 - [ ] js library and test
 - [ ] frequently use case
+
+## personal goal and basic knowledge
+
+- [x] rust, tauri
+- [x] js framework i.e. vue, svelte, ...
+- [x] git
 
 ## Commands
 
 - `cargo tauri dev` : Start app in dev mode
 - `cargo tauri build`: Build
 
+## Log trace
+
+- `export RUST_LOG=trace`
+- `cargo test -- --nocapture`
+
 ## Misc Commands
 
 - `cargo install --list`
-- `cargo test -- --nocapture`

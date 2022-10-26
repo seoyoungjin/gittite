@@ -33,18 +33,16 @@ sudo npm install -g yarn
 sveltekit, sveltstrap, unocss, smui, carbon, daisyui 등을 시도해 보았다.
 daisyui가 가장 그럴듯한데 이것도 css 속성 같은게 많이 나온다.
 
-포기
-
 ### react
 
-html 을 함수에서 return 한다. 보기 힘들다.
-
-포기
+html 을 함수에서 return 한다. code 읽기 쉽지 않다.
 
 ### vuetify
 
 아직 vue3 미지원
 
-## hot reload
+## Link
 
-- https://medium.com/@marm.nakamura/trying-to-tauri-on-rust-2-hot-reload-38ec1c61341a
+- How to return the result of an asynchronous function in JavaScript
+
+  https://flaviocopes.com/how-to-return-result-asynchronous-function/

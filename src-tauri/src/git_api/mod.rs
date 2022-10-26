@@ -27,11 +27,15 @@ pub(crate) fn get_branch_name_repo(
 // init, clone, open
 pub mod init;
 pub mod clone;
-pub mod open;
-use open::real_open;
+pub mod repository;
+use repository::{real_open, repo, RepoPath};
 
+// add remove
+// TODO mv
 pub mod addremove;
-// mv rm restore
+pub mod reset;
+// reset_stage
+// TODO reset_workdir
 
 // pub mod diff;
 pub mod revlog;
@@ -113,8 +117,8 @@ pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub fn reset(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
-    log::trace!("reset() with : {:?}", args);
+pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+    log::trace!("remove() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
     if app_data.repo.is_none() {
@@ -122,7 +126,21 @@ pub fn reset(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     }
     let repo = app_data.repo.as_ref().unwrap();
     let path = Path::new(&args);
-    match addremove::stage_reset_file(repo, path) {
+    match addremove::stage_remove_file(repo, path) {
+        Ok(()) => Ok(true),
+        Err(e) => throw!("error: {}", e),
+    }
+}
+
+#[tauri::command]
+pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+    log::trace!("reset_stage() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    let git_dir = &app_data.settings.repo;
+    let repo_path = RepoPath::from(git_dir.as_str());
+    let path = args.as_str();
+    match reset::reset_stage(&repo_path, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
     }
@@ -179,11 +197,32 @@ mod tests {
         Ok((td, repo))
     }
 
-    /// Same as `repo_init`, but the repo is a bare repo (--bare)
-    pub fn repo_init_bare() -> Result<(TempDir, Repository)> {
+    ///
+    pub fn repo_init() -> Result<(TempDir, Repository)> {
         init_log();
-        let tmp_repo_dir = TempDir::new()?;
-        let bare_repo = Repository::init_bare(tmp_repo_dir.path())?;
-        Ok((tmp_repo_dir, bare_repo))
+        sandbox_config_files();
+
+        let td = TempDir::new()?;
+        let repo = Repository::init(td.path())?;
+        {
+            let mut config = repo.config()?;
+            config.set_str("user.name", "name")?;
+            config.set_str("user.email", "email")?;
+
+            let mut index = repo.index()?;
+            let id = index.write_tree()?;
+
+            let tree = repo.find_tree(id)?;
+            let sig = repo.signature()?;
+            repo.commit(
+                Some("HEAD"),
+                &sig,
+                &sig,
+                "initial",
+                &tree,
+                &[],
+            )?;
+        }
+        Ok((td, repo))
     }
 }

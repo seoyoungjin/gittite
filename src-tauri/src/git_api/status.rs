@@ -7,7 +7,7 @@ use git2::Repository;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-use super::open::real_open;
+use super::repository::real_open;
 use crate::app_data::AppDataState;
 
 // https://git-scm.com/docs/git-status

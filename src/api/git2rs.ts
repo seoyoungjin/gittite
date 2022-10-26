@@ -5,6 +5,9 @@ export async function add(name): Promise<bool> {
   return invoke('add', {args: name});
 }
 
-export async function reset(name): Promise<bool> {
-  return invoke('reset', {args: name});
+export async function remove(name): Promise<bool> {
+  return invoke('remove', {args: name});
+}
+export async function resetStage(name): Promise<bool> {
+  return invoke('reset_stage', {args: name});
 }

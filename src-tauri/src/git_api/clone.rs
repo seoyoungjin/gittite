@@ -81,14 +81,14 @@ pub fn clone(args: &Args) -> Result<(), git2::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::{repo_init_bare, sandbox_config_files};
+    use crate::git_api::tests::{repo_init, sandbox_config_files};
     use tempfile::TempDir;
 
     #[test]
     fn test_clone() {
         sandbox_config_files();
 
-        let (r1_dir, _repo) = repo_init_bare().unwrap();
+        let (r1_dir, _repo) = repo_init().unwrap();
         let r1_dir = r1_dir.path().to_str().unwrap();
         let td = TempDir::new().unwrap();
         let td_path = td.path().as_os_str().to_str().unwrap();
