@@ -1,45 +1,183 @@
-#![deny(warnings)]
+//!
 
-use git2::{Direction, Repository};
-use structopt::StructOpt;
-use structopt::clap::AppSettings;
+// #![deny(warnings)]
+use anyhow::{anyhow, Error, Result};
+use git2::Repository;
+use super::repository::{repo_open, RepoPath};
 
-#[derive(StructOpt)]
-#[structopt(setting(AppSettings::NoBinaryName))]
-pub struct Args {
-    #[structopt(name = "remote")]
-    arg_remote: String,
+/// origin
+pub const DEFAULT_REMOTE_NAME: &str = "origin";
+
+///
+pub fn get_remotes(repo_path: &RepoPath) -> Result<Vec<String>> {
+	let repo = repo_open(repo_path)?;
+	let remotes = repo.remotes()?;
+	let remotes: Vec<String> =
+		remotes.iter().flatten().map(String::from).collect();
+
+	Ok(remotes)
 }
 
-pub fn run(args: &Args) -> Result<(), git2::Error> {
-    let repo = Repository::open("/home/yjseo/work/tite")?;
-    let remote = &args.arg_remote;
-    let mut remote = repo
-        .find_remote(remote)
-        .or_else(|_| repo.remote_anonymous(remote))?;
+/// tries to find origin or the only remote that is defined if any
+/// in case of multiple remotes and none named *origin* we fail
+pub fn get_default_remote(repo_path: &RepoPath) -> Result<String> {
+	let repo = repo_open(repo_path)?;
+	get_default_remote_in_repo(&repo)
+}
 
-    // Connect to the remote and call the printing function for each of the
-    // remote references.
-    let connection = remote.connect_auth(Direction::Fetch, None, None)?;
+/// see `get_default_remote`
+fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
+	let remotes = repo.remotes()?;
 
-    // Get the list of references on the remote and print out their name next to
-    // what they point to.
-    for head in connection.list()?.iter() {
-        log::trace!("{}\t{}", head.oid(), head.name());
-    }
-    Ok(())
+	// if `origin` exists return that
+	let found_origin = remotes.iter().any(|r| {
+		r.map(|r| r == DEFAULT_REMOTE_NAME).unwrap_or_default()
+	});
+	if found_origin {
+		return Ok(DEFAULT_REMOTE_NAME.into());
+	}
+
+	//if only one remote exists pick that
+	if remotes.len() == 1 {
+		let first_remote = remotes
+			.iter()
+			.next()
+			.flatten()
+			.map(String::from)
+			.ok_or_else(|| {
+				anyhow!("no remote found")
+			})?;
+
+		return Ok(first_remote);
+	}
+
+    // TODO
+	//inconclusive
+	Err(anyhow!("no default remote found"))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+	use super::*;
+	use crate::git_api::tests::{
+		debug_cmd_print, repo_clone, repo_init,
+	};
 
-    #[test]
-    fn test_remote() {
-        let args = Args::from_args();
-        match run(&args) {
-            Ok(()) => {}
-            Err(e) => println!("error: {}", e),
-        }
-    }
+	#[test]
+	fn test_smoke() {
+		let (remote_dir, _remote) = repo_init().unwrap();
+		let remote_path = remote_dir.path().to_str().unwrap();
+		let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
+		let repo_path: &RepoPath = &repo_dir
+			.into_path()
+			.as_os_str()
+			.to_str()
+			.unwrap()
+			.into();
+
+		let remotes = get_remotes(repo_path).unwrap();
+
+		assert_eq!(remotes, vec![String::from("origin")]);
+		// fetch(repo_path, "master", None, None).unwrap();
+	}
+
+	#[test]
+	fn test_default_remote() {
+		let (remote_dir, _remote) = repo_init().unwrap();
+		let remote_path = remote_dir.path().to_str().unwrap();
+		let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
+		let repo_path: &RepoPath = &repo_dir
+			.into_path()
+			.as_os_str()
+			.to_str()
+			.unwrap()
+			.into();
+
+		debug_cmd_print(
+			repo_path,
+			&format!("git remote add second {}", remote_path)[..],
+		);
+
+		let remotes = get_remotes(repo_path).unwrap();
+
+		assert_eq!(
+			remotes,
+			vec![String::from("origin"), String::from("second")]
+		);
+
+        let repo = repo_open(repo_path).unwrap();
+		let first = get_default_remote_in_repo(&repo).unwrap();
+		assert_eq!(first, String::from("origin"));
+	}
+
+	#[test]
+	fn test_default_remote_out_of_order() {
+		let (remote_dir, _remote) = repo_init().unwrap();
+		let remote_path = remote_dir.path().to_str().unwrap();
+		let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
+		let repo_path: &RepoPath = &repo_dir
+			.into_path()
+			.as_os_str()
+			.to_str()
+			.unwrap()
+			.into();
+
+		debug_cmd_print(
+			repo_path,
+			"git remote rename origin alternate",
+		);
+
+		debug_cmd_print(
+			repo_path,
+			&format!("git remote add origin {}", remote_path)[..],
+		);
+
+		//NOTE: aparently remotes are not chronolically sorted but alphabetically
+		let remotes = get_remotes(repo_path).unwrap();
+
+		assert_eq!(
+			remotes,
+			vec![String::from("alternate"), String::from("origin")]
+		);
+
+        let repo = repo_open(repo_path).unwrap();
+		let first = get_default_remote_in_repo(&repo).unwrap();
+		assert_eq!(first, String::from("origin"));
+	}
+
+	#[test]
+	fn test_default_remote_inconclusive() {
+		let (remote_dir, _remote) = repo_init().unwrap();
+		let remote_path = remote_dir.path().to_str().unwrap();
+		let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
+		let repo_path: &RepoPath = &repo_dir
+			.into_path()
+			.as_os_str()
+			.to_str()
+			.unwrap()
+			.into();
+
+		debug_cmd_print(
+			repo_path,
+			"git remote rename origin alternate",
+		);
+
+		debug_cmd_print(
+			repo_path,
+			&format!("git remote add someremote {}", remote_path)[..],
+		);
+
+		let remotes = get_remotes(repo_path).unwrap();
+		assert_eq!(
+			remotes,
+			vec![
+				String::from("alternate"),
+				String::from("someremote")
+			]
+		);
+
+        let repo = repo_open(repo_path).unwrap();
+		let res = get_default_remote_in_repo(&repo);
+		assert_eq!(res.is_err(), true);
+	}
 }

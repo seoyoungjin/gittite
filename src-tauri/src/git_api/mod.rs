@@ -148,8 +148,12 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
 
 #[cfg(test)]
 mod tests {
+    use super::{
+        RepoPath
+    };
     use anyhow::Result;
     use git2::Repository;
+    use std::{path::Path, process::Command};
     use tempfile::TempDir;
 
     // init log
@@ -225,4 +229,59 @@ mod tests {
         }
         Ok((td, repo))
     }
+
+    ///
+    pub fn repo_clone(p: &str) -> Result<(TempDir, Repository)> {
+        sandbox_config_files();
+
+        let td = TempDir::new()?;
+        let td_path = td.path().as_os_str().to_str().unwrap();
+        let repo = Repository::clone(p, td_path).unwrap();
+
+        let mut config = repo.config()?;
+        config.set_str("user.name", "name")?;
+        config.set_str("user.email", "email")?;
+
+        Ok((td, repo))
+    }
+
+
+	///
+	pub fn debug_cmd_print(path: &RepoPath, cmd: &str) {
+		let cmd = debug_cmd(path, cmd);
+		eprintln!("\n----\n{}", cmd);
+	}
+
+	fn debug_cmd(path: &RepoPath, cmd: &str) -> String {
+		let output = if cfg!(target_os = "windows") {
+			Command::new("cmd")
+				.args(&["/C", cmd])
+				.current_dir(path.gitpath())
+				.output()
+				.unwrap()
+		} else {
+			Command::new("sh")
+				.arg("-c")
+				.arg(cmd)
+				.current_dir(path.gitpath())
+				.output()
+				.unwrap()
+		};
+
+		let stdout = String::from_utf8_lossy(&output.stdout);
+		let stderr = String::from_utf8_lossy(&output.stderr);
+		format!(
+			"{}{}",
+			if stdout.is_empty() {
+				String::new()
+			} else {
+				format!("out:\n{}", stdout)
+			},
+			if stderr.is_empty() {
+				String::new()
+			} else {
+				format!("err:\n{}", stderr)
+			}
+		)
+	}
 }

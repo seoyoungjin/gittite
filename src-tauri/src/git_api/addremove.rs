@@ -91,6 +91,6 @@ mod tests {
         // assert_eq!(get_statuses(repo_path), (1, 0));
 
         let res = stage_remove_file(&repo, file_path);
-        assert_eq!(res.is_ok(), false);
+        assert_eq!(res.is_ok(), true);
     }
 }
