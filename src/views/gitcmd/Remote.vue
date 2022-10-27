@@ -2,7 +2,13 @@
   <q-page class="q-ma-lg">
     <h6>Remote</h6>
 
-    <q-btn color="primary" no-caps @click="lsRemote()"> Both</q-btn>
+    <pre>
+$ git remote -v
+origin   https://github.com/... (fetch)
+origin   https://github.com/... (push)
+    </pre>
+
+    <q-btn color="primary" no-caps @click="getRemotes()"> Both</q-btn>
     <br />
     <br />
 
@@ -21,6 +27,7 @@ export default {
   components: {
     VueJsonPretty,
   },
+
   data() {
     return {
       response: null
@@ -28,8 +35,8 @@ export default {
   },
 
   methods: {
-    LsRemote() {
-      invoke('ls-remote').then((message) => {
+    getRemotes() {
+      invoke('get_remotes').then((message) => {
         this.response = message;
       }).catch((e) => {
         if (typeof e == 'string') {

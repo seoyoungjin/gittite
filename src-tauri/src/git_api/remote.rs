@@ -1,7 +1,17 @@
 //!
 
-// #![deny(warnings)]
-use anyhow::{anyhow, Error, Result};
+// $ git remote -v
+// origin	https://github.com/seoyoungjin/gittite.git (fetch)
+// origin	https://github.com/seoyoungjin/gittite.git (push)
+
+// TODO 
+// how to get URL?
+// fetch? push?
+
+#![deny(warnings)]
+#![allow(dead_code)]
+
+use anyhow::{anyhow, Result};
 use git2::Repository;
 use super::repository::{repo_open, RepoPath};
 
@@ -60,7 +70,7 @@ fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
 mod tests {
 	use super::*;
 	use crate::git_api::tests::{
-		debug_cmd_print, repo_clone, repo_init,
+		init_log, debug_cmd_print, repo_clone, repo_init,
 	};
 
 	#[test]
@@ -76,9 +86,7 @@ mod tests {
 			.into();
 
 		let remotes = get_remotes(repo_path).unwrap();
-
 		assert_eq!(remotes, vec![String::from("origin")]);
-		// fetch(repo_path, "master", None, None).unwrap();
 	}
 
 	#[test]
@@ -99,7 +107,6 @@ mod tests {
 		);
 
 		let remotes = get_remotes(repo_path).unwrap();
-
 		assert_eq!(
 			remotes,
 			vec![String::from("origin"), String::from("second")]
@@ -122,11 +129,7 @@ mod tests {
 			.unwrap()
 			.into();
 
-		debug_cmd_print(
-			repo_path,
-			"git remote rename origin alternate",
-		);
-
+		debug_cmd_print(repo_path, "git remote rename origin alternate");
 		debug_cmd_print(
 			repo_path,
 			&format!("git remote add origin {}", remote_path)[..],
@@ -134,7 +137,6 @@ mod tests {
 
 		//NOTE: aparently remotes are not chronolically sorted but alphabetically
 		let remotes = get_remotes(repo_path).unwrap();
-
 		assert_eq!(
 			remotes,
 			vec![String::from("alternate"), String::from("origin")]
@@ -157,11 +159,7 @@ mod tests {
 			.unwrap()
 			.into();
 
-		debug_cmd_print(
-			repo_path,
-			"git remote rename origin alternate",
-		);
-
+		debug_cmd_print(repo_path, "git remote rename origin alternate");
 		debug_cmd_print(
 			repo_path,
 			&format!("git remote add someremote {}", remote_path)[..],

@@ -56,6 +56,7 @@ fn main() {
       git_api::reset_stage,
       git_api::get_commits,
       git_api::get_status,
+      git_api::get_remotes,
     ])
     .run(context)
     .expect("error while running tauri application");

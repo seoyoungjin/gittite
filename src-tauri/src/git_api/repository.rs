@@ -70,6 +70,8 @@ pub fn real_open(app_data: &mut MutexGuard<'_, AppData>) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::git_api::tests::repo_init;
+    use std::fs;
     use std::path::{Path, PathBuf};
 
     #[test]
@@ -87,8 +89,12 @@ mod tests {
 
     #[test]
     fn test_repo_open() {
-        let mut repo_path = RepoPath::from("/home/yjseo/work/git2-rs/examples");
+        let (td, _repo) = repo_init().unwrap();
+        let path = td.path().join("foot");
+        fs::create_dir(&path).unwrap();
+        let repo_path: RepoPath = path.as_os_str().to_str().unwrap().into();
 
+        // subdirectory
         let repo = Repository::open(repo_path.gitpath());
         assert_eq!(repo.is_ok(), false);
 

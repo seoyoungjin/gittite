@@ -33,9 +33,9 @@ use repository::{real_open, RepoPath};
 // add remove
 // TODO mv
 pub mod addremove;
-pub mod reset;
 // reset_stage
 // TODO reset_workdir
+pub mod reset;
 
 // pub mod diff;
 pub mod revlog;
@@ -55,7 +55,6 @@ pub use self::status::*;
 // sig tree tag commit blob
 // pub mod cat-file;
 
-// remote head.oid, head.name (push, fetch)
 pub mod remote;
 
 // spec revspec
@@ -146,18 +145,28 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
     }
 }
 
+#[tauri::command]
+pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
+    let mut app_data = app_data.0.lock().unwrap();
+
+    let git_dir = &app_data.settings.repo;
+    let repo_path = RepoPath::from(git_dir.as_str());
+    match remote::get_remotes(&repo_path) {
+        Ok(v) => Ok(v),
+        Err(e) => throw!("error: {}", e),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{
-        RepoPath
-    };
+    use super::RepoPath;
     use anyhow::Result;
     use git2::Repository;
     use std::{path::Path, process::Command};
     use tempfile::TempDir;
 
     // init log
-    fn init_log() {
+    pub fn init_log() {
         let _ = env_logger::builder()
             .is_test(true)
             .filter_level(log::LevelFilter::Trace)
