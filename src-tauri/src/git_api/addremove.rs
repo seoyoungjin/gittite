@@ -63,7 +63,8 @@ pub fn stage_remove_file(repo: &Repository, path: &Path) -> Result<(), git2::Err
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::repo_init;
+    use crate::git_api::repository::RepoPath;
+    use crate::git_api::tests::{get_statuses, repo_init};
     use std::{fs::File, io::Write, path::Path};
 
     #[test]
@@ -76,21 +77,21 @@ mod tests {
     }
 
     #[test]
-    fn test_stage_remove() {
-        let file_path = Path::new("foo");
+    fn test_stage_one_file() {
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))
-            .unwrap()
-            .write_all(b"test file1 content")
-            .unwrap();
+        let file_path = Path::new("foo");
+        File::create(&root.join(file_path)).unwrap()
+            .write_all(b"test file1 content").unwrap();
+        File::create(&root.join(Path::new("file2.txt"))).unwrap()
+            .write_all(b"test file2 content").unwrap();
+
+        assert_eq!(get_statuses(repo_path), (2, 0));
 
         stage_add_file(&repo, file_path).unwrap();
-        // TODO
-        // assert_eq!(get_statuses(repo_path), (1, 0));
-
-        let res = stage_remove_file(&repo, file_path);
-        assert_eq!(res.is_ok(), true);
+        assert_eq!(get_statuses(repo_path), (1, 1));
     }
 }

@@ -1,8 +1,12 @@
 //! Git API
 
-use anyhow::{anyhow,Result};
+// TODO
+// pub type Result<T> = std::result::Result<T, String>;
+
+use anyhow::anyhow;
 use std::path::Path;
 use git2::Repository;
+use git2::{Status, StatusOptions, StatusShow};
 use structopt::StructOpt;
 
 use crate::throw;
@@ -11,7 +15,7 @@ use crate::app_data::AppDataState;
 /// ditto
 pub(crate) fn get_branch_name_repo(
     repo: &Repository,
-) -> Result<String> {
+) -> Result<String, anyhow::Error> {
     let iter = repo.branches(None)?;
 
     for b in iter {
@@ -39,9 +43,9 @@ pub mod reset;
 
 // pub mod diff;
 pub mod revlog;
-pub use self::revlog::*;
+use revlog::CommitData;
 pub mod status;
-pub use self::status::*;
+use status::StatusItem;
 // show grep
 
 // branch commit merge rebase reset switch tag
@@ -63,7 +67,7 @@ pub mod remote;
 
 #[tauri::command]
 pub fn init(args: Vec<String>) -> Result<String, String> {
-    println!("init args {:?}", args);
+    log::trace!("init args {:?}", args);
     let opt = init::Args::from_iter(args);
     match init::init(&opt) {
         Ok(_repo) => Ok("Initialized empty Git repository".to_string()),
@@ -78,7 +82,7 @@ struct Payload {
 
 #[tauri::command]
 pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
-    println!("clone args {:?}", args);
+    log::trace!("clone args {:?}", args);
     let opt = clone::Args::from_iter(args);
 
     // TODO can use for progress?
@@ -97,6 +101,51 @@ pub fn open(app_data: AppDataState<'_>) -> Result<(), String> {
 
     real_open(&mut app_data)?;
     Ok(())
+}
+
+#[tauri::command]
+pub fn get_status(
+    status_type: String,
+    app_data: AppDataState<'_>
+) -> Result<Vec<StatusItem>, String> {
+    let mut app_data = app_data.0.lock().unwrap();
+
+    if app_data.repo.is_none() {
+        real_open(&mut app_data)?;
+    }
+
+    let status_show = match status_type.as_str() {
+        "stage" => StatusShow::Index,
+        "workdir" => StatusShow::Workdir,
+        _ => StatusShow::IndexAndWorkdir,
+    };
+
+    // TODO
+    let git_dir = &app_data.settings.repo;
+    let repo_path = RepoPath::from(git_dir.as_str());
+    match status::get_status(&repo_path, status_show) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(format!("error: {}", e)),
+    }
+}
+
+#[tauri::command]
+pub fn get_commits(
+    args: Vec<String>,
+    app_data: AppDataState<'_>
+) -> Result<Vec<CommitData>, String> {
+    log::trace!("get_commits:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    if app_data.repo.is_none() {
+        real_open(&mut app_data)?;
+    }
+    let repo = app_data.repo.as_ref().unwrap();
+    let opt = revlog::Args::from_iter(args);
+    match revlog::get_commits(repo, &opt) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(format!("error: {}", e)),
+    }
 }
 
 #[tauri::command]
@@ -160,9 +209,11 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
 #[cfg(test)]
 mod tests {
     use super::RepoPath;
+    use super::status::get_status;
+
     use anyhow::Result;
-    use git2::Repository;
-    use std::{path::Path, process::Command};
+    use git2::{Repository, StatusShow};
+    use std::process::Command;
     use tempfile::TempDir;
 
     // init log
@@ -254,43 +305,50 @@ mod tests {
         Ok((td, repo))
     }
 
+    /// helper returning amount of files with changes in the (wd,stage)
+    pub fn get_statuses(repo_path: &RepoPath) -> (usize, usize) {
+        (
+            get_status(repo_path, StatusShow::Workdir).unwrap().len(),
+            get_status(repo_path, StatusShow::Index).unwrap().len()
+        )
+    }
 
-	///
-	pub fn debug_cmd_print(path: &RepoPath, cmd: &str) {
-		let cmd = debug_cmd(path, cmd);
-		eprintln!("\n----\n{}", cmd);
-	}
+    ///
+    pub fn debug_cmd_print(path: &RepoPath, cmd: &str) {
+        let cmd = debug_cmd(path, cmd);
+        eprintln!("\n----\n{}", cmd);
+    }
 
-	fn debug_cmd(path: &RepoPath, cmd: &str) -> String {
-		let output = if cfg!(target_os = "windows") {
-			Command::new("cmd")
-				.args(&["/C", cmd])
-				.current_dir(path.gitpath())
-				.output()
-				.unwrap()
-		} else {
-			Command::new("sh")
-				.arg("-c")
-				.arg(cmd)
-				.current_dir(path.gitpath())
-				.output()
-				.unwrap()
-		};
+    fn debug_cmd(path: &RepoPath, cmd: &str) -> String {
+        let output = if cfg!(target_os = "windows") {
+            Command::new("cmd")
+                .args(&["/C", cmd])
+                .current_dir(path.gitpath())
+                .output()
+                .unwrap()
+        } else {
+            Command::new("sh")
+                .arg("-c")
+                .arg(cmd)
+                .current_dir(path.gitpath())
+                .output()
+                .unwrap()
+        };
 
-		let stdout = String::from_utf8_lossy(&output.stdout);
-		let stderr = String::from_utf8_lossy(&output.stderr);
-		format!(
-			"{}{}",
-			if stdout.is_empty() {
-				String::new()
-			} else {
-				format!("out:\n{}", stdout)
-			},
-			if stderr.is_empty() {
-				String::new()
-			} else {
-				format!("err:\n{}", stderr)
-			}
-		)
-	}
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        format!(
+            "{}{}",
+            if stdout.is_empty() {
+                String::new()
+            } else {
+                format!("out:\n{}", stdout)
+            },
+            if stderr.is_empty() {
+                String::new()
+            } else {
+                format!("err:\n{}", stderr)
+            }
+        )
+    }
 }

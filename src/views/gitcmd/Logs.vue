@@ -32,7 +32,7 @@ export default {
 
   methods: {
     getCommits() {
-      invoke('get_commits').then((message) => {
+      invoke('get_commits', {args: []}).then((message) => {
         // alert("Got response. Iterationg....");
         this.response = message;
       }).catch((e) => {

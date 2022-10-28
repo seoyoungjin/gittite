@@ -5,13 +5,15 @@ use super::repository::{repo_open, RepoPath};
 ///
 pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {
     let repo = repo_open(repo_path)?;
-    let head = repo.head()?.target();
-
-    log::trace!("reset_stage head : {:?}", head);
-    if let Some(head_id) = head {
-        let o = repo.find_object(head_id, Some(ObjectType::Commit))?;
-        repo.reset_default(Some(&o), [path])?;
+    if repo.head().is_ok() {
+        let head = repo.head()?.target();
+        log::trace!("reset_stage head : {:?}", head);
+        if let Some(head_id) = head {
+            let o = repo.find_object(head_id, Some(ObjectType::Commit))?;
+            repo.reset_default(Some(&o), [path])?;
+        }
     } else {
+        log::trace!("reset_stage empty head");
         repo.reset_default(None, [path])?;
     }
 
@@ -36,12 +38,33 @@ pub fn reset_workdir(repo_path: &RepoPath, path: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::{Path, PathBuf};
+    use crate::git_api::tests::{get_statuses, repo_init_empty};
+    use crate::git_api::addremove::stage_add_file;
+    use std::{fs::File, io::Write, path::Path};
+    // tODO
+    use crate::git_api::repository::{repo_open, RepoPath};
 
     #[test]
-    fn test_reset_stage() {
-        // let mut repo_path = RepoPath::from("...");
-        // reset_stage(&repo_path, "test.txt");
-        // get_status()
+    fn test_unstage_in_empty_repo() {
+        let file_path = Path::new("foo.txt");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))
+            .unwrap()
+            .write_all(b"test\nfoo")
+            .unwrap();
+        assert_eq!(get_statuses(repo_path), (1, 0));
+
+        // TODO
+        let repo = repo_open(repo_path).unwrap();
+        stage_add_file(&repo, file_path).unwrap();
+        // stage_add_file(repo_path, file_path).unwrap();
+        assert_eq!(get_statuses(repo_path), (0, 1));
+
+        reset_stage(repo_path, file_path.to_str().unwrap()).unwrap();
+        assert_eq!(get_statuses(repo_path), (1, 0));
     }
 }

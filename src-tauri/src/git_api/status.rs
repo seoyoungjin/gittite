@@ -1,37 +1,17 @@
 // #![deny(warnings)]
 
-use crate::throw;
+use super::repository::{repo_open, RepoPath};
 use anyhow::{anyhow, Result};
 use git2::{Status, StatusOptions, StatusShow};
-use git2::Repository;
-use serde::{Deserialize, Serialize};
 use std::path::Path;
-
-use super::repository::real_open;
-use crate::app_data::AppDataState;
+use serde::{Deserialize, Serialize};
 
 // https://git-scm.com/docs/git-status
 
-// TOTO
+// TOOO
 // - untracked file
 // - branch name
 // - submodule
-
-/// the result from 'git status'
-#[derive(Serialize, Deserialize)]
-pub struct StatusResult {
-    /// current branch
-    pub branch: String,
-    /// current upstream branch
-    // pub upstream_branch: String,
-    /// tip commit of the current branch
-    // pub tip: String,
-    /// how many commits ahead and behind
-    // pub branch_ahead: i32,
-    // pub branch_behind: i32,
-    /// working directory status
-    pub working_dir: Vec<StatusItem>,
-}
 
 /// StatusItemType
 #[derive(Serialize, Deserialize)]
@@ -71,14 +51,30 @@ pub struct StatusItem {
     pub status: StatusItemType,
 }
 
-fn run(repo: &Repository, opts: &mut StatusOptions) -> Result<StatusResult> {
-    let statuses = repo.statuses(Some(opts))?;
+// TODO show_untracked: Option<ShowUntrackedFilesConfig>,
+/// gurantees sorting
+pub fn get_status(
+    repo_path: &RepoPath,
+    status_show: StatusShow
+) -> Result<Vec<StatusItem>> {
+    let repo = repo_open(repo_path)?;
+    if repo.is_bare() && !repo.is_worktree() {
+        return Ok(Vec::new());
+    }
 
-    // branch name
-    let branch = super::get_branch_name_repo(repo)?;
+    let mut opts = StatusOptions::default();
+    opts.show(status_show);
+    opts.update_index(true);
+    opts.renames_head_to_index(true);
+    opts.include_ignored(false);
+    opts.include_untracked(true);
+    opts.recurse_untracked_dirs(true);
+    opts.exclude_submodules(true);
+
+    let statuses = repo.statuses(Some(&mut opts))?;
 
     // directory status
-    let mut wds = Vec::with_capacity(statuses.len());
+    let mut res = Vec::with_capacity(statuses.len());
     for e in statuses.iter() {
         let status: Status = e.status();
 
@@ -95,53 +91,15 @@ fn run(repo: &Repository, opts: &mut StatusOptions) -> Result<StatusResult> {
                 .ok_or_else(|| anyhow!("failed to get the path to indexed file."))?,
         };
 
-        wds.push(StatusItem {
+        res.push(StatusItem {
             path,
             status: StatusItemType::from(status),
         });
     }
 
-    wds.sort_by(|a, b| Path::new(a.path.as_str()).cmp(Path::new(b.path.as_str())));
+    res.sort_by(|a, b| {
+        Path::new(a.path.as_str()).cmp(Path::new(b.path.as_str()))
+    });
 
-    let response = StatusResult {
-        branch: branch,
-        working_dir: wds,
-    };
-    Ok(response)
-}
-
-#[tauri::command]
-pub fn get_status(
-    status_type: String,
-    app_data: AppDataState<'_>
-) -> Result<StatusResult, String> {
-    let mut app_data = app_data.0.lock().unwrap();
-
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-    let repo = app_data.repo.as_ref().unwrap();
-    if repo.is_bare() {
-        throw!("cannot report status on bare repository");
-    }
-
-    let status_show = match status_type.as_str() {
-        "stage" => StatusShow::Index,
-        "workdir" => StatusShow::Workdir,
-        _ => StatusShow::IndexAndWorkdir,
-    };
-
-    let mut opts = StatusOptions::default();
-    opts.show(status_show);
-    opts.update_index(true);
-    opts.renames_head_to_index(true);
-    opts.include_ignored(false);
-    opts.include_untracked(true);
-    opts.recurse_untracked_dirs(true);
-    opts.exclude_submodules(true);
-
-    match run(repo, &mut opts) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(format!("error: {}", e)),
-    }
+    Ok(res)
 }

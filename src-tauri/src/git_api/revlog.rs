@@ -4,10 +4,8 @@
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{Error, Pathspec};
 use serde::{Deserialize, Serialize};
+use structopt::clap::AppSettings;
 use structopt::StructOpt;
-
-use super::repository::real_open;
-use crate::app_data::AppDataState;
 
 // author name <email> date
 //   author().name(), author().email(), author.when()
@@ -31,7 +29,8 @@ pub struct CommitData {
 }
 
 #[derive(StructOpt)]
-struct Args {
+#[structopt(setting(AppSettings::NoBinaryName))]
+pub struct Args {
     #[structopt(name = "topo-order", long)]
     /// sort commits in topological order
     flag_topo_order: bool,
@@ -80,7 +79,7 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-fn run(repo: &Repository, args: &Args) -> Result<Vec<CommitData>, Error> {
+pub fn get_commits(repo: &Repository, args: &Args) -> Result<Vec<CommitData>, Error> {
     let mut revwalk = repo.revwalk()?;
 
     // Prepare the revwalk based on CLI parameters
@@ -280,20 +279,5 @@ impl Args {
         }
         self.flag_max_parents
             .or(if self.flag_no_merges { Some(1) } else { None })
-    }
-}
-
-#[tauri::command]
-pub async fn get_commits(app_data: AppDataState<'_>) -> Result<Vec<CommitData>, String> {
-    let mut app_data = app_data.0.lock().unwrap();
-
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-    let repo = app_data.repo.as_ref().unwrap();
-    let args = Args::from_args();
-    match run(repo, &args) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(format!("error: {}", e)),
     }
 }

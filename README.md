@@ -34,6 +34,12 @@ This is a toy project to study tauri.
 - `export RUST_LOG=trace`
 - `cargo test -- --nocapture`
 
+## Ref
+
+- tauri
+- git2-rs
+- gitui
+
 ## Misc Commands
 
 - `cargo install --list`

@@ -70,7 +70,7 @@ fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
 mod tests {
 	use super::*;
 	use crate::git_api::tests::{
-		init_log, debug_cmd_print, repo_clone, repo_init,
+		debug_cmd_print, repo_clone, repo_init,
 	};
 
 	#[test]

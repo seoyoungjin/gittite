@@ -4,6 +4,8 @@
 )]
 
 use crate::app_data::{ArcAppData, AppData};
+use tauri::Manager;
+use tauri::{Size, PhysicalSize};
 
 mod app_data;
 mod settings;
@@ -58,6 +60,11 @@ fn main() {
       git_api::get_status,
       git_api::get_remotes,
     ])
+    .setup(|app| {
+      let win = app.get_window("main").unwrap();
+      win.set_size(Size::Physical(PhysicalSize{width: 900, height: 800})).unwrap();
+      Ok(())
+    })
     .run(context)
     .expect("error while running tauri application");
 }
