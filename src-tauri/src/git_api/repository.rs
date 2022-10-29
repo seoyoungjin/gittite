@@ -1,12 +1,7 @@
 //#![deny(warnings)]
 
-use anyhow::Result;
-use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use git2::{Repository, RepositoryOpenFlags};
-
-///
-pub type RepoPathRef = RefCell<RepoPath>;
 
 ///
 #[derive(Clone, Debug)]
@@ -39,7 +34,7 @@ impl From<&str> for RepoPath {
 	}
 }
 
-pub fn repo_open(repo_path: &RepoPath) -> Result<Repository> {
+pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
 	let repo = Repository::open_ext(
 		repo_path.gitpath(),
 		RepositoryOpenFlags::empty(),
@@ -51,20 +46,6 @@ pub fn repo_open(repo_path: &RepoPath) -> Result<Repository> {
 	}
 
 	Ok(repo)
-}
-
-// TODO
-use crate::app_data::AppData;
-use std::sync::MutexGuard;
-
-pub fn real_open(app_data: &mut MutexGuard<'_, AppData>) -> Result<(), String> {
-    let git_dir = &app_data.settings.repo;
-    let repo = match Repository::open(git_dir) {
-        Ok(v) => v,
-        Err(e) => return Err(format!("error: {}", e)),
-    };
-    app_data.repo = Some(repo);
-    Ok(())
 }
 
 #[cfg(test)]

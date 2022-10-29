@@ -5,12 +5,12 @@
 
 use anyhow::anyhow;
 use std::path::Path;
-use git2::Repository;
-use git2::{Status, StatusOptions, StatusShow};
+use git2::{Repository, StatusShow};
 use structopt::StructOpt;
 
 use crate::throw;
-use crate::app_data::AppDataState;
+use crate::app_data::{AppData, AppDataState};
+use std::sync::MutexGuard;
 
 /// ditto
 pub(crate) fn get_branch_name_repo(
@@ -32,7 +32,7 @@ pub(crate) fn get_branch_name_repo(
 pub mod init;
 pub mod clone;
 pub mod repository;
-use repository::{real_open, RepoPath};
+use repository::RepoPath;
 
 // add remove
 // TODO mv
@@ -64,6 +64,14 @@ pub mod remote;
 // spec revspec
 // pub mod rev-list;
 // pub mod rev-parse;
+
+fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
+    if app_data.repo_path.is_none() {
+        let repo_path = app_data.settings.repo.as_str().into();
+        log::trace!("repo_path: {:?}", repo_path);
+        app_data.repo_path = Some(repo_path);
+    }
+}
 
 #[tauri::command]
 pub fn init(args: Vec<String>) -> Result<String, String> {
@@ -99,7 +107,7 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
 pub fn open(app_data: AppDataState<'_>) -> Result<(), String> {
     let mut app_data = app_data.0.lock().unwrap();
 
-    real_open(&mut app_data)?;
+    // TODO
     Ok(())
 }
 
@@ -110,20 +118,13 @@ pub fn get_status(
 ) -> Result<Vec<StatusItem>, String> {
     let mut app_data = app_data.0.lock().unwrap();
 
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-
+    verify_repo_path(&mut app_data);
     let status_show = match status_type.as_str() {
         "stage" => StatusShow::Index,
         "workdir" => StatusShow::Workdir,
         _ => StatusShow::IndexAndWorkdir,
     };
-
-    // TODO
-    let git_dir = &app_data.settings.repo;
-    let repo_path = RepoPath::from(git_dir.as_str());
-    match status::get_status(&repo_path, status_show) {
+    match status::get_status(app_data.repo_path_ref(), status_show) {
         Ok(v) => Ok(v),
         Err(e) => Err(format!("error: {}", e)),
     }
@@ -137,12 +138,10 @@ pub fn get_commits(
     log::trace!("get_commits:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-    let repo = app_data.repo.as_ref().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
     let opt = revlog::Args::from_iter(args);
-    match revlog::get_commits(repo, &opt) {
+    match revlog::get_commits(repo_path, &opt) {
         Ok(v) => Ok(v),
         Err(e) => Err(format!("error: {}", e)),
     }
@@ -153,12 +152,11 @@ pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     log::trace!("add() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-    let repo = app_data.repo.as_ref().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
     let path = Path::new(&args);
-    match addremove::stage_add_file(repo, path) {
+
+    match addremove::stage_add_file(repo_path, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
     }
@@ -169,12 +167,11 @@ pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> 
     log::trace!("remove() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
-    if app_data.repo.is_none() {
-        real_open(&mut app_data)?;
-    }
-    let repo = app_data.repo.as_ref().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
     let path = Path::new(&args);
-    match addremove::stage_remove_file(repo, path) {
+
+    match addremove::stage_remove_file(repo_path, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
     }
@@ -185,10 +182,10 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
     log::trace!("reset_stage() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
-    let git_dir = &app_data.settings.repo;
-    let repo_path = RepoPath::from(git_dir.as_str());
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
     let path = args.as_str();
-    match reset::reset_stage(&repo_path, path) {
+    match reset::reset_stage(repo_path, path) {
         Ok(()) => Ok(true),
         Err(e) => throw!("error: {}", e),
     }
@@ -198,9 +195,9 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
 pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
     let mut app_data = app_data.0.lock().unwrap();
 
-    let git_dir = &app_data.settings.repo;
-    let repo_path = RepoPath::from(git_dir.as_str());
-    match remote::get_remotes(&repo_path) {
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match remote::get_remotes(repo_path) {
         Ok(v) => Ok(v),
         Err(e) => throw!("error: {}", e),
     }

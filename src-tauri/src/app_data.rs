@@ -1,14 +1,13 @@
 use crate::settings::Settings;
+use crate::git_api::repository::RepoPath;
 
 use std::sync::{Arc, Mutex};
 use tauri::State;
 use serde_json::Value;
-use git2::Repository;
 
 pub struct AppData {
   pub settings: Settings,
-  pub repo: Option<Repository>,
-  // pub paths: AppPaths,
+  pub repo_path: Option<RepoPath>,
 }
 
 impl AppData {
@@ -21,6 +20,10 @@ impl AppData {
       Ok(_v) => Ok(()),
       Err(e) => Err(format!("{}", e)),
     }
+  }
+
+  pub fn repo_path_ref(&self) -> &RepoPath {
+    self.repo_path.as_ref().unwrap()
   }
 }
 

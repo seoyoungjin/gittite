@@ -41,7 +41,7 @@ fn main() {
 
   let app_data = AppData {
     settings: settings,
-    repo: None,
+    repo_path: None,
   };
 
   let context = tauri::generate_context!();

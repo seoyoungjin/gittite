@@ -41,8 +41,7 @@ mod tests {
     use crate::git_api::tests::{get_statuses, repo_init_empty};
     use crate::git_api::addremove::stage_add_file;
     use std::{fs::File, io::Write, path::Path};
-    // tODO
-    use crate::git_api::repository::{repo_open, RepoPath};
+    use crate::git_api::repository::RepoPath;
 
     #[test]
     fn test_unstage_in_empty_repo() {
@@ -58,10 +57,7 @@ mod tests {
             .unwrap();
         assert_eq!(get_statuses(repo_path), (1, 0));
 
-        // TODO
-        let repo = repo_open(repo_path).unwrap();
-        stage_add_file(&repo, file_path).unwrap();
-        // stage_add_file(repo_path, file_path).unwrap();
+        stage_add_file(repo_path, file_path).unwrap();
         assert_eq!(get_statuses(repo_path), (0, 1));
 
         reset_stage(repo_path, file_path.to_str().unwrap()).unwrap();

@@ -1,6 +1,7 @@
 // TODO
 // #![deny(warnings)]
 
+use super::repository::{repo_open, RepoPath};
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{Error, Pathspec};
 use serde::{Deserialize, Serialize};
@@ -79,7 +80,8 @@ pub struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn get_commits(repo: &Repository, args: &Args) -> Result<Vec<CommitData>, Error> {
+pub fn get_commits(repo_path: &RepoPath, args: &Args) -> Result<Vec<CommitData>, Error> {
+    let repo = repo_open(repo_path)?;
     let mut revwalk = repo.revwalk()?;
 
     // Prepare the revwalk based on CLI parameters

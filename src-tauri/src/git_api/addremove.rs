@@ -16,7 +16,7 @@
 // #![deny(warnings)]
 // #![allow(trivial_casts)]
 
-use git2::Repository;
+use super::repository::{repo_open, RepoPath};
 use std::path::Path;
 use structopt::StructOpt;
 
@@ -29,7 +29,8 @@ pub struct Args {
     flag_update: bool,
 }
 
-pub fn stage_add_all(repo: &Repository, args: &Args) -> Result<(), git2::Error> {
+pub fn stage_add_all(repo_path: &RepoPath, args: &Args) -> Result<(), git2::Error> {
+    let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 
     if args.flag_update {
@@ -42,7 +43,8 @@ pub fn stage_add_all(repo: &Repository, args: &Args) -> Result<(), git2::Error> 
 }
 
 /// add a file diff from workingdir to stage
-pub fn stage_add_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_add_file(repo_path: &RepoPath, path: &Path) -> Result<(), git2::Error> {
+    let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 
     index.add_path(path)?;
@@ -51,7 +53,8 @@ pub fn stage_add_file(repo: &Repository, path: &Path) -> Result<(), git2::Error>
 }
 
 /// stage a removed file
-pub fn stage_remove_file(repo: &Repository, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_remove_file(repo_path: &RepoPath, path: &Path) -> Result<(), git2::Error> {
+    let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 
     let res = index.remove_path(path)?;
@@ -71,8 +74,11 @@ mod tests {
     fn test_stage_add_smoke() {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
 
-        let res = stage_add_file(&repo, file_path);
+        let res = stage_add_file(repo_path, file_path);
         assert_eq!(res.is_ok(), false);
     }
 
@@ -91,7 +97,7 @@ mod tests {
 
         assert_eq!(get_statuses(repo_path), (2, 0));
 
-        stage_add_file(&repo, file_path).unwrap();
+        stage_add_file(repo_path, file_path).unwrap();
         assert_eq!(get_statuses(repo_path), (1, 1));
     }
 }
