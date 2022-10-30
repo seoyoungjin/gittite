@@ -1,56 +1,72 @@
 <script lang="ts">
+import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
-import { configDir } from '@tauri-apps/api/path';
-import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
-
-let jsonData = await invoke('get_settings');
-/* TODO
-invoke('get_settings')
-  .then(function(data) {
-    jsonData = data;
-  })
-  .catch(function(error) {
-    jsonData = { error: error };
-  });
-  */
-
-var jsonData2 = await readTextFile('gittite/settings.json', { dir: BaseDirectory.Config});
-/*
-readTextFile('gittite/settings.json', { dir: BaseDirectory.Config})
-  .then(function(data) {
-    alert(data);
-    jsonData2 = JSON.parse(data);
-  }).catch(function(err) {
-    jsonData2 = { "error": err };
-  });
-  */
 
 export default {
   data() {
     return {
-      jsonData: jsonData,
-      jsonData2: jsonData2,
+      jsonData: null,
+      jsonData2: null,
     }
+  },
+  components: {
+    VueJsonPretty,
+  },
+  methods: {
+    async readSettings() {
+      var data = await readTextFile(
+        'gittite/settings.json',
+        { dir: BaseDirectory.Config}
+      );
+      return JSON.parse(data);
+    }
+  },
+  async mounted() {
+    this.jsonData = await invoke('get_settings');
+    this.jsonData2 = await this.readSettings();
   }
 }
 </script>
 
 <template>
+  <q-page class="q-ma-lg">
+    <h5>Git Stash</h5>
 
-<h5> Settings </h5>
+    Stash the changes in a dirty working directory away
 
-We can read settings file with two methods.
-<br />
-<br />
-1. rust with tauri command
-<br />
-2. javascript using "@tauri-apps/api/fs"
+    stashing your work
+    <pre>
+git stash
+git save [message]
+    </pre>
 
-<h6> 1. via tauri::command </h6>
-<json-viewer :value="jsonData"></json-viewer>
-<br />
+    list
+    <pre>
+git stash list
+    </pre>
 
-<h6> 2. with Javascript </h6>
-<json-viewer :value="jsonData2"></json-viewer>
+    view stash diff
+    <pre>
+git stash show
+git stash show -p
+    </pre>
 
+    creating a branch from your stash
+    <pre>
+git stash branch [branchnamel [stash]
+    </pre>
+    
+    cleaning up your stash
+    <pre>
+git stash drop [stash]
+git stash clear
+    </pre>
+
+    re-applying your stashed changes
+    <pre>
+git stash [pop | apply] [stash]
+    </pre>
+
+  </q-page>
 </template>

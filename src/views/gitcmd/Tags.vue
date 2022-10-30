@@ -1,56 +1,82 @@
 <script lang="ts">
+import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
-import { configDir } from '@tauri-apps/api/path';
-import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
-
-let jsonData = await invoke('get_settings');
-/* TODO
-invoke('get_settings')
-  .then(function(data) {
-    jsonData = data;
-  })
-  .catch(function(error) {
-    jsonData = { error: error };
-  });
-  */
-
-var jsonData2 = await readTextFile('gittite/settings.json', { dir: BaseDirectory.Config});
-/*
-readTextFile('gittite/settings.json', { dir: BaseDirectory.Config})
-  .then(function(data) {
-    alert(data);
-    jsonData2 = JSON.parse(data);
-  }).catch(function(err) {
-    jsonData2 = { "error": err };
-  });
-  */
 
 export default {
   data() {
     return {
-      jsonData: jsonData,
-      jsonData2: jsonData2,
+      jsonData: null,
+      jsonData2: null,
     }
+  },
+  components: {
+    VueJsonPretty,
+  },
+  methods: {
+    async readSettings() {
+      var data = await readTextFile(
+        'gittite/settings.json',
+        { dir: BaseDirectory.Config}
+      );
+      return JSON.parse(data);
+    }
+  },
+  async mounted() {
+    this.jsonData = await invoke('get_settings');
+    this.jsonData2 = await this.readSettings();
   }
 }
 </script>
 
 <template>
+  <q-page class="q-ma-lg">
+    <h5>Git Tag</h5>
 
-<h5> Settings </h5>
+    creating a tag
+    <pre>
+git tag [tagname]
+    </pre>
 
-We can read settings file with two methods.
-<br />
-<br />
-1. rust with tauri command
-<br />
-2. javascript using "@tauri-apps/api/fs"
+    annotated tag
+    <pre>
+git tag -a v1.4 -m "my version 1.4"
+    </pre>
 
-<h6> 1. via tauri::command </h6>
-<json-viewer :value="jsonData"></json-viewer>
-<br />
+    list tag
+    <pre>
+git tag
+    </pre>
 
-<h6> 2. with Javascript </h6>
-<json-viewer :value="jsonData2"></json-viewer>
+    tagging old commits
+    <pre>
+git tag [tagname] [commit hash]
+    </pre>
 
+    retagging/replacing old tags
+    <pre>
+git tag -a -f v1.4 15027957951
+    </pre>
+
+    push tags to remote
+    <pre>
+git push origin v1.4
+    </pre>
+
+    checkout tag
+    <pre>
+git checkout v1.4
+    </pre>
+
+    delete tag
+    <pre>
+git tag -d [tagname]
+    </pre>
+
+    filttering tags
+    <pre>
+git tag -l [pattern]
+    </pre>
+
+  </q-page>
 </template>

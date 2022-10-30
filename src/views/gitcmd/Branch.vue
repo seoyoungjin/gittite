@@ -1,56 +1,59 @@
 <script lang="ts">
+import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
-import { configDir } from '@tauri-apps/api/path';
-import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
-
-let jsonData = await invoke('get_settings');
-/* TODO
-invoke('get_settings')
-  .then(function(data) {
-    jsonData = data;
-  })
-  .catch(function(error) {
-    jsonData = { error: error };
-  });
-  */
-
-var jsonData2 = await readTextFile('gittite/settings.json', { dir: BaseDirectory.Config});
-/*
-readTextFile('gittite/settings.json', { dir: BaseDirectory.Config})
-  .then(function(data) {
-    alert(data);
-    jsonData2 = JSON.parse(data);
-  }).catch(function(err) {
-    jsonData2 = { "error": err };
-  });
-  */
 
 export default {
   data() {
     return {
-      jsonData: jsonData,
-      jsonData2: jsonData2,
+      jsonData: null,
+      jsonData2: null,
     }
+  },
+  components: {
+    VueJsonPretty,
+  },
+  methods: {
+    async readSettings() {
+      var data = await readTextFile(
+        'gittite/settings.json',
+        { dir: BaseDirectory.Config}
+      );
+      return JSON.parse(data);
+    }
+  },
+  async mounted() {
+    this.jsonData = await invoke('get_settings');
+    this.jsonData2 = await this.readSettings();
   }
 }
 </script>
 
 <template>
+  <q-page class="q-ma-lg">
+    <h5>Git Branch</h5>
 
-<h5> Settings </h5>
+    create a branch
+    <pre>
+git branch [branchname]
+    </pre>
 
-We can read settings file with two methods.
-<br />
-<br />
-1. rust with tauri command
-<br />
-2. javascript using "@tauri-apps/api/fs"
+    list branches
+    <pre>
+git branch
+git branch -a
+    </pre>
 
-<h6> 1. via tauri::command </h6>
-<json-viewer :value="jsonData"></json-viewer>
-<br />
+    delete branches
+    <pre>
+git branch -d [branchname]
+git branch -D [branchname]
+    </pre>
 
-<h6> 2. with Javascript </h6>
-<json-viewer :value="jsonData2"></json-viewer>
+    checkout
+    <pre>
+git checkout -b [branchname]
+    </pre>
 
+  </q-page>
 </template>
