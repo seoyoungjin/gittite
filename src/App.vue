@@ -122,6 +122,7 @@ export default {
         { icon: 'subscriptions', text: 'Clone', link: '/gitcmd/clone' },
         { icon: 'home', text: 'Status', link: '/gitcmd/status' },
         { icon: 'restore', text: 'Logs', link: '/gitcmd/logs' },
+        { icon: 'restore', text: 'Commit', link: '/gitcmd/commit' },
         { icon: 'folder', text: 'App/Remove', link: '/gitcmd/addremove' },
         { icon: 'star_border', text: 'Branch', link: '/gitcmd/branch' },
         { icon: 'whatshot', text: 'Tags', link: '/gitcmd/tags' },

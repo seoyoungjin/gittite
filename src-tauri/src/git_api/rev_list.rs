@@ -13,7 +13,7 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#![deny(warnings)]
+// #![deny(warnings)]
 
 use crate::git_api::repository::{repo_open, RepoPath};
 use git2::{Error, Oid, Revwalk};

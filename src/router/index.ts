@@ -41,6 +41,11 @@ const router = createRouter({
       component: () => import('../views/gitcmd/Logs.vue')
     },
     {
+      path: '/gitcmd/commit',
+      name: 'git-commit',
+      component: () => import('../views/gitcmd/Commit.vue')
+    },
+    {
       path: '/gitcmd/addremove',
       name: 'git-addremove',
       component: () => import('../views/gitcmd/AddRemove.vue')
