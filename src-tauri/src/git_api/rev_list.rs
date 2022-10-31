@@ -15,10 +15,13 @@
 
 #![deny(warnings)]
 
-use git2::{Error, Oid, Repository, Revwalk};
+use crate::git_api::repository::{repo_open, RepoPath};
+use git2::{Error, Oid, Revwalk};
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 struct Args {
     #[structopt(name = "topo-order", long)]
     /// sort commits in topological order
@@ -36,8 +39,9 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-fn run(args: &Args) -> Result<(), git2::Error> {
-    let repo = Repository::open(".")?;
+pub fn rev_list(repo_path: &RepoPath, args: &Vec<&str>) -> Result<(), git2::Error> {
+    let args = Args::from_iter(args);
+    let repo = repo_open(repo_path)?;
     let mut revwalk = repo.revwalk()?;
 
     let base = if args.flag_reverse {
@@ -83,7 +87,7 @@ fn run(args: &Args) -> Result<(), git2::Error> {
 
     for id in revwalk {
         let id = id?;
-        println!("{}", id);
+        log::trace!("{}", id);
     }
     Ok(())
 }
@@ -96,10 +100,17 @@ fn push(revwalk: &mut Revwalk, id: Oid, hide: bool) -> Result<(), Error> {
     }
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_res_list_number() {
+        let args = vec!["HEAD"];
+        let repo_path: RepoPath = ".".into();
+        match rev_list(&repo_path, &args) {
+            Ok(()) => {}
+            Err(e) => println!("error: {}", e),
+        }
     }
 }

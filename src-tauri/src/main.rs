@@ -52,7 +52,7 @@ fn main() {
       app_data::save_settings,
       git_api::clone,
       git_api::init,
-      git_api::open,
+      git_api::set_repo,
       git_api::add,
       git_api::remove,
       git_api::reset_stage,

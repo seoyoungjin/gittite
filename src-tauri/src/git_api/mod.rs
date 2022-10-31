@@ -12,27 +12,13 @@ use crate::throw;
 use crate::app_data::{AppData, AppDataState};
 use std::sync::MutexGuard;
 
-/// ditto
-pub(crate) fn get_branch_name_repo(
-    repo: &Repository,
-) -> Result<String, anyhow::Error> {
-    let iter = repo.branches(None)?;
-
-    for b in iter {
-        let b = b?;
-        if b.0.is_head() {
-            let name = b.0.name()?.unwrap_or("");
-            return Ok(name.into());
-        }
-    }
-    Err(anyhow!("git: no head found"))
-}
-
 // init, clone, open
 pub mod init;
 pub mod clone;
 pub mod repository;
-use repository::RepoPath;
+
+mod commit;
+mod commits_info;
 
 // add remove
 // TODO mv
@@ -43,20 +29,20 @@ pub mod reset;
 
 // pub mod diff;
 pub mod revlog;
-use revlog::CommitData;
+pub mod rev_list;
 pub mod status;
-use status::StatusItem;
 // show grep
 
-// branch commit merge rebase reset switch tag
+// branch merge rebase reset switch
 // pub mod tag;
+// pub mod stash;
 // pub mod blame;
 
 // push
 // pub mod fetch;
 // pub mod pull;
 
-// sig tree tag commit blob
+// sig tree tag blob
 // pub mod cat-file;
 
 pub mod remote;
@@ -64,6 +50,13 @@ pub mod remote;
 // spec revspec
 // pub mod rev-list;
 // pub mod rev-parse;
+pub mod utils;
+
+use repository::RepoPath;
+use commit::{amend, commit, tag_commit};
+use commits_info::{get_commit_info, get_commits_info, CommitId, CommitInfo};
+use revlog::CommitData;
+use status::StatusItem;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -104,10 +97,12 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
 }
 
 #[tauri::command]
-pub fn open(app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn set_repo(path: String, app_data: AppDataState<'_>) -> Result<(), String> {
     let mut app_data = app_data.0.lock().unwrap();
 
-    // TODO
+    let repo_path = path.as_str().into();
+    log::trace!("repo_path: {:?}", repo_path);
+    app_data.repo_path = Some(repo_path);
     Ok(())
 }
 
