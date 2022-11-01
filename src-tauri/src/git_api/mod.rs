@@ -95,13 +95,19 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
 }
 
 #[tauri::command]
-pub fn set_repo(path: String, app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn set_repo(args: String, app_data: AppDataState<'_>) -> Result<(), String> {
+    log::trace!("setpo args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
-    let repo_path = path.as_str().into();
+    let repo_path: RepoPath = args.as_str().into();
     log::trace!("repo_path: {:?}", repo_path);
-    app_data.repo_path = Some(repo_path);
-    Ok(())
+    match repository::repo_open(&repo_path) {
+        Ok(repo) => {
+            app_data.repo_path = Some(repo_path);
+            Ok(())
+        },
+        Err(e) => return Err(e.to_string()),
+    }
 }
 
 #[tauri::command]

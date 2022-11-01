@@ -1,10 +1,10 @@
 <template>
   <q-page class="q-ma-lg">
     <div class="about">
-      <h6>Log</h6>
+      <h6>Select Repository</h6>
     </div>
 
-    <q-btn color="primary" no-caps @click="getCommits">Git Logs</q-btn>
+    <q-btn color="primary" no-caps @click="selectRepo">Confirm</q-btn>
     <br />
     <br />
 
@@ -17,6 +17,7 @@
 <script lang="ts">
 import 'vue-json-pretty/lib/styles.css';
 import VueJsonPretty from 'vue-json-pretty';
+import { open } from '@tauri-apps/api/dialog';
 import { invoke } from '@tauri-apps/api/tauri';
 
 export default {
@@ -31,10 +32,16 @@ export default {
   },
 
   methods: {
-    getCommits() {
-      invoke('get_commits', {args: []}).then((message) => {
-        // alert("Got response. Iterationg....");
-        this.response = message;
+    async selectRepo() {
+      const selected = await open({
+        directory: true,
+      });
+      if (Array.isArray(selected) || selected === null) {
+        alert("Invalid repository")
+        return;
+      }
+      invoke('set_repo', {args: selected}).then((message) => {
+        this.response =  {"Current repository" : selected };
       }).catch((e) => {
         if (typeof e == 'string') {
           this.response = {"error": e};

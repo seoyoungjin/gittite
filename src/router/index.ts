@@ -12,13 +12,17 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
       component: () => import('../views/AboutView.vue')
     },
     {
       path: '/test',
       name: 'test',
       component: () => import('../views/Test.vue')
+    },
+    {
+      path: '/gitcmd/repo',
+      name: 'repository',
+      component: () => import('../views/gitcmd/Repo.vue')
     },
     {
       path: '/gitcmd/init',
