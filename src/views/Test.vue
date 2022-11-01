@@ -2,13 +2,13 @@
 export default {
   data() {
     return {
-      message: 'Hello World!',
-      appName: 'Unknown',
-      appVersion: '0.0.0!',
-      tauriVersion: '0.0.0!',
-    }
-  }
-}
+      message: "Hello World!",
+      appName: "Unknown",
+      appVersion: "0.0.0!",
+      tauriVersion: "0.0.0!",
+    };
+  },
+};
 </script>
 
 <template>

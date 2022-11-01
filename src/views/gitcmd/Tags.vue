@@ -1,32 +1,31 @@
 <script lang="ts">
-import 'vue-json-pretty/lib/styles.css';
-import VueJsonPretty from 'vue-json-pretty';
-import { invoke } from '@tauri-apps/api/tauri';
+import "vue-json-pretty/lib/styles.css";
+import VueJsonPretty from "vue-json-pretty";
+import { invoke } from "@tauri-apps/api/tauri";
 
 export default {
   data() {
     return {
       jsonData: null,
       jsonData2: null,
-    }
+    };
   },
   components: {
     VueJsonPretty,
   },
   methods: {
     async readSettings() {
-      var data = await readTextFile(
-        'gittite/settings.json',
-        { dir: BaseDirectory.Config}
-      );
+      var data = await readTextFile("gittite/settings.json", {
+        dir: BaseDirectory.Config,
+      });
       return JSON.parse(data);
-    }
+    },
   },
   async mounted() {
-    this.jsonData = await invoke('get_settings');
+    this.jsonData = await invoke("get_settings");
     this.jsonData2 = await this.readSettings();
-  }
-}
+  },
+};
 </script>
 
 <template>
@@ -77,6 +76,5 @@ git tag -d [tagname]
     <pre>
 git tag -l [pattern]
     </pre>
-
   </q-page>
 </template>

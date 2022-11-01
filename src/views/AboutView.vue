@@ -1,39 +1,39 @@
 <script>
-import { getName, getVersion, getTauriVersion } from '@tauri-apps/api/app';
-import { relaunch, exit } from '@tauri-apps/api/process';
-import { ask } from '@tauri-apps/api/dialog';
+import { getName, getVersion, getTauriVersion } from "@tauri-apps/api/app";
+import { exit } from "@tauri-apps/api/process";
+import { ask } from "@tauri-apps/api/dialog";
 
 export default {
   data() {
     return {
-      appName: 'Unknown',
-      appVersion: '0.0.0!',
-      tauriVersion: '0.0.0',
-    }
+      appName: "Unknown",
+      appVersion: "0.0.0!",
+      tauriVersion: "0.0.0",
+    };
   },
   methods: {
     async closeApp() {
-      const yes = await ask('Are you sure?', 'Tauri');
+      const yes = await ask("Are you sure?", "Tauri");
       if (yes) {
         await exit();
       }
-    }
+    },
   },
   mounted() {
     getName().then((n) => {
-      this.appName = n
+      this.appName = n;
     });
     getVersion().then((v) => {
-      this.appVersion = v
+      this.appVersion = v;
     });
     getTauriVersion().then((v) => {
-      this.tauriVersion = v
+      this.tauriVersion = v;
     });
     // this.appName = await getName();
     // this.appVersion = await getVersion();
     // this.tauriVersion = await getTauriVersion();
-  }
-}
+  },
+};
 </script>
 
 <template>
@@ -51,7 +51,7 @@ export default {
     </pre>
 
     <div class="flex flex-wrap gap-1 shadow-">
-    <button v-on:click="closeApp">Close application</button>
+      <button v-on:click="closeApp">Close application</button>
     </div>
   </q-page>
 </template>

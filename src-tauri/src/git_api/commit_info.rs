@@ -3,7 +3,7 @@ use super::repository::{repo_open, RepoPath};
 use git2::{Commit, Error, Oid};
 use std::str::FromStr;
 use unicode_truncate::UnicodeTruncateStr;
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Serialize, Serializer};
 
 /// identifies a single commit
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]

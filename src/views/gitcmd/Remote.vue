@@ -13,15 +13,15 @@ origin   https://github.com/... (push)
     <br />
 
     <div>
-      <vue-json-pretty :data=response />
+      <vue-json-pretty :data="response" />
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import 'vue-json-pretty/lib/styles.css';
-import VueJsonPretty from 'vue-json-pretty';
-import { invoke } from '@tauri-apps/api/tauri';
+import "vue-json-pretty/lib/styles.css";
+import VueJsonPretty from "vue-json-pretty";
+import { invoke } from "@tauri-apps/api/tauri";
 
 export default {
   components: {
@@ -30,22 +30,24 @@ export default {
 
   data() {
     return {
-      response: null
-    }
+      response: null,
+    };
   },
 
   methods: {
     getRemotes() {
-      invoke('get_remotes').then((message) => {
-        this.response = message;
-      }).catch((e) => {
-        if (typeof e == 'string') {
-          this.response = {"error": e};
-        } else {
-          this.response = {"error": JSON.stringify(e)};
-        }
-      });
-    }
-  }
-}
+      invoke("get_remotes")
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            this.response = { error: JSON.stringify(e) };
+          }
+        });
+    },
+  },
+};
 </script>

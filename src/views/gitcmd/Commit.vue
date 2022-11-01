@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-gutter-y-md" >
+    <div class="q-gutter-y-md">
       <q-card>
         <q-tabs
           v-model="tab"
@@ -28,18 +28,18 @@
                 type="textarea"
               />
               <div>
-                <q-btn label="Submit" type="submit" color="primary"/>
+                <q-btn label="Submit" type="submit" color="primary" />
               </div>
             </q-form>
             <br />
             <br />
             <div>
-              <vue-json-pretty :data=response />
+              <vue-json-pretty :data="response" />
             </div>
             <br />
             <div class="text-h5 q-mb-md">Staged</div>
             <div>
-              <vue-json-pretty :data=stagedJson />
+              <vue-json-pretty :data="stagedJson" />
             </div>
           </q-tab-panel>
 
@@ -54,13 +54,13 @@
                 type="textarea"
               />
               <div>
-                <q-btn label="Submit" type="submit" color="primary"/>
+                <q-btn label="Submit" type="submit" color="primary" />
               </div>
             </q-form>
             <br />
             <br />
             <div>
-              <vue-json-pretty :data=response />
+              <vue-json-pretty :data="response" />
             </div>
           </q-tab-panel>
 
@@ -68,15 +68,19 @@
             <div class="text-h6">Commit Info</div>
 
             <q-form @submit="getCommitInfo" class="q-gutter-md">
-              <q-input v-model="infoForm.commitId" label="Coomit ID" hint="Enter Commit ID" />
+              <q-input
+                v-model="infoForm.commitId"
+                label="Coomit ID"
+                hint="Enter Commit ID"
+              />
               <div>
-                <q-btn label="Submit" type="submit" color="primary"/>
+                <q-btn label="Submit" type="submit" color="primary" />
               </div>
             </q-form>
             <br />
             <br />
             <div>
-              <vue-json-pretty :data=response />
+              <vue-json-pretty :data="response" />
             </div>
           </q-tab-panel>
         </q-tab-panels>
@@ -86,21 +90,21 @@
 </template>
 
 <script lang="ts">
-import 'vue-json-pretty/lib/styles.css';
-import VueJsonPretty from 'vue-json-pretty';
-import { ref } from 'vue'
-import { invoke } from '@tauri-apps/api/tauri';
-import * as git2rs from '../../api/git2rs';
+import "vue-json-pretty/lib/styles.css";
+import VueJsonPretty from "vue-json-pretty";
+import { ref } from "vue";
+import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from "../../api/git2rs";
 
 export default {
   components: {
     VueJsonPretty,
   },
 
-  setup () {
+  setup() {
     return {
-      tab: ref('commit')
-    }
+      tab: ref("commit"),
+    };
   },
 
   mounted() {
@@ -109,19 +113,19 @@ export default {
 
   data() {
     return {
-      commitForm : {
+      commitForm: {
         message: null,
       },
-      amendForm : {
+      amendForm: {
         // TODO retried message
         message: null,
       },
-      infoForm : {
+      infoForm: {
         commitId: null,
       },
       stagedJson: null,
-      response: null
-    }
+      response: null,
+    };
   },
 
   methods: {
@@ -129,7 +133,7 @@ export default {
       (async () => {
         this.commitForm.message = null;
         this.amendForm.message = null;
-        this.stagedJson = await git2rs.getStatus('stage');
+        this.stagedJson = await git2rs.getStatus("stage");
         // alert(this.stagedJson);
       })();
     },
@@ -140,45 +144,50 @@ export default {
         return;
       }
       const message = this.commitForm.message;
-      invoke('commit', {args: message}).then((message) => {
-        this.response = message;
-      }).catch((e) => {
-        if (typeof e == 'string') {
-          this.response = {"error": e};
-        } else {
-          this.response = {"error": JSON.stringify(e)};
-        }
-      });
+      invoke("commit", { args: message })
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            this.response = { error: JSON.stringify(e) };
+          }
+        });
       this.refresh();
     },
 
     onAmend() {
       const message = this.amendForm.message;
-      invoke('amend', {args: message}).then((message) => {
-        this.response = message;
-      }).catch((e) => {
-        if (typeof e == 'string') {
-          this.response = {"error": e};
-        } else {
-          this.response = {"error": JSON.stringify(e)};
-        }
-      });
+      invoke("amend", { args: message })
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            this.response = { error: JSON.stringify(e) };
+          }
+        });
       this.refresh();
     },
 
     getCommitInfo() {
       const commitId = this.infoForm.commitId;
-      invoke('commit_info', {args: commitId}).then((message) => {
-        this.response = message;
-      }).catch((e) => {
-        if (typeof e == 'string') {
-          this.response = {"error": e};
-        } else {
-          this.response = {"error": JSON.stringify(e)};
-        }
-      });
-    }
-
-  }
-}
+      invoke("commit_info", { args: commitId })
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            this.response = { error: JSON.stringify(e) };
+          }
+        });
+    },
+  },
+};
 </script>
