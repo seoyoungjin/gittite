@@ -5,26 +5,28 @@
     <q-card>
       <q-card-section>
 
-        <form v-on:submit="gitInit" id="git-init">
-          <div class="form-group">
-            <label for="directory">Directory</label>
-            <input class="form-control" v-model="form.directory" placeholder="Enter directory">
-          </div>
-          <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" v-model="form.bareCheck">
-            <label class="form-check-label" for="bareCheck">Bare</label>
-          </div>
-          <div class="form-group">
-            <input type="checkbox" class="form-check-input" v-model="form.templateCheck">
-            <label class="form-check-label" for="templateCheck">Template directory</label>
-            <input class="form-control" v-model="form.templateDir" placeholder="Enter template directory">
-          </div>
-          <div class="form-group">
-            <input type="checkbox" v-model="form.separateGitCheck">
-            <label class="form-check-label" for="separateGitCheck">Separate git directory</label>
-            <input class="form-control" v-model="form.separateGitDir" placeholder="Separate git directory">
-          </div>
-        </form>
+        <q-form v-on:submit="gitInit" id="git-init">
+          <q-input v-model="form.directory" label="Directory" hint="Enter directory" />
+          <q-checkbox v-model="form.bareCheck" label="Bare" />
+          <q-input
+            v-model="form.templateDir"
+            label="Template directory"
+            :disable="!form.templateCheck"
+          >
+            <template v-slot:before>
+              <q-checkbox v-model="form.templateCheck"  />
+            </template>
+          </q-input>
+          <q-input
+            v-model="form.separateGitDir"
+            label="Separate Git directory"
+            :disable="!form.separateGitCheck"
+          >
+            <template v-slot:before>
+              <q-checkbox v-model="form.separateGitCheck"  />
+            </template>
+          </q-input>
+        </q-form>
 
       </q-card-section>
     </q-card>
@@ -57,8 +59,8 @@ export default {
         bareCheck: false,
         templateCheck:false,
         templateDir: '',
-        seprateGitCheck: false,
-        seprateGitDir: '',
+        separateGitCheck: false,
+        separateGitDir: '',
       },
       response: null
     }
