@@ -8,6 +8,20 @@ export async function add(name): Promise<bool> {
 export async function remove(name): Promise<bool> {
   return invoke('remove', {args: name});
 }
+
 export async function resetStage(name): Promise<bool> {
   return invoke('reset_stage', {args: name});
+}
+
+export async function getStatus(args: string) {
+  try {
+    return await invoke('get_status', {statusType: args});
+  }
+  catch (e) {
+    if (typeof e == 'string') {
+      return {"error": e};
+    } else {
+      return {"error": JSON.stringify(e)};
+    }
+  };
 }

@@ -1,11 +1,9 @@
 use anyhow::Result;
-use super::RepoPath;
-use crate::git_api::repository::repo_open;
+use super::repository::{repo_open, RepoPath};
 use git2::{Commit, Error, Oid};
+use std::str::FromStr;
 use unicode_truncate::UnicodeTruncateStr;
 use serde::{Deserialize, Serialize, Serializer};
-// TODO
-// use serde::de::{self, Deserializer, Visitor};
 
 /// identifies a single commit
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
@@ -28,6 +26,12 @@ impl CommitId {
         self.0
     }
 
+    ///
+    pub fn from_str(s: &str) -> Result<Self, Error> {
+        let oid = Oid::from_str(s)?;
+        Ok(Self::new(oid))
+    }
+
     /// 7 chars short hash
     pub fn get_short_string(&self) -> String {
         //self.to_string().chars().take(7).collect()
@@ -38,6 +42,13 @@ impl CommitId {
 impl ToString for CommitId {
     fn to_string(&self) -> String {
         self.0.to_string()
+    }
+}
+
+impl FromStr for CommitId {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self, Error> {
+        CommitId::from_str(s)
     }
 }
 
@@ -63,9 +74,7 @@ impl Serialize for CommitId {
 }
 
 ///
-// #[derive(Serialize, Debug)]
-#[derive(Serialize)]
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
 pub struct CommitInfo {
     ///
     pub message: String,
@@ -150,20 +159,16 @@ pub fn get_message(
 mod tests {
     use anyhow::Result;
     use super::{get_commits_info, CommitId};
-    use crate::git_api::{
-        commit, RepoPath,
-        // utils::get_head_repo, RepoPath,
-    };
+    use crate::git_api::{commit::commit, RepoPath};
     use crate::git_api::tests::{init_log, repo_init_empty};
     use crate::git_api::addremove::stage_add_file;
-    use git2::Oid;
     use std::{fs::File, io::Write, path::Path};
     use serde_json;
 
     #[test]
     fn test_commit_id_serde() -> Result<()> {
         init_log();
-        let c1:CommitId = Oid::from_str("12345678").unwrap().into();
+        let c1:CommitId = CommitId::from_str("12345678").unwrap();
         assert_eq!(c1.to_string()[0..8], "12345678".to_string());
         log::trace!("commit_id: {}", c1.to_string());
         log::trace!("commit_id: {:?}", serde_json::to_string(&c1).unwrap());

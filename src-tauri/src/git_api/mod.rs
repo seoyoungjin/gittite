@@ -8,7 +8,6 @@ use std::path::Path;
 use git2::{Repository, StatusShow};
 use structopt::StructOpt;
 
-use crate::throw;
 use crate::app_data::{AppData, AppDataState};
 use std::sync::MutexGuard;
 
@@ -18,7 +17,7 @@ pub mod clone;
 pub mod repository;
 
 mod commit;
-mod commits_info;
+mod commit_info;
 
 // add remove
 // TODO mv
@@ -53,8 +52,7 @@ pub mod remote;
 pub mod utils;
 
 use repository::RepoPath;
-use commit::{amend, commit, tag_commit};
-use commits_info::{get_commit_info, get_commits_info, CommitId, CommitInfo};
+use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
 use status::StatusItem;
 
@@ -72,7 +70,7 @@ pub fn init(args: Vec<String>) -> Result<String, String> {
     let opt = init::Args::from_iter(args);
     match init::init(&opt) {
         Ok(_repo) => Ok("Initialized empty Git repository".to_string()),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -90,7 +88,7 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
     let ok = match clone::clone(&opt) {
         Ok(()) => Ok("Cloned".to_string()),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => return Err(e.to_string()),
     };
     window.emit("clone-progress", Payload { message: "Clone done!".into() }).unwrap();
     ok
@@ -121,7 +119,7 @@ pub fn get_status(
     };
     match status::get_status(app_data.repo_path_ref(), status_show) {
         Ok(v) => Ok(v),
-        Err(e) => Err(format!("error: {}", e)),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -138,7 +136,57 @@ pub fn get_commits(
     let opt = revlog::Args::from_iter(args);
     match revlog::get_commits(repo_path, &opt) {
         Ok(v) => Ok(v),
-        Err(e) => Err(format!("error: {}", e)),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn commit(args: String, app_data: AppDataState<'_>) -> Result<CommitId, String> {
+    log::trace!("commit:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match commit::commit(repo_path, args.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn amend(args: String, app_data: AppDataState<'_>) -> Result<CommitId, String> {
+    log::trace!("amend:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    let head_id = match utils::get_head(&repo_path) {
+        Ok(cid) => cid,
+        Err(e) => return Err(e.to_string()),
+    };
+    match commit::amend(repo_path, head_id, args.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn commit_info(
+    args: String,
+    app_data: AppDataState<'_>
+) -> Result<CommitInfo, String> {
+    log::trace!("commit_info:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    let cid = match CommitId::from_str(args.as_str()) {
+        Ok(cid) => cid,
+        Err(e) => return Err(e.to_string()),
+    };
+    match commit_info::get_commit_info(repo_path, &cid) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -153,7 +201,7 @@ pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
 
     match addremove::stage_add_file(repo_path, path) {
         Ok(()) => Ok(true),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -168,7 +216,7 @@ pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> 
 
     match addremove::stage_remove_file(repo_path, path) {
         Ok(()) => Ok(true),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -182,7 +230,7 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
     let path = args.as_str();
     match reset::reset_stage(repo_path, path) {
         Ok(()) => Ok(true),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -194,7 +242,7 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
     let repo_path = app_data.repo_path_ref();
     match remote::get_remotes(repo_path) {
         Ok(v) => Ok(v),
-        Err(e) => throw!("error: {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 

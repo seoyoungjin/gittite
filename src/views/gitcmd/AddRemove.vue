@@ -48,7 +48,7 @@ import { ref } from 'vue'
 import 'vue-json-pretty/lib/styles.css';
 import VueJsonPretty from 'vue-json-pretty';
 import { invoke } from '@tauri-apps/api/tauri';
-import * as git2rs from '../../api/git2rs.ts';
+import * as git2rs from '../../api/git2rs';
 
 export default {
   components: {
