@@ -31,7 +31,7 @@ pub struct CommitData {
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
-pub struct Args {
+struct Args {
     #[structopt(name = "topo-order", long)]
     /// sort commits in topological order
     flag_topo_order: bool,
@@ -80,26 +80,30 @@ pub struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn get_commits(repo_path: &RepoPath, args: &Args) -> Result<Vec<CommitData>, Error> {
+pub fn get_commits(
+    repo_path: &RepoPath,
+    args: &Vec<String>
+) -> Result<Vec<CommitData>, Error> {
     let repo = repo_open(repo_path)?;
-    let mut revwalk = repo.revwalk()?;
+    let opts = Args::from_iter(args);
 
+    let mut revwalk = repo.revwalk()?;
     // Prepare the revwalk based on CLI parameters
-    let base = if args.flag_reverse {
+    let base = if opts.flag_reverse {
         git2::Sort::REVERSE
     } else {
         git2::Sort::NONE
     };
     revwalk.set_sorting(
-        base | if args.flag_topo_order {
+        base | if opts.flag_topo_order {
             git2::Sort::TOPOLOGICAL
-        } else if args.flag_date_order {
+        } else if opts.flag_date_order {
             git2::Sort::TIME
         } else {
             git2::Sort::NONE
         },
     )?;
-    for commit in &args.arg_commit {
+    for commit in &opts.arg_commit {
         if commit.starts_with('^') {
             let obj = repo.revparse_single(&commit[1..])?;
             revwalk.hide(obj.id())?;
@@ -120,17 +124,17 @@ pub fn get_commits(repo_path: &RepoPath, args: &Args) -> Result<Vec<CommitData>,
             revwalk.hide(from)?;
         }
     }
-    if args.arg_commit.is_empty() {
+    if opts.arg_commit.is_empty() {
         revwalk.push_head()?;
     }
 
     // Prepare our diff options and pathspec matcher
     let (mut diffopts, mut diffopts2) = (DiffOptions::new(), DiffOptions::new());
-    for spec in &args.arg_spec {
+    for spec in &opts.arg_spec {
         diffopts.pathspec(spec);
         diffopts2.pathspec(spec);
     }
-    let ps = Pathspec::new(args.arg_spec.iter())?;
+    let ps = Pathspec::new(opts.arg_spec.iter())?;
 
     // Filter our revwalk based on the CLI parameters
     macro_rules! filter_try {
@@ -146,15 +150,15 @@ pub fn get_commits(repo_path: &RepoPath, args: &Args) -> Result<Vec<CommitData>,
             let id = filter_try!(id);
             let commit = filter_try!(repo.find_commit(id));
             let parents = commit.parents().len();
-            if parents < args.min_parents() {
+            if parents < opts.min_parents() {
                 return None;
             }
-            if let Some(n) = args.max_parents() {
+            if let Some(n) = opts.max_parents() {
                 if parents >= n {
                     return None;
                 }
             }
-            if !args.arg_spec.is_empty() {
+            if !opts.arg_spec.is_empty() {
                 match commit.parents().len() {
                     0 => {
                         let tree = filter_try!(commit.tree());
@@ -174,19 +178,19 @@ pub fn get_commits(repo_path: &RepoPath, args: &Args) -> Result<Vec<CommitData>,
                     }
                 }
             }
-            if !sig_matches(&commit.author(), &args.flag_author) {
+            if !sig_matches(&commit.author(), &opts.flag_author) {
                 return None;
             }
-            if !sig_matches(&commit.committer(), &args.flag_committer) {
+            if !sig_matches(&commit.committer(), &opts.flag_committer) {
                 return None;
             }
-            if !log_message_matches(commit.message(), &args.flag_grep) {
+            if !log_message_matches(commit.message(), &opts.flag_grep) {
                 return None;
             }
             Some(Ok(commit))
         })
-        .skip(args.flag_skip.unwrap_or(0))
-        .take(args.flag_max_count.unwrap_or(!0));
+        .skip(opts.flag_skip.unwrap_or(0))
+        .take(opts.flag_max_count.unwrap_or(!0));
 
     // response
     let mut cv: Vec<CommitData> = Vec::new();

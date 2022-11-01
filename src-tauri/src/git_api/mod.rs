@@ -138,9 +138,7 @@ pub fn get_commits(
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
-    let repo_path = app_data.repo_path_ref();
-    let opt = revlog::Args::from_iter(args);
-    match revlog::get_commits(repo_path, &opt) {
+    match revlog::get_commits(app_data.repo_path_ref(), &args) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

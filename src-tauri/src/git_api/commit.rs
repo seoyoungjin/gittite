@@ -121,18 +121,17 @@ mod tests {
         addremove::stage_add_file,
         // get_commit_details, get_commit_files
         // tags::get_tags,
-        // utils::get_head,
+        utils::get_head,
     };
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
     use git2::Repository;
     use std::{fs::File, io::Write, path::Path};
 
-    /*
-    fn count_commits(repo_path: &RepoPath, _max: usize) -> usize {
-        let mut items = revlog::get_commits(repo_path, NULL);
+    fn count_commits(repo_path: &RepoPath, max: usize) -> usize {
+        let args = vec!["-n".to_string(), max.to_string()];
+        let mut items = get_commits(repo_path, &args).unwrap();
         items.len()
     }
-    */
 
     #[test]
     fn test_commit() {
@@ -178,7 +177,6 @@ mod tests {
         assert_eq!(get_statuses(repo_path), (0, 0));
     }
 
-    /* TODO
     #[test]
     fn test_amend() -> Result<()> {
         let file_path1 = Path::new("foo");
@@ -192,31 +190,28 @@ mod tests {
 
         stage_add_file(repo_path, file_path1)?;
         let id = commit(repo_path, "commit msg")?;
-
-        assert_eq!(count_commits(&repo, 10), 1);
+        assert_eq!(count_commits(&repo_path, 10), 1);
 
         File::create(&root.join(file_path2))?.write_all(b"test2")?;
-
         stage_add_file(repo_path, file_path2)?;
-
         let new_id = amend(repo_path, id, "amended")?;
+        assert_eq!(count_commits(&repo_path, 10), 1);
 
-        assert_eq!(count_commits(&repo, 10), 1);
-
+        /* TODO
         let details = get_commit_details(repo_path, new_id)?;
         assert_eq!(details.message.unwrap().subject, "amended");
 
         let files = get_commit_files(repo_path, new_id, None)?;
-
         assert_eq!(files.len(), 2);
+        */
 
         let head = get_head(repo_path)?;
-
         assert_eq!(head, new_id);
 
         Ok(())
     }
 
+    /* TODO
     #[test]
     fn test_tag() -> Result<()> {
         let file_path = Path::new("foo");
