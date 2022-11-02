@@ -14,14 +14,17 @@
 
 // TODO
 // #![deny(warnings)]
-// #![allow(trivial_casts)]
+#![allow(trivial_casts)]
 
 use super::repository::{repo_open, RepoPath};
 use std::path::Path;
+use std::ffi::OsString;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
-pub struct Args {
+#[structopt(setting(AppSettings::NoBinaryName))]
+struct Args {
     #[structopt(name = "spec")]
     arg_spec: Vec<String>,
     #[structopt(name = "update", short, long)]
@@ -29,7 +32,12 @@ pub struct Args {
     flag_update: bool,
 }
 
-pub fn stage_add_all(repo_path: &RepoPath, args: &Args) -> Result<(), git2::Error> {
+pub fn stage_add_all<I>(repo_path: &RepoPath, args: I) -> Result<(), git2::Error>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let args = Args::from_iter(args);
     let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 

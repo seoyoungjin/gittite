@@ -67,8 +67,7 @@ fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
 #[tauri::command]
 pub fn init(args: Vec<String>) -> Result<String, String> {
     log::trace!("init args {:?}", args);
-    let opt = init::Args::from_iter(args);
-    match init::init(&opt) {
+    match init::init(&args) {
         Ok(_repo) => Ok("Initialized empty Git repository".to_string()),
         Err(e) => Err(e.to_string()),
     }
@@ -82,11 +81,10 @@ struct Payload {
 #[tauri::command]
 pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
-    let opt = clone::Args::from_iter(args);
 
     // TODO can use for progress?
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
-    let ok = match clone::clone(&opt) {
+    let ok = match clone::clone(&args) {
         Ok(()) => Ok("Cloned".to_string()),
         Err(e) => return Err(e.to_string()),
     };
@@ -139,6 +137,21 @@ pub fn get_commits(
 
     verify_repo_path(&mut app_data);
     match revlog::get_commits(app_data.repo_path_ref(), &args) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn rev_list(
+    args: Vec<String>,
+    app_data: AppDataState<'_>
+) -> Result<(), String> {
+    log::trace!("rev_list:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    match rev_list::rev_list(app_data.repo_path_ref(), &args) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

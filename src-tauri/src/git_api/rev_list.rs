@@ -13,10 +13,11 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-// #![deny(warnings)]
+#![deny(warnings)]
 
 use crate::git_api::repository::{repo_open, RepoPath};
 use git2::{Error, Oid, Revwalk};
+use std::ffi::OsString;
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
 
@@ -39,9 +40,13 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn rev_list(repo_path: &RepoPath, args: &Vec<&str>) -> Result<(), git2::Error> {
+pub fn rev_list<I>(repo: &RepoPath, args: I) -> Result<(), git2::Error>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
     let args = Args::from_iter(args);
-    let repo = repo_open(repo_path)?;
+    let repo = repo_open(repo)?;
     let mut revwalk = repo.revwalk()?;
 
     let base = if args.flag_reverse {

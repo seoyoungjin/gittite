@@ -98,8 +98,7 @@ pub fn tag_commit(
     let repo = repo_open(repo_path)?;
 
     let object_id = commit_id.get_oid();
-    let target =
-        repo.find_object(object_id, Some(ObjectType::Commit))?;
+    let target = repo.find_object(object_id, Some(ObjectType::Commit))?;
 
     let c = if let Some(message) = message {
         let signature = signature_allow_undefined_name(&repo)?;
@@ -128,7 +127,7 @@ mod tests {
     use std::{fs::File, io::Write, path::Path};
 
     fn count_commits(repo_path: &RepoPath, max: usize) -> usize {
-        let args = vec!["-n".to_string(), max.to_string()];
+        let args = ["-n".to_string(), max.to_string()];
         let mut items = get_commits(repo_path, &args).unwrap();
         items.len()
     }

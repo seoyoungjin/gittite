@@ -15,13 +15,14 @@
 #![deny(warnings)]
 
 use git2::{Error, Repository, RepositoryInitMode, RepositoryInitOptions};
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use structopt::clap::AppSettings;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
-pub struct Args {
+struct Args {
     #[structopt(name = "directory")]
     arg_directory: String,
     #[structopt(name = "bare", long)]
@@ -38,7 +39,12 @@ pub struct Args {
     flag_shared: Option<String>,
 }
 
-pub fn init(args: &Args) -> Result<Repository, Error> {
+pub fn init<I>(args: I) -> Result<Repository, Error>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let args = Args::from_iter(args);
     let mut path = PathBuf::from(&args.arg_directory);
     let repo = if !args.flag_bare
         && args.flag_template.is_none()
@@ -99,11 +105,9 @@ mod tests {
         sandbox_config_files();
 
         let td = TempDir::new().unwrap();
-        let args = Args::from_iter(vec![td.path()]);
-        let res = init(&args);
+        let res = init([td.path()]);
 
         assert_eq!(res.is_ok(), true);
         log::trace!("repository created : {:?}", td.path());
-        // assert_eq!(td.path() + "/.git", res.unwrap().path());
     }
 }

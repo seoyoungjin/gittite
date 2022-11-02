@@ -17,16 +17,17 @@
 use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use structopt::clap::AppSettings;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 // TODO
 // - progress
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
-pub struct Args {
+struct Args {
     #[structopt(name = "url")]
     arg_url: String,
     #[structopt(name = "path")]
@@ -44,7 +45,12 @@ fn print(state: &mut State) {
     println!("progress");
 }
 
-pub fn clone(args: &Args) -> Result<(), git2::Error> {
+pub fn clone<I>(args: I) -> Result<(), git2::Error>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let args = Args::from_iter(args);
     let state = RefCell::new(State {
         progress: None,
         total: 0,
@@ -93,7 +99,7 @@ mod tests {
         let td = TempDir::new().unwrap();
         let td_path = td.path().as_os_str().to_str().unwrap();
 
-        let args = Args::from_iter(vec![r1_dir, td_path]);
+        let args = vec![r1_dir, td_path];
         let res = clone(&args);
         assert_eq!(res.is_ok(), true);
     }

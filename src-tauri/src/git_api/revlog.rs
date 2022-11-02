@@ -4,6 +4,7 @@
 use super::repository::{repo_open, RepoPath};
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{Error, Pathspec};
+use std::ffi::OsString;
 use serde::{Deserialize, Serialize};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
@@ -80,11 +81,12 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn get_commits(
-    repo_path: &RepoPath,
-    args: &Vec<String>
-) -> Result<Vec<CommitData>, Error> {
-    let repo = repo_open(repo_path)?;
+pub fn get_commits<I>(repo: &RepoPath, args: I) -> Result<Vec<CommitData>, Error>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let repo = repo_open(repo)?;
     let opts = Args::from_iter(args);
 
     let mut revwalk = repo.revwalk()?;
