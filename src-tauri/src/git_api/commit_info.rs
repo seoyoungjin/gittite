@@ -1,9 +1,9 @@
 use anyhow::Result;
 use super::repository::{repo_open, RepoPath};
-use git2::{Commit, Error, Oid};
+use git2::{Commit, Error, Oid, Signature};
 use std::str::FromStr;
 use unicode_truncate::UnicodeTruncateStr;
-use serde::{Serialize, Serializer};
+use serde::{Serialize, Deserialize, Serializer};
 
 /// identifies a single commit
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
@@ -34,7 +34,6 @@ impl CommitId {
 
     /// 7 chars short hash
     pub fn get_short_string(&self) -> String {
-        //self.to_string().chars().take(7).collect()
         self.to_string()[0..7].into()
     }
 }
@@ -74,16 +73,84 @@ impl Serialize for CommitId {
 }
 
 ///
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Default, Clone)]
+pub struct CommitSignature {
+    ///
+    pub name: String,
+    ///
+    pub email: String,
+    /// time in secs since Unix epoch
+    pub time: i64,
+}
+
+impl CommitSignature {
+    /// convert from git2-rs `Signature`
+    pub fn from(s: &Signature<'_>) -> Self {
+        Self {
+            name: s.name().unwrap_or("").to_string(),
+            email: s.email().unwrap_or("").to_string(),
+
+            time: s.when().seconds(),
+        }
+    }
+}
+
+///
+#[derive(Serialize, Deserialize)]
+#[derive(Default, Clone, Debug)]
+pub struct CommitMessage {
+    /// first line
+    pub subject: String,
+    /// remaining lines if more than one
+    pub body: Option<String>,
+}
+
+impl CommitMessage {
+    ///
+    pub fn from(s: &str) -> Self {
+        let mut lines = s.lines();
+        let subject = lines.next().map_or_else(
+            String::new,
+            std::string::ToString::to_string,
+        );
+
+        let body: Vec<String> =
+            lines.map(std::string::ToString::to_string).collect();
+
+        Self {
+            subject,
+            body: if body.is_empty() {
+                None
+            } else {
+                Some(body.join("\n"))
+            },
+        }
+    }
+
+    ///
+    pub fn combine(self) -> String {
+        if let Some(body) = self.body {
+            format!("{}\n{body}", self.subject)
+        } else {
+            self.subject
+        }
+    }
+}
+
+///
 #[derive(Serialize, Debug)]
 pub struct CommitInfo {
     ///
-    pub message: String,
+    pub id: CommitId,
+    ///
+    pub author: CommitSignature,
+    /// committer when differs to `author` otherwise None
+    pub committer: Option<CommitSignature>,
     ///
     pub time: i64,
     ///
-    pub author: String,
-    ///
-    pub id: CommitId,
+    pub message: CommitMessage,
 }
 
 ///
@@ -102,16 +169,22 @@ pub fn get_commits_info(
 
     let res = commits
         .map(|c: Commit| {
-            let message = get_message(&c, Some(message_length_limit));
-            let author = c.author().name().map_or_else(
-                || String::from("<unknown>"),
-                String::from,
+            let author = CommitSignature::from(&c.author());
+            let committer = CommitSignature::from(&c.committer());
+            let committer = if author == committer {
+                None
+            } else {
+                Some(committer)
+            };
+            let message = CommitMessage::from(
+                get_message(&c, Some(message_length_limit)).as_str()
             );
             CommitInfo {
-                message,
-                author,
-                time: c.time().seconds(),
                 id: CommitId(c.id()),
+                author: author,
+                committer: committer,
+                time: c.time().seconds(),
+                message: message,
             }
         })
         .collect::<Vec<_>>();
@@ -127,13 +200,21 @@ pub fn get_commit_info(
     let repo = repo_open(repo_path)?;
 
     let commit = repo.find_commit(commit_id.into())?;
-    let author = commit.author();
+    let author = CommitSignature::from(&commit.author());
+    let committer = CommitSignature::from(&commit.committer());
+    let committer = if author == committer {
+        None
+    } else {
+        Some(committer)
+    };
+    let message = CommitMessage::from(get_message(&commit, None).as_str());
 
     Ok(CommitInfo {
-        message: commit.message().unwrap_or("").into(),
-        author: author.name().unwrap_or("<unknown>").into(),
-        time: commit.time().seconds(),
         id: CommitId(commit.id()),
+        author: author,
+        committer: committer,
+        time: commit.time().seconds(),
+        message: message
     })
 }
 
@@ -195,9 +276,9 @@ mod tests {
         let res = get_commits_info(repo_path, &[c2, c1], 50).unwrap();
 
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0].message.as_str(), "commit2");
-        assert_eq!(res[0].author.as_str(), "name");
-        assert_eq!(res[1].message.as_str(), "commit1");
+        assert_eq!(res[0].message.subject.as_str(), "commit2");
+        assert_eq!(res[0].author.name.as_str(), "name");
+        assert_eq!(res[1].message.subject.as_str(), "commit1");
 
         Ok(())
     }
@@ -217,7 +298,7 @@ mod tests {
         let res = get_commits_info(repo_path, &[c1], 50).unwrap();
 
         assert_eq!(res.len(), 1);
-        assert_eq!(res[0].message.as_str(), "subject");
+        assert_eq!(res[0].message.subject.as_str(), "subject");
 
         Ok(())
     }

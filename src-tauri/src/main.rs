@@ -56,10 +56,12 @@ fn main() {
       git_api::commit,
       git_api::amend,
       git_api::commit_info,
+      git_api::commit_files,
       git_api::add,
       git_api::remove,
       git_api::reset_stage,
       git_api::get_commits,
+      git_api::rev_list,
       git_api::get_status,
       git_api::get_remotes,
     ])

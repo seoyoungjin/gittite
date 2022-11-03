@@ -1,8 +1,6 @@
 use super::{CommitId, RepoPath};
-use anyhow::{anyhow, Error, Result};
-use crate::{
-    git_api::repository::repo_open,
-};
+use anyhow::{anyhow, Result};
+use crate::git_api::repository::repo_open;
 use git2::{
     build::CheckoutBuilder, Oid, Repository, StashApplyOptions,
     StashFlags,
@@ -173,7 +171,7 @@ mod tests {
         assert_eq!(res.len(), 1);
 
         let infos = get_commits_info(repo_path, &[res[0]], 100).unwrap();
-        assert_eq!(infos[0].message, "On master: foo");
+        assert_eq!(infos[0].message.subject, "On master: foo");
 
         Ok(())
     }
@@ -201,8 +199,7 @@ mod tests {
         stage_add_file(repo_path, file_path1)?;
         commit(repo_path, "c1")?;
 
-        File::create(&root.join(file_path1))?
-            .write_all(b"modified")?;
+        File::create(&root.join(file_path1))?.write_all(b"modified")?;
 
         //NOTE: apparently `libgit2` works differently to git stash in
         //always creating the third parent for untracked files while the
@@ -256,7 +253,6 @@ mod tests {
         repo_write_file(&repo, "test.txt", "test2").unwrap();
         let id = stash_save(repo_path, Some("foo"), true, false).unwrap();
         repo_write_file(&repo, "test.txt", "test3").unwrap();
-
         let res = stash_apply(repo_path, id, false);
         assert!(res.is_err());
 

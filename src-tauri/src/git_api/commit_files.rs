@@ -3,7 +3,7 @@
 use anyhow::Result;
 use super::{diff::DiffOptions, CommitId, RepoPath, StatusItem, StatusItemType};
 use crate::git_api::{repository::repo_open, stash::is_stash_commit};
-use git2::{Diff, Repository, StatusShow};
+use git2::{Diff, Repository};
 use std::cmp::Ordering;
 
 /// get all files that are part of a commit
@@ -46,8 +46,6 @@ pub fn get_compare_commits_diff(
     pathspec: Option<String>,
     options: Option<DiffOptions>,
 ) -> Result<Diff<'_>> {
-    // scope_time!("get_compare_commits_diff");
-
     let commits = (
         repo.find_commit(ids.0.into())?,
         repo.find_commit(ids.1.into())?,
@@ -91,8 +89,6 @@ pub fn get_commit_diff<'a>(
     pathspec: Option<String>,
     options: Option<DiffOptions>,
 ) -> Result<Diff<'a>> {
-    // scope_time!("get_commit_diff");
-
     let commit = repo.find_commit(id.into())?;
     let commit_tree = commit.tree()?;
 
@@ -155,11 +151,9 @@ mod tests {
         let file_path = Path::new("file1.txt");
         let (_td, repo) = repo_init()?;
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"test file1 content")?;
+        File::create(&root.join(file_path))?.write_all(b"test file1 content")?;
         stage_add_file(repo_path, file_path)?;
         let id = commit(repo_path, "commit msg")?;
         let diff = get_commit_files(repo_path, id, None)?;
@@ -175,11 +169,9 @@ mod tests {
         let file_path = Path::new("file1.txt");
         let (_td, repo) = repo_init()?;
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"test file1 content")?;
+        File::create(&root.join(file_path))?.write_all(b"test file1 content")?;
 
         let id = stash_save(repo_path, None, true, false)?;
         let diff = get_commit_files(repo_path, id, None)?;
@@ -196,15 +188,13 @@ mod tests {
         let file_path2 = Path::new("file2.txt");
         let (_td, repo) = repo_init()?;
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path1))?.write_all(b"test")?;
         stage_add_file(repo_path, file_path1)?;
         commit(repo_path, "c1")?;
 
-        File::create(&root.join(file_path1))?
-            .write_all(b"modified")?;
+        File::create(&root.join(file_path1))?.write_all(b"modified")?;
         File::create(&root.join(file_path2))?.write_all(b"new")?;
         assert_eq!(get_statuses(repo_path), (2, 0));
 

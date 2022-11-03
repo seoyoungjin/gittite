@@ -12,6 +12,7 @@
           <q-tab name="commit" icon="commit" label="Commit" />
           <q-tab name="amend" icon="edit" label="Amend" />
           <q-tab name="commit_info" icon="info" label="Commit Info" />
+          <q-tab name="commit_files" icon="info" label="Commit Files" />
         </q-tabs>
 
         <q-separator />
@@ -68,6 +69,26 @@
             <div class="text-h6">Commit Info</div>
 
             <q-form @submit="getCommitInfo" class="q-gutter-md">
+              <q-input
+                v-model="infoForm.commitId"
+                label="Coomit ID"
+                hint="Enter Commit ID"
+              />
+              <div>
+                <q-btn label="Submit" type="submit" color="primary" />
+              </div>
+            </q-form>
+            <br />
+            <br />
+            <div>
+              <vue-json-pretty :data="response" />
+            </div>
+          </q-tab-panel>
+
+          <q-tab-panel name="commit_files">
+            <div class="text-h6">Commit Files</div>
+
+            <q-form @submit="getCommitFiles" class="q-gutter-md">
               <q-input
                 v-model="infoForm.commitId"
                 label="Coomit ID"
@@ -177,6 +198,21 @@ export default {
     getCommitInfo() {
       const commitId = this.infoForm.commitId;
       invoke("commit_info", { args: commitId })
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            this.response = { error: JSON.stringify(e) };
+          }
+        });
+    },
+
+    getCommitFiles() {
+      const commitId = this.infoForm.commitId;
+      invoke("commit_files", { args: commitId })
         .then((message) => {
           this.response = message;
         })

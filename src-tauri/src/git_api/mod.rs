@@ -216,6 +216,26 @@ pub fn commit_info(
 }
 
 #[tauri::command]
+pub fn commit_files(
+    args: String,
+    app_data: AppDataState<'_>
+) -> Result<Vec<StatusItem>, String> {
+    log::trace!("commit_files:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    let cid = match CommitId::from_str(args.as_str()) {
+        Ok(cid) => cid,
+        Err(e) => return Err(e.to_string()),
+    };
+    match commit_files::get_commit_files(repo_path, cid, None) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
 pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     log::trace!("add() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();

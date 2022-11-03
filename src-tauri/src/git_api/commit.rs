@@ -159,8 +159,7 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         assert_eq!(get_statuses(repo_path), (0, 0));
 
@@ -183,8 +182,7 @@ mod tests {
         let file_path2 = Path::new("foo2");
         let (_td, repo) = repo_init_empty()?;
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path1))?.write_all(b"test1")?;
 
@@ -197,86 +195,14 @@ mod tests {
         let new_id = amend(repo_path, id, "amended")?;
         assert_eq!(count_commits(&repo_path, 10), 1);
 
-        let details = get_commit_info(repo_path, new_id)?;
-        // TODO assert_eq!(details.message.unwrap().subject, "amended");
-        assert_eq!(details.message, "amended");
+        let info = get_commit_info(repo_path, new_id)?;
+        assert_eq!(info.message.subject, "amended");
 
         let files = get_commit_files(repo_path, new_id, None)?;
         assert_eq!(files.len(), 2);
 
         let head = get_head(repo_path)?;
         assert_eq!(head, new_id);
-
-        Ok(())
-    }
-
-    /* TODO
-    #[test]
-    fn test_tag() -> Result<()> {
-        let file_path = Path::new("foo");
-        let (_td, repo) = repo_init_empty().unwrap();
-        let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
-
-        File::create(&root.join(file_path))?
-            .write_all(b"test\nfoo")?;
-
-        stage_add_file(repo_path, file_path)?;
-
-        let new_id = commit(repo_path, "commit msg")?;
-
-        tag_commit(repo_path, &new_id, "tag", None)?;
-
-        assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
-            vec![Tag::new("tag")]
-        );
-
-        assert!(matches!(
-            tag_commit(repo_path, &new_id, "tag", None),
-            Err(_)
-        ));
-
-        assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
-            vec![Tag::new("tag")]
-        );
-
-        tag_commit(repo_path, &new_id, "second-tag", None)?;
-
-        assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
-            vec![Tag::new("second-tag"), Tag::new("tag")]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_tag_with_message() -> Result<()> {
-        let file_path = Path::new("foo");
-        let (_td, repo) = repo_init_empty().unwrap();
-        let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
-
-        File::create(&root.join(file_path))?
-            .write_all(b"test\nfoo")?;
-
-        stage_add_file(repo_path, file_path)?;
-
-        let new_id = commit(repo_path, "commit msg")?;
-
-        tag_commit(repo_path, &new_id, "tag", Some("tag-message"))?;
-
-        assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id][0]
-                .annotation
-                .as_ref()
-                .unwrap(),
-            "tag-message"
-        );
 
         Ok(())
     }
@@ -292,32 +218,25 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"test\nfoo")?;
+        File::create(&root.join(file_path))?.write_all(b"test\nfoo")?;
 
         stage_add_file(repo_path, file_path)?;
-
         repo.config()?.remove("user.email")?;
-
         let error = commit(repo_path, "commit msg");
-
         assert!(matches!(error, Err(_)));
 
         repo.config()?.set_str("user.email", "email")?;
-
         let success = commit(repo_path, "commit msg");
 
         assert!(matches!(success, Ok(_)));
-        assert_eq!(count_commits(&repo, 10), 1);
+        assert_eq!(count_commits(&repo_path, 10), 1);
 
-        let details =
-            get_commit_details(repo_path, success.unwrap()).unwrap();
+        let info = get_commit_info(repo_path, success.unwrap()).unwrap();
 
-        assert_eq!(details.author.name, "name");
-        assert_eq!(details.author.email, "email");
+        assert_eq!(info.author.name, "name");
+        assert_eq!(info.author.email, "email");
 
         Ok(())
     }
@@ -328,39 +247,89 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"test\nfoo")?;
-
+        File::create(&root.join(file_path))?  .write_all(b"test\nfoo")?;
         stage_add_file(repo_path, file_path)?;
-
         repo.config()?.remove("user.name")?;
-
         let mut success = commit(repo_path, "commit msg");
 
         assert!(matches!(success, Ok(_)));
-        assert_eq!(count_commits(&repo, 10), 1);
+        assert_eq!(count_commits(&repo_path, 10), 1);
 
-        let mut details =
-            get_commit_details(repo_path, success.unwrap()).unwrap();
+        let mut info =
+            get_commit_info(repo_path, success.unwrap()).unwrap();
 
-        assert_eq!(details.author.name, "unknown");
-        assert_eq!(details.author.email, "email");
+        assert_eq!(info.author.name, "unknown");
+        assert_eq!(info.author.email, "email");
 
         repo.config()?.set_str("user.name", "name")?;
-
         success = commit(repo_path, "commit msg");
 
         assert!(matches!(success, Ok(_)));
-        assert_eq!(count_commits(&repo, 10), 2);
+        assert_eq!(count_commits(&repo_path, 10), 2);
 
-        details =
-            get_commit_details(repo_path, success.unwrap()).unwrap();
+        info = get_commit_info(repo_path, success.unwrap()).unwrap();
 
-        assert_eq!(details.author.name, "name");
-        assert_eq!(details.author.email, "email");
+        assert_eq!(info.author.name, "name");
+        assert_eq!(info.author.email, "email");
+
+        Ok(())
+    }
+
+    /* TODO
+    #[test]
+    fn test_tag() -> Result<()> {
+        let file_path = Path::new("foo");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))?.write_all(b"test\nfoo")?;
+
+        stage_add_file(repo_path, file_path)?;
+        let new_id = commit(repo_path, "commit msg")?;
+        tag_commit(repo_path, &new_id, "tag", None)?;
+
+        assert_eq!(
+            get_tags(repo_path).unwrap()[&new_id],
+            vec![Tag::new("tag")]
+        );
+
+        assert!(matches!(tag_commit(repo_path, &new_id, "tag", None), Err(_)));
+        assert_eq!(
+            get_tags(repo_path).unwrap()[&new_id],
+            vec![Tag::new("tag")]
+        );
+
+        tag_commit(repo_path, &new_id, "second-tag", None)?;
+        assert_eq!(
+            get_tags(repo_path).unwrap()[&new_id],
+            vec![Tag::new("second-tag"), Tag::new("tag")]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_tag_with_message() -> Result<()> {
+        let file_path = Path::new("foo");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))?.write_all(b"test\nfoo")?;
+        stage_add_file(repo_path, file_path)?;
+        let new_id = commit(repo_path, "commit msg")?;
+        tag_commit(repo_path, &new_id, "tag", Some("tag-message"))?;
+
+        assert_eq!(
+            get_tags(repo_path).unwrap()[&new_id][0]
+                .annotation
+                .as_ref()
+                .unwrap(),
+            "tag-message"
+        );
 
         Ok(())
     }
