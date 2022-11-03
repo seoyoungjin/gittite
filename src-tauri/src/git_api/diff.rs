@@ -6,14 +6,14 @@ use super::{
     utils::{get_head_repo, work_dir},
     CommitId, RepoPath,
 };
-use crate::git_api::{hash, repository::repo_open};
-use easy_cast::Conv;
+use crate::git_api::{utils::hash, repository::repo_open};
 use git2::{Delta, Diff, DiffDelta, DiffFormat, DiffHunk, Patch};
-use git2::{Repository, StatusShow};
+use git2::Repository;
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, fs, path::Path, rc::Rc};
 
 /// type of diff of a single line
+#[derive(Serialize, Deserialize)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum DiffLineType {
     /// just surrounding line, no change
@@ -46,6 +46,7 @@ impl Default for DiffLineType {
 }
 
 ///
+#[derive(Serialize, Deserialize)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DiffLine {
     ///
@@ -57,6 +58,7 @@ pub struct DiffLine {
 }
 
 ///
+#[derive(Serialize, Deserialize)]
 #[derive(Clone, Copy, Default, Hash, Debug, PartialEq, Eq)]
 pub struct DiffLinePosition {
     ///
@@ -101,6 +103,7 @@ impl From<DiffHunk<'_>> for HunkHeader {
 }
 
 /// single diff hunk
+#[derive(Serialize, Deserialize)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Hunk {
     /// hash of the hunk header
@@ -110,6 +113,7 @@ pub struct Hunk {
 }
 
 /// collection of hunks, sum of all diff lines
+#[derive(Serialize, Deserialize)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct FileDiff {
     /// list of hunks
@@ -272,8 +276,8 @@ fn raw_diff_to_file_diff<'a>(
                     delta.new_file().size(),
                 );
                 //TODO: use try_conv
-                res.size_delta = (i64::conv(res.sizes.1))
-                    .saturating_sub(i64::conv(res.sizes.0));
+                res.size_delta = (res.sizes.1 as i64)
+                    .saturating_sub(res.sizes.0 as i64);
             }
             if let Some(hunk) = hunk {
                 let hunk_header = HunkHeader::from(hunk);

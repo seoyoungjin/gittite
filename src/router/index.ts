@@ -50,6 +50,11 @@ const router = createRouter({
       component: () => import("../views/gitcmd/Commit.vue"),
     },
     {
+      path: "/gitcmd/diff",
+      name: "git-diff",
+      component: () => import("../views/gitcmd/Diff.vue"),
+    },
+    {
       path: "/gitcmd/addremove",
       name: "git-addremove",
       component: () => import("../views/gitcmd/AddRemove.vue"),

@@ -51,18 +51,7 @@ use repository::RepoPath;
 use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
 use status::{StatusItem, StatusItemType};
-use std::{
-    collections::hash_map::DefaultHasher,
-    hash::{Hash, Hasher},
-};
-
-/// helper function to calculate the hash of an arbitrary type
-/// that implements the `Hash` trait
-fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    v.hash(&mut hasher);
-    hasher.finish()
-}
+use diff::FileDiff;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -230,6 +219,25 @@ pub fn commit_files(
         Err(e) => return Err(e.to_string()),
     };
     match commit_files::get_commit_files(repo_path, cid, None) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn get_diff(
+    args: String,
+    app_data: AppDataState<'_>
+) -> Result<FileDiff, String> {
+    log::trace!("commit_files:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    let path = args.as_str();
+    let stage = true;
+    let diff_opt = None;
+    match diff::get_diff(repo_path, &path, stage, diff_opt) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

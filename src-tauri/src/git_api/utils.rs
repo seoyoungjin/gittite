@@ -4,7 +4,19 @@ use anyhow::{anyhow, Result};
 use super::CommitId;
 use super::repository::{repo_open, RepoPath};
 use git2::{Error, ErrorClass, ErrorCode, Repository};
-use std::{fs::File, io::Write, path::{Path, PathBuf}};
+use std::{fs::File, io::Write, path::Path};
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
+/// helper function to calculate the hash of an arbitrary type
+/// that implements the `Hash` trait
+pub fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    v.hash(&mut hasher);
+    hasher.finish()
+}
 
 ///
 pub fn get_head(repo_path: &RepoPath) -> Result<CommitId, Error> {

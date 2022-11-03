@@ -98,11 +98,15 @@
                 <q-btn label="Submit" type="submit" color="primary" />
               </div>
             </q-form>
+            <pre>
+Todo: diff --name-status
+            </pre>
             <br />
             <br />
             <div>
               <vue-json-pretty :data="response" />
             </div>
+
           </q-tab-panel>
         </q-tab-panels>
       </q-card>

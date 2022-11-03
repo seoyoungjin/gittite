@@ -606,12 +606,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "easy-cast"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2953e4bb4103fd7db41b83431f681a583e2c18e529beb4ca6c679a0dad16c8d"
-
-[[package]]
 name = "embed_plist"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -960,7 +954,6 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "atomicwrites",
- "easy-cast",
  "env_logger",
  "git2",
  "log",

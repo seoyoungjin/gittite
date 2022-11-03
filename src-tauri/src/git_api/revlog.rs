@@ -18,16 +18,11 @@ use structopt::StructOpt;
 pub struct CommitData {
     sha: String,
     summary: String,
-    // TODO : can be None
     body: String,
     date: String,
     author: String,
     committer: String,
     parents: Vec<String>,
-    // TODO Co-authored-by, blame, Signed-off-by, Issue, ...
-    // trailers:
-    // TODO tag
-    // refs:
 }
 
 #[derive(StructOpt)]

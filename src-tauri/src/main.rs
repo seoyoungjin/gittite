@@ -64,10 +64,14 @@ fn main() {
       git_api::rev_list,
       git_api::get_status,
       git_api::get_remotes,
+      git_api::get_diff,
+      // git_api::get_diff_commit,
     ])
     .setup(|app| {
       let win = app.get_window("main").unwrap();
-      win.set_size(Size::Physical(PhysicalSize{width: 900, height: 800})).unwrap();
+      win.set_size(
+          Size::Physical(PhysicalSize{width: 900, height: 800})
+      ).unwrap();
       Ok(())
     })
     .run(context)

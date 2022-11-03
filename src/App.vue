@@ -124,6 +124,7 @@ export default {
         { icon: 'home', text: 'Status', link: '/gitcmd/status' },
         { icon: 'restore', text: 'Logs', link: '/gitcmd/logs' },
         { icon: 'restore', text: 'Commit', link: '/gitcmd/commit' },
+        { icon: 'restore', text: 'Diff', link: '/gitcmd/diff' },
         { icon: 'folder', text: 'App/Remove', link: '/gitcmd/addremove' },
         { icon: 'star_border', text: 'Branch', link: '/gitcmd/branch' },
         { icon: 'whatshot', text: 'Tags', link: '/gitcmd/tags' },
