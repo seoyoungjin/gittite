@@ -1,8 +1,10 @@
 //! git_api various methods
 
+use anyhow::{anyhow, Result};
 use super::CommitId;
-use git2::{Error, ErrorClass, ErrorCode, Repository};
 use super::repository::{repo_open, RepoPath};
+use git2::{Error, ErrorClass, ErrorCode, Repository};
+use std::{fs::File, io::Write, path::{Path, PathBuf}};
 
 ///
 pub fn get_head(repo_path: &RepoPath) -> Result<CommitId, Error> {
@@ -21,6 +23,41 @@ pub fn get_head_repo(repo: &Repository) -> Result<CommitId, Error> {
         )),
         |head_id| Ok(head_id.into()),
     )
+}
+
+//
+pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
+    repo.workdir().ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
+}
+
+/// write a file in repo
+pub(crate) fn repo_write_file(
+    repo: &Repository,
+    file: &str,
+    content: &str,
+) -> Result<()> {
+    let dir = work_dir(repo)?.join(file);
+    let file_path = dir.to_str().ok_or_else(|| {anyhow!("invalid file path")})?;
+    let mut file = File::create(file_path)?;
+    file.write_all(content.as_bytes())?;
+    Ok(())
+}
+
+#[cfg(test)]
+pub(crate) fn repo_read_file(
+    repo: &Repository,
+    file: &str,
+) -> Result<String> {
+    use std::io::Read;
+
+    let dir = work_dir(repo)?.join(file);
+    let file_path = dir.to_str().ok_or_else(|| {anyhow!("invalid file path")})?;
+
+    let mut file = File::open(file_path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    Ok(String::from_utf8(buffer)?)
 }
 
 #[cfg(test)]

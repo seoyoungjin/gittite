@@ -3,30 +3,27 @@
 // TODO
 // pub type Result<T> = std::result::Result<T, String>;
 
-use anyhow::anyhow;
-use std::path::Path;
-use git2::{Repository, StatusShow};
-use structopt::StructOpt;
-
 use crate::app_data::{AppData, AppDataState};
 use std::sync::MutexGuard;
 
-// init, clone, open
+use anyhow::anyhow;
+use std::path::Path;
+use git2::StatusShow;
+
 pub mod init;
 pub mod clone;
 pub mod repository;
 
 mod commit;
 mod commit_info;
+mod commit_files;
 
-// add remove
 // TODO mv
 pub mod addremove;
-// reset_stage
 // TODO reset_workdir
 pub mod reset;
 
-// pub mod diff;
+pub mod diff;
 pub mod revlog;
 pub mod rev_list;
 pub mod status;
@@ -34,27 +31,38 @@ pub mod status;
 
 // branch merge rebase reset switch
 // pub mod tag;
-// pub mod stash;
+pub mod stash;
 // pub mod blame;
 
 // push
 // pub mod fetch;
 // pub mod pull;
 
-// sig tree tag blob
+// sig tree blob
 // pub mod cat-file;
 
 pub mod remote;
 
 // spec revspec
-// pub mod rev-list;
 // pub mod rev-parse;
 pub mod utils;
 
 use repository::RepoPath;
 use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
-use status::StatusItem;
+use status::{StatusItem, StatusItemType};
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
+/// helper function to calculate the hash of an arbitrary type
+/// that implements the `Hash` trait
+fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    v.hash(&mut hasher);
+    hasher.finish()
+}
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -201,7 +209,7 @@ pub fn commit_info(
         Ok(cid) => cid,
         Err(e) => return Err(e.to_string()),
     };
-    match commit_info::get_commit_info(repo_path, &cid) {
+    match commit_info::get_commit_info(repo_path, cid) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }
@@ -265,12 +273,14 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::RepoPath;
+    use super::{CommitId, RepoPath};
     use super::status::get_status;
+    use super::utils::{get_head_repo, repo_write_file};
+    use super::{commit, addremove};
 
     use anyhow::Result;
     use git2::{Repository, StatusShow};
-    use std::process::Command;
+    use std::{path::Path, process::Command};
     use tempfile::TempDir;
 
     // init log
@@ -407,5 +417,25 @@ mod tests {
                 format!("err:\n{}", stderr)
             }
         )
+    }
+
+    /// write, stage and commit a file
+    pub fn write_commit_file(
+        repo: &Repository,
+        file: &str,
+        content: &str,
+        commit_name: &str,
+    ) -> CommitId {
+        repo_write_file(repo, file, content).unwrap();
+
+        addremove::stage_add_file(
+            &repo.workdir().unwrap().to_str().unwrap().into(),
+            Path::new(file),
+        ).unwrap();
+
+        commit::commit(
+            &repo.workdir().unwrap().to_str().unwrap().into(),
+            commit_name,
+        ).unwrap()
     }
 }

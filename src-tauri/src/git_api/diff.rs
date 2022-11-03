@@ -1,368 +1,640 @@
-/*
- * libgit2 "diff" example - shows how to use the diff API
- *
- * Written by the libgit2 contributors
- *
- * To the extent possible under law, the author(s) have dedicated all copyright
- * and related and neighboring rights to this software to the public domain
- * worldwide. This software is distributed without any warranty.
- *
- * You should have received a copy of the CC0 Public Domain Dedication along
- * with this software. If not, see
- * <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
+//! sync git api for fetching a diff
 
-#![deny(warnings)]
+use anyhow::{anyhow, Result};
+use super::{
+    commit_files::{get_commit_diff, get_compare_commits_diff},
+    utils::{get_head_repo, work_dir},
+    CommitId, RepoPath,
+};
+use crate::git_api::{hash, repository::repo_open};
+use easy_cast::Conv;
+use git2::{Delta, Diff, DiffDelta, DiffFormat, DiffHunk, Patch};
+use git2::{Repository, StatusShow};
+use serde::{Deserialize, Serialize};
+use std::{cell::RefCell, fs, path::Path, rc::Rc};
 
-use git2::{Blob, Diff, DiffOptions, Error, Object, ObjectType, Oid, Repository};
-use git2::{DiffDelta, DiffFindOptions, DiffFormat, DiffHunk, DiffLine};
-use std::str;
-use structopt::StructOpt;
-
-#[derive(StructOpt)]
-#[allow(non_snake_case)]
-struct Args {
-    #[structopt(name = "from_oid")]
-    arg_from_oid: Option<String>,
-    #[structopt(name = "to_oid")]
-    arg_to_oid: Option<String>,
-    #[structopt(name = "blobs", long)]
-    /// treat from_oid and to_oid as blob ids
-    flag_blobs: bool,
-    #[structopt(name = "patch", short, long)]
-    /// show output in patch format
-    flag_patch: bool,
-    #[structopt(name = "cached", long)]
-    /// use staged changes as diff
-    flag_cached: bool,
-    #[structopt(name = "nocached", long)]
-    /// do not use staged changes
-    flag_nocached: bool,
-    #[structopt(name = "name-only", long)]
-    /// show only names of changed files
-    flag_name_only: bool,
-    #[structopt(name = "name-status", long)]
-    /// show only names and status changes
-    flag_name_status: bool,
-    #[structopt(name = "raw", long)]
-    /// generate the raw format
-    flag_raw: bool,
-    #[structopt(name = "format", long)]
-    /// specify format for stat summary
-    flag_format: Option<String>,
-    #[structopt(name = "color", long)]
-    /// use color output
-    flag_color: bool,
-    #[structopt(name = "no-color", long)]
-    /// never use color output
-    flag_no_color: bool,
-    #[structopt(short = "R")]
-    /// swap two inputs
-    flag_R: bool,
-    #[structopt(name = "text", short = "a", long)]
-    /// treat all files as text
-    flag_text: bool,
-    #[structopt(name = "ignore-space-at-eol", long)]
-    /// ignore changes in whitespace at EOL
-    flag_ignore_space_at_eol: bool,
-    #[structopt(name = "ignore-space-change", short = "b", long)]
-    /// ignore changes in amount of whitespace
-    flag_ignore_space_change: bool,
-    #[structopt(name = "ignore-all-space", short = "w", long)]
-    /// ignore whitespace when comparing lines
-    flag_ignore_all_space: bool,
-    #[structopt(name = "ignored", long)]
-    /// show untracked files
-    flag_ignored: bool,
-    #[structopt(name = "untracked", long)]
-    /// generate diff using the patience algorithm
-    flag_untracked: bool,
-    #[structopt(name = "patience", long)]
-    /// show ignored files as well
-    flag_patience: bool,
-    #[structopt(name = "minimal", long)]
-    /// spend extra time to find smallest diff
-    flag_minimal: bool,
-    #[structopt(name = "stat", long)]
-    /// generate a diffstat
-    flag_stat: bool,
-    #[structopt(name = "numstat", long)]
-    /// similar to --stat, but more machine friendly
-    flag_numstat: bool,
-    #[structopt(name = "shortstat", long)]
-    /// only output last line of --stat
-    flag_shortstat: bool,
-    #[structopt(name = "summary", long)]
-    /// output condensed summary of header info
-    flag_summary: bool,
-    #[structopt(name = "find-renames", short = "M", long)]
-    /// set threshold for findind renames (default 50)
-    flag_find_renames: Option<u16>,
-    #[structopt(name = "find-copies", short = "C", long)]
-    /// set threshold for finding copies (default 50)
-    flag_find_copies: Option<u16>,
-    #[structopt(name = "find-copies-harder", long)]
-    /// inspect unmodified files for sources of copies
-    flag_find_copies_harder: bool,
-    #[structopt(name = "break_rewrites", short = "B", long)]
-    /// break complete rewrite changes into pairs
-    flag_break_rewrites: bool,
-    #[structopt(name = "unified", short = "U", long)]
-    /// lints of context to show
-    flag_unified: Option<u32>,
-    #[structopt(name = "inter-hunk-context", long)]
-    /// maximum lines of change between hunks
-    flag_inter_hunk_context: Option<u32>,
-    #[structopt(name = "abbrev", long)]
-    /// length to abbreviate commits to
-    flag_abbrev: Option<u16>,
-    #[structopt(name = "src-prefix", long)]
-    /// show given source prefix instead of 'a/'
-    flag_src_prefix: Option<String>,
-    #[structopt(name = "dst-prefix", long)]
-    /// show given destinction prefix instead of 'b/'
-    flag_dst_prefix: Option<String>,
-    #[structopt(name = "path", long = "git-dir")]
-    /// path to git repository to use
-    flag_git_dir: Option<String>,
-}
-
-const RESET: &str = "\u{1b}[m";
-const BOLD: &str = "\u{1b}[1m";
-const RED: &str = "\u{1b}[31m";
-const GREEN: &str = "\u{1b}[32m";
-const CYAN: &str = "\u{1b}[36m";
-
-#[derive(PartialEq, Eq, Copy, Clone)]
-enum Cache {
-    Normal,
-    Only,
+/// type of diff of a single line
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub enum DiffLineType {
+    /// just surrounding line, no change
     None,
+    /// header of the hunk
+    Header,
+    /// line added
+    Add,
+    /// line deleted
+    Delete,
 }
 
-fn line_color(line: &DiffLine) -> Option<&'static str> {
-    match line.origin() {
-        '+' => Some(GREEN),
-        '-' => Some(RED),
-        '>' => Some(GREEN),
-        '<' => Some(RED),
-        'F' => Some(BOLD),
-        'H' => Some(CYAN),
-        _ => None,
+impl From<git2::DiffLineType> for DiffLineType {
+    fn from(line_type: git2::DiffLineType) -> Self {
+        match line_type {
+            git2::DiffLineType::HunkHeader => Self::Header,
+            git2::DiffLineType::DeleteEOFNL
+            | git2::DiffLineType::Deletion => Self::Delete,
+            git2::DiffLineType::AddEOFNL
+            | git2::DiffLineType::Addition => Self::Add,
+            _ => Self::None,
+        }
     }
 }
 
-fn print_diff_line(
-    _delta: DiffDelta,
-    _hunk: Option<DiffHunk>,
-    line: DiffLine,
-    args: &Args,
-) -> bool {
-    if args.color() {
-        print!("{}", RESET);
-        if let Some(color) = line_color(&line) {
-            print!("{}", color);
-        }
+impl Default for DiffLineType {
+    fn default() -> Self {
+        Self::None
     }
-    match line.origin() {
-        '+' | '-' | ' ' => print!("{}", line.origin()),
-        _ => {}
-    }
-    print!("{}", str::from_utf8(line.content()).unwrap());
-    true
 }
 
-fn run(args: &Args) -> Result<(), Error> {
-    let path = args.flag_git_dir.as_ref().map(|s| &s[..]).unwrap_or(".");
-    let repo = Repository::open(path)?;
-
-    // Prepare our diff options based on the arguments given
-    let mut opts = DiffOptions::new();
-    opts.reverse(args.flag_R)
-        .force_text(args.flag_text)
-        .ignore_whitespace_eol(args.flag_ignore_space_at_eol)
-        .ignore_whitespace_change(args.flag_ignore_space_change)
-        .ignore_whitespace(args.flag_ignore_all_space)
-        .include_ignored(args.flag_ignored)
-        .include_untracked(args.flag_untracked)
-        .patience(args.flag_patience)
-        .minimal(args.flag_minimal);
-    if let Some(amt) = args.flag_unified {
-        opts.context_lines(amt);
-    }
-    if let Some(amt) = args.flag_inter_hunk_context {
-        opts.interhunk_lines(amt);
-    }
-    if let Some(amt) = args.flag_abbrev {
-        opts.id_abbrev(amt);
-    }
-    if let Some(ref s) = args.flag_src_prefix {
-        opts.old_prefix(&s);
-    }
-    if let Some(ref s) = args.flag_dst_prefix {
-        opts.new_prefix(&s);
-    }
-    if let Some("diff-index") = args.flag_format.as_ref().map(|s| &s[..]) {
-        opts.id_abbrev(40);
-    }
-
-    if args.flag_blobs {
-        let b1 = resolve_blob(&repo, args.arg_from_oid.as_ref())?;
-        let b2 = resolve_blob(&repo, args.arg_to_oid.as_ref())?;
-        repo.diff_blobs(
-            b1.as_ref(),
-            None,
-            b2.as_ref(),
-            None,
-            Some(&mut opts),
-            None,
-            None,
-            None,
-            Some(&mut |d, h, l| print_diff_line(d, h, l, args)),
-        )?;
-        if args.color() {
-            print!("{}", RESET);
-        }
-        return Ok(());
-    }
-
-    // Prepare the diff to inspect
-    let t1 = tree_to_treeish(&repo, args.arg_from_oid.as_ref())?;
-    let t2 = tree_to_treeish(&repo, args.arg_to_oid.as_ref())?;
-    let head = tree_to_treeish(&repo, Some(&"HEAD".to_string()))?.unwrap();
-    let mut diff = match (t1, t2, args.cache()) {
-        (Some(t1), Some(t2), _) => {
-            repo.diff_tree_to_tree(t1.as_tree(), t2.as_tree(), Some(&mut opts))?
-        }
-        (t1, None, Cache::None) => {
-            let t1 = t1.unwrap_or(head);
-            repo.diff_tree_to_workdir(t1.as_tree(), Some(&mut opts))?
-        }
-        (t1, None, Cache::Only) => {
-            let t1 = t1.unwrap_or(head);
-            repo.diff_tree_to_index(t1.as_tree(), None, Some(&mut opts))?
-        }
-        (Some(t1), None, _) => {
-            repo.diff_tree_to_workdir_with_index(t1.as_tree(), Some(&mut opts))?
-        }
-        (None, None, _) => repo.diff_index_to_workdir(None, Some(&mut opts))?,
-        (None, Some(_), _) => unreachable!(),
-    };
-
-    // Apply rename and copy detection if requested
-    if args.flag_break_rewrites
-        || args.flag_find_copies_harder
-        || args.flag_find_renames.is_some()
-        || args.flag_find_copies.is_some()
-    {
-        let mut opts = DiffFindOptions::new();
-        if let Some(t) = args.flag_find_renames {
-            opts.rename_threshold(t);
-            opts.renames(true);
-        }
-        if let Some(t) = args.flag_find_copies {
-            opts.copy_threshold(t);
-            opts.copies(true);
-        }
-        opts.copies_from_unmodified(args.flag_find_copies_harder)
-            .rewrites(args.flag_break_rewrites);
-        diff.find_similar(Some(&mut opts))?;
-    }
-
-    // Generate simple output
-    let stats = args.flag_stat | args.flag_numstat | args.flag_shortstat | args.flag_summary;
-    if stats {
-        print_stats(&diff, args)?;
-    }
-    if args.flag_patch || !stats {
-        diff.print(args.diff_format(), |d, h, l| print_diff_line(d, h, l, args))?;
-        if args.color() {
-            print!("{}", RESET);
-        }
-    }
-
-    Ok(())
+///
+#[derive(Default, Clone, Hash, Debug)]
+pub struct DiffLine {
+    ///
+    pub content: Box<str>,
+    ///
+    pub line_type: DiffLineType,
+    ///
+    pub position: DiffLinePosition,
 }
 
-fn print_stats(diff: &Diff, args: &Args) -> Result<(), Error> {
-    let stats = diff.stats()?;
-    let mut format = git2::DiffStatsFormat::NONE;
-    if args.flag_stat {
-        format |= git2::DiffStatsFormat::FULL;
-    }
-    if args.flag_shortstat {
-        format |= git2::DiffStatsFormat::SHORT;
-    }
-    if args.flag_numstat {
-        format |= git2::DiffStatsFormat::NUMBER;
-    }
-    if args.flag_summary {
-        format |= git2::DiffStatsFormat::INCLUDE_SUMMARY;
-    }
-    let buf = stats.to_buf(format, 80)?;
-    print!("{}", str::from_utf8(&*buf).unwrap());
-    Ok(())
+///
+#[derive(Clone, Copy, Default, Hash, Debug, PartialEq, Eq)]
+pub struct DiffLinePosition {
+    ///
+    pub old_lineno: Option<u32>,
+    ///
+    pub new_lineno: Option<u32>,
 }
 
-fn tree_to_treeish<'a>(
+impl PartialEq<&git2::DiffLine<'_>> for DiffLinePosition {
+    fn eq(&self, other: &&git2::DiffLine) -> bool {
+        other.new_lineno() == self.new_lineno
+            && other.old_lineno() == self.old_lineno
+    }
+}
+
+impl From<&git2::DiffLine<'_>> for DiffLinePosition {
+    fn from(line: &git2::DiffLine<'_>) -> Self {
+        Self {
+            old_lineno: line.old_lineno(),
+            new_lineno: line.new_lineno(),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Hash)]
+pub(crate) struct HunkHeader {
+    pub old_start: u32,
+    pub old_lines: u32,
+    pub new_start: u32,
+    pub new_lines: u32,
+}
+
+impl From<DiffHunk<'_>> for HunkHeader {
+    fn from(h: DiffHunk) -> Self {
+        Self {
+            old_start: h.old_start(),
+            old_lines: h.old_lines(),
+            new_start: h.new_start(),
+            new_lines: h.new_lines(),
+        }
+    }
+}
+
+/// single diff hunk
+#[derive(Default, Clone, Hash, Debug)]
+pub struct Hunk {
+    /// hash of the hunk header
+    pub header_hash: u64,
+    /// list of `DiffLine`s
+    pub lines: Vec<DiffLine>,
+}
+
+/// collection of hunks, sum of all diff lines
+#[derive(Default, Clone, Hash, Debug)]
+pub struct FileDiff {
+    /// list of hunks
+    pub hunks: Vec<Hunk>,
+    /// lines total summed up over hunks
+    pub lines: usize,
+    ///
+    pub untracked: bool,
+    /// old and new file size in bytes
+    pub sizes: (u64, u64),
+    /// size delta in bytes
+    pub size_delta: i64,
+}
+
+/// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
+#[derive(
+    Debug, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize,
+)]
+pub struct DiffOptions {
+    /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
+    pub ignore_whitespace: bool,
+    /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
+    pub context: u32,
+    /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
+    pub interhunk_lines: u32,
+}
+
+impl Default for DiffOptions {
+    fn default() -> Self {
+        Self {
+            ignore_whitespace: false,
+            context: 3,
+            interhunk_lines: 0,
+        }
+    }
+}
+
+pub(crate) fn get_diff_raw<'a>(
     repo: &'a Repository,
-    arg: Option<&String>,
-) -> Result<Option<Object<'a>>, Error> {
-    let arg = match arg {
-        Some(s) => s,
-        None => return Ok(None),
-    };
-    let obj = repo.revparse_single(arg)?;
-    let tree = obj.peel(ObjectType::Tree)?;
-    Ok(Some(tree))
-}
+    p: &str,
+    stage: bool,
+    reverse: bool,
+    options: Option<DiffOptions>,
+) -> Result<Diff<'a>> {
+    let mut opt = git2::DiffOptions::new();
+    if let Some(options) = options {
+        opt.context_lines(options.context);
+        opt.ignore_whitespace(options.ignore_whitespace);
+        opt.interhunk_lines(options.interhunk_lines);
+    }
+    opt.pathspec(p);
+    opt.reverse(reverse);
 
-fn resolve_blob<'a>(repo: &'a Repository, arg: Option<&String>) -> Result<Option<Blob<'a>>, Error> {
-    let arg = match arg {
-        Some(s) => Oid::from_str(s)?,
-        None => return Ok(None),
-    };
-    repo.find_blob(arg).map(|b| Some(b))
-}
+    let diff = if stage {
+        // diff against head
+        if let Ok(id) = get_head_repo(repo) {
+            let parent = repo.find_commit(id.into())?;
 
-impl Args {
-    fn cache(&self) -> Cache {
-        if self.flag_cached {
-            Cache::Only
-        } else if self.flag_nocached {
-            Cache::None
+            let tree = parent.tree()?;
+            repo.diff_tree_to_index(
+                Some(&tree),
+                Some(&repo.index()?),
+                Some(&mut opt),
+            )?
         } else {
-            Cache::Normal
+            repo.diff_tree_to_index(
+                None,
+                Some(&repo.index()?),
+                Some(&mut opt),
+            )?
+        }
+    } else {
+        opt.include_untracked(true);
+        opt.recurse_untracked_dirs(true);
+        repo.diff_index_to_workdir(None, Some(&mut opt))?
+    };
+
+    Ok(diff)
+}
+
+/// returns diff of a specific file either in `stage` or workdir
+pub fn get_diff(
+    repo_path: &RepoPath,
+    p: &str,
+    stage: bool,
+    options: Option<DiffOptions>,
+) -> Result<FileDiff> {
+    let repo = repo_open(repo_path)?;
+    let work_dir = work_dir(&repo)?;
+    let diff = get_diff_raw(&repo, p, stage, false, options)?;
+
+    raw_diff_to_file_diff(&diff, work_dir)
+}
+
+/// returns diff of a specific file inside a commit
+/// see `get_commit_diff`
+pub fn get_diff_commit(
+    repo_path: &RepoPath,
+    id: CommitId,
+    p: String,
+    options: Option<DiffOptions>,
+) -> Result<FileDiff> {
+    let repo = repo_open(repo_path)?;
+    let work_dir = work_dir(&repo)?;
+    let diff = get_commit_diff(repo_path, &repo, id, Some(p), options)?;
+
+    raw_diff_to_file_diff(&diff, work_dir)
+}
+
+/// get file changes of a diff between two commits
+pub fn get_diff_commits(
+    repo_path: &RepoPath,
+    ids: (CommitId, CommitId),
+    p: String,
+    options: Option<DiffOptions>,
+) -> Result<FileDiff> {
+    let repo = repo_open(repo_path)?;
+    let work_dir = work_dir(&repo)?;
+    let diff = get_compare_commits_diff(
+        &repo,
+        (ids.0, ids.1),
+        Some(p),
+        options,
+    )?;
+
+    raw_diff_to_file_diff(&diff, work_dir)
+}
+
+///
+//TODO: refactor into helper type with the inline closures as dedicated functions
+#[allow(clippy::too_many_lines)]
+fn raw_diff_to_file_diff<'a>(
+    diff: &'a Diff,
+    work_dir: &Path,
+) -> Result<FileDiff> {
+    let res = Rc::new(RefCell::new(FileDiff::default()));
+    {
+        let mut current_lines = Vec::new();
+        let mut current_hunk: Option<HunkHeader> = None;
+
+        let res_cell = Rc::clone(&res);
+        let adder = move |header: &HunkHeader,
+                          lines: &Vec<DiffLine>| {
+            let mut res = res_cell.borrow_mut();
+            res.hunks.push(Hunk {
+                header_hash: hash(header),
+                lines: lines.clone(),
+            });
+            res.lines += lines.len();
+        };
+
+        let res_cell = Rc::clone(&res);
+        let mut put = |delta: DiffDelta,
+                       hunk: Option<DiffHunk>,
+                       line: git2::DiffLine| {
+            {
+                let mut res = res_cell.borrow_mut();
+                res.sizes = (
+                    delta.old_file().size(),
+                    delta.new_file().size(),
+                );
+                //TODO: use try_conv
+                res.size_delta = (i64::conv(res.sizes.1))
+                    .saturating_sub(i64::conv(res.sizes.0));
+            }
+            if let Some(hunk) = hunk {
+                let hunk_header = HunkHeader::from(hunk);
+
+                match current_hunk {
+                    None => current_hunk = Some(hunk_header),
+                    Some(h) => {
+                        if h != hunk_header {
+                            adder(&h, &current_lines);
+                            current_lines.clear();
+                            current_hunk = Some(hunk_header);
+                        }
+                    }
+                }
+
+                let diff_line = DiffLine {
+                    position: DiffLinePosition::from(&line),
+                    content: String::from_utf8_lossy(line.content())
+                        //Note: trim await trailing newline characters
+                        .trim_matches(is_newline)
+                        .into(),
+                    line_type: line.origin_value().into(),
+                };
+
+                current_lines.push(diff_line);
+            }
+        };
+
+        let new_file_diff = if diff.deltas().len() == 1 {
+            if let Some(delta) = diff.deltas().next() {
+                if delta.status() == Delta::Untracked {
+                    let relative_path =
+                        delta.new_file().path().ok_or_else(|| {
+                            anyhow!("new file path is unspecified.")
+                        })?;
+
+                    let newfile_path = work_dir.join(relative_path);
+
+                    if let Some(newfile_content) =
+                        new_file_content(&newfile_path)
+                    {
+                        let mut patch = Patch::from_buffers(
+                            &[],
+                            None,
+                            newfile_content.as_slice(),
+                            Some(&newfile_path),
+                            None,
+                        )?;
+
+                        patch.print(
+                            &mut |delta,
+                                  hunk: Option<DiffHunk>,
+                                  line: git2::DiffLine| {
+                                put(delta, hunk, line);
+                                true
+                            },
+                        )?;
+
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+
+        if !new_file_diff {
+            diff.print(
+                DiffFormat::Patch,
+                move |delta, hunk, line: git2::DiffLine| {
+                    put(delta, hunk, line);
+                    true
+                },
+            )?;
+        }
+
+        if !current_lines.is_empty() {
+            adder(
+                &current_hunk.map_or_else(
+                    || Err(anyhow!("invalid hunk")),
+                    Ok,
+                )?,
+                &current_lines,
+            );
+        }
+
+        if new_file_diff {
+            res.borrow_mut().untracked = true;
         }
     }
-    fn color(&self) -> bool {
-        self.flag_color && !self.flag_no_color
-    }
-    fn diff_format(&self) -> DiffFormat {
-        if self.flag_patch {
-            DiffFormat::Patch
-        } else if self.flag_name_only {
-            DiffFormat::NameOnly
-        } else if self.flag_name_status {
-            DiffFormat::NameStatus
-        } else if self.flag_raw {
-            DiffFormat::Raw
-        } else {
-            match self.flag_format.as_ref().map(|s| &s[..]) {
-                Some("name") => DiffFormat::NameOnly,
-                Some("name-status") => DiffFormat::NameStatus,
-                Some("raw") => DiffFormat::Raw,
-                Some("diff-index") => DiffFormat::Raw,
-                _ => DiffFormat::Patch,
+    let res = Rc::try_unwrap(res).map_err(|_| anyhow!("rc unwrap error"))?;
+    Ok(res.into_inner())
+}
+
+const fn is_newline(c: char) -> bool {
+    c == '\n' || c == '\r'
+}
+
+fn new_file_content(path: &Path) -> Option<Vec<u8>> {
+    if let Ok(meta) = fs::symlink_metadata(path) {
+        if meta.file_type().is_symlink() {
+            if let Ok(path) = fs::read_link(path) {
+                return Some(
+                    path.to_str()?.to_string().as_bytes().into(),
+                );
+            }
+        } else if !meta.file_type().is_dir() {
+            if let Ok(content) = fs::read(path) {
+                return Some(content);
             }
         }
     }
+
+    None
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+    use git2::StatusShow;
+    use super::{get_diff, get_diff_commit};
+    use crate::git_api::{
+        commit::commit, addremove::stage_add_file,
+        status::get_status,
+        RepoPath,
+    };
+    use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
+    use std::{fs::{self, File}, io::Write, path::Path};
+
+    #[test]
+    fn test_untracked_subfolder() {
+        let (_td, repo) = repo_init().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        assert_eq!(get_statuses(repo_path), (0, 0));
+
+        fs::create_dir(&root.join("foo")).unwrap();
+        File::create(&root.join("foo/bar.txt"))
+            .unwrap()
+            .write_all(b"test\nfoo")
+            .unwrap();
+
+        assert_eq!(get_statuses(repo_path), (1, 0));
+
+        let diff =
+            get_diff(repo_path, "foo/bar.txt", false, None).unwrap();
+
+        assert_eq!(diff.hunks.len(), 1);
+        assert_eq!(&*diff.hunks[0].lines[1].content, "test");
+    }
+
+    #[test]
+    fn test_empty_repo() {
+        let file_path = Path::new("foo.txt");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        assert_eq!(get_statuses(repo_path), (0, 0));
+
+        File::create(&root.join(file_path))
+            .unwrap()
+            .write_all(b"test\nfoo")
+            .unwrap();
+
+        assert_eq!(get_statuses(repo_path), (1, 0));
+
+        stage_add_file(repo_path, file_path).unwrap();
+
+        assert_eq!(get_statuses(repo_path), (0, 1));
+
+        let diff = get_diff(
+            repo_path,
+            file_path.to_str().unwrap(),
+            true,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(diff.hunks.len(), 1);
+    }
+
+    static HUNK_A: &str = r"
+1   start
+2
+3
+4
+5
+6   middle
+7
+8
+9
+0
+1   end";
+
+    static HUNK_B: &str = r"
+1   start
+2   newa
+3
+4
+5
+6   middle
+7
+8
+9
+0   newb
+1   end";
+
+    #[test]
+    fn test_hunks() {
+        let (_td, repo) = repo_init().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        assert_eq!(get_statuses(repo_path), (0, 0));
+
+        let file_path = root.join("bar.txt");
+
+        {
+            File::create(&file_path)
+                .unwrap()
+                .write_all(HUNK_A.as_bytes())
+                .unwrap();
+        }
+
+        let res = get_status(repo_path, StatusShow::Workdir).unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].path, "bar.txt");
+
+        stage_add_file(repo_path, Path::new("bar.txt")).unwrap();
+        assert_eq!(get_statuses(repo_path), (0, 1));
+
+        // overwrite with next content
+        {
+            File::create(&file_path)
+                .unwrap()
+                .write_all(HUNK_B.as_bytes())
+                .unwrap();
+        }
+
+        assert_eq!(get_statuses(repo_path), (1, 1));
+
+        let res =
+            get_diff(repo_path, "bar.txt", false, None).unwrap();
+
+        assert_eq!(res.hunks.len(), 2)
+    }
+
+    #[test]
+    fn test_diff_newfile_in_sub_dir_current_dir() {
+        let file_path = Path::new("foo/foo.txt");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+
+        let sub_path = root.join("foo/");
+
+        fs::create_dir_all(&sub_path).unwrap();
+        File::create(&root.join(file_path))
+            .unwrap()
+            .write_all(b"test")
+            .unwrap();
+
+        let diff = get_diff(
+            &sub_path.to_str().unwrap().into(),
+            file_path.to_str().unwrap(),
+            false,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(&*diff.hunks[0].lines[1].content, "test");
+    }
+
+    #[test]
+    fn test_diff_delta_size() -> Result<()> {
+        let file_path = Path::new("bar");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))?.write_all(b"\x00")?;
+
+        stage_add_file(repo_path, file_path).unwrap();
+
+        commit(repo_path, "commit").unwrap();
+
+        File::create(&root.join(file_path))?
+            .write_all(b"\x00\x02")?;
+
+        let diff = get_diff(
+            repo_path,
+            file_path.to_str().unwrap(),
+            false,
+            None,
+        )
+        .unwrap();
+
+        dbg!(&diff);
+        assert_eq!(diff.sizes, (1, 2));
+        assert_eq!(diff.size_delta, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_binary_diff_delta_size_untracked() -> Result<()> {
+        let file_path = Path::new("bar");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))?.write_all(b"\x00\xc7")?;
+
+        let diff = get_diff(
+            repo_path,
+            file_path.to_str().unwrap(),
+            false,
+            None,
+        )
+        .unwrap();
+
+        dbg!(&diff);
+        assert_eq!(diff.sizes, (0, 2));
+        assert_eq!(diff.size_delta, 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_diff_delta_size_commit() -> Result<()> {
+        let file_path = Path::new("bar");
+        let (_td, repo) = repo_init_empty().unwrap();
+        let root = repo.path().parent().unwrap();
+        let repo_path: &RepoPath =
+            &root.as_os_str().to_str().unwrap().into();
+
+        File::create(&root.join(file_path))?.write_all(b"\x00")?;
+        stage_add_file(repo_path, file_path).unwrap();
+        commit(repo_path, "").unwrap();
+
+        File::create(&root.join(file_path))?
+            .write_all(b"\x00\x02")?;
+        stage_add_file(repo_path, file_path).unwrap();
+        let id = commit(repo_path, "").unwrap();
+        let diff = get_diff_commit(repo_path, id, String::new(), None).unwrap();
+
+        dbg!(&diff);
+        assert_eq!(diff.sizes, (1, 2));
+        assert_eq!(diff.size_delta, 1);
+
+        Ok(())
     }
 }

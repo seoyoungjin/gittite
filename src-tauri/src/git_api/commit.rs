@@ -118,8 +118,9 @@ mod tests {
     use crate::git_api::{
         revlog::get_commits,
         addremove::stage_add_file,
-        // get_commit_details, get_commit_files
-        // tags::get_tags,
+        commit_info::get_commit_info,
+        commit_files::get_commit_files,
+        // tags::get_tags, // TODO
         utils::get_head,
     };
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
@@ -196,13 +197,12 @@ mod tests {
         let new_id = amend(repo_path, id, "amended")?;
         assert_eq!(count_commits(&repo_path, 10), 1);
 
-        /* TODO
-        let details = get_commit_details(repo_path, new_id)?;
-        assert_eq!(details.message.unwrap().subject, "amended");
+        let details = get_commit_info(repo_path, new_id)?;
+        // TODO assert_eq!(details.message.unwrap().subject, "amended");
+        assert_eq!(details.message, "amended");
 
         let files = get_commit_files(repo_path, new_id, None)?;
         assert_eq!(files.len(), 2);
-        */
 
         let head = get_head(repo_path)?;
         assert_eq!(head, new_id);

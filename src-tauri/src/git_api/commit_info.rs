@@ -122,11 +122,11 @@ pub fn get_commits_info(
 ///
 pub fn get_commit_info(
     repo_path: &RepoPath,
-    commit_id: &CommitId,
+    commit_id: CommitId,
 ) -> Result<CommitInfo> {
     let repo = repo_open(repo_path)?;
 
-    let commit = repo.find_commit((*commit_id).into())?;
+    let commit = repo.find_commit(commit_id.into())?;
     let author = commit.author();
 
     Ok(CommitInfo {

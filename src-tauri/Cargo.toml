@@ -23,9 +23,9 @@ atomicwrites = "0.3.1"
 rfd = "0.10.0"
 structopt = "0.3.26"
 time = "0.1.39"
-env_logger = "0.9.1"
 log = "0.4.17"
 unicode-truncate = "0.2.0"
+easy-cast = "0.5.1"
 
 [features]
 # by default Tauri runs in production mode
@@ -37,3 +37,4 @@ custom-protocol = [ "tauri/custom-protocol" ]
 
 [dev-dependencies]
 tempfile = "3.3.0"
+env_logger = "0.9.1"

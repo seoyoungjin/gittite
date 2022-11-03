@@ -6,46 +6,46 @@ use git2::{Repository, RepositoryOpenFlags};
 ///
 #[derive(Clone, Debug)]
 pub struct RepoPath {
-	gitdir: PathBuf,
-	workdir: Option<PathBuf>
+    gitdir: PathBuf,
+    workdir: Option<PathBuf>
 }
 
 impl RepoPath {
-	///
-	pub fn gitpath(&self) -> &Path {
-	    self.gitdir.as_path()
-	}
+    ///
+    pub fn gitpath(&self) -> &Path {
+        self.gitdir.as_path()
+    }
 
-	///
-	pub fn workdir(&self) -> Option<&Path> {
+    ///
+    pub fn workdir(&self) -> Option<&Path> {
         if let Some(wd) = &self.workdir {
-	        return Some(wd.as_path());
+            return Some(wd.as_path());
         }
         return None;
-	}
+    }
 }
 
 impl From<&str> for RepoPath {
-	fn from(p: &str) -> Self {
+    fn from(p: &str) -> Self {
         Self {
-		    gitdir : PathBuf::from(p),
+            gitdir : PathBuf::from(p),
             workdir : None
         }
-	}
+    }
 }
 
 pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
-	let repo = Repository::open_ext(
-		repo_path.gitpath(),
-		RepositoryOpenFlags::empty(),
-		Vec::<&Path>::new(),
-	)?;
+    let repo = Repository::open_ext(
+        repo_path.gitpath(),
+        RepositoryOpenFlags::empty(),
+        Vec::<&Path>::new(),
+    )?;
 
-	if let Some(workdir) = repo_path.workdir() {
-		repo.set_workdir(workdir, false)?;
-	}
+    if let Some(workdir) = repo_path.workdir() {
+        repo.set_workdir(workdir, false)?;
+    }
 
-	Ok(repo)
+    Ok(repo)
 }
 
 #[cfg(test)]

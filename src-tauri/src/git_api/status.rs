@@ -2,7 +2,7 @@
 
 use super::repository::{repo_open, RepoPath};
 use anyhow::{anyhow, Result};
-use git2::{Status, StatusOptions, StatusShow};
+use git2::{Delta, Status, StatusOptions, StatusShow};
 use std::path::Path;
 use serde::{Deserialize, Serialize};
 
@@ -42,6 +42,19 @@ impl From<Status> for StatusItemType {
         }
     }
 }
+
+impl From<Delta> for StatusItemType {
+    fn from(d: Delta) -> Self {
+        match d {
+            Delta::Added => Self::New,
+            Delta::Deleted => Self::Deleted,
+            Delta::Renamed => Self::Renamed,
+            Delta::Typechange => Self::Typechange,
+            _ => Self::Modified,
+        }
+    }
+}
+
 
 /// StatusItem
 #[derive(Serialize, Deserialize)]
