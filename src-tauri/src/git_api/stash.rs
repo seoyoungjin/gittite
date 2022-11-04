@@ -1,10 +1,55 @@
 use super::{CommitId, RepoPath};
-use anyhow::{anyhow, Result};
 use crate::git_api::repository::repo_open;
+use anyhow::{anyhow, Result};
+use std::ffi::OsString;
 use git2::{
     build::CheckoutBuilder, Oid, Repository, StashApplyOptions,
     StashFlags,
 };
+use serde_json::Value;
+use structopt::StructOpt;
+use structopt::clap::AppSettings;
+
+#[derive(StructOpt, Debug)]
+#[structopt(setting(AppSettings::NoBinaryName))]
+struct Stash {
+    #[structopt(subcommand)]
+    cmd: SubCommand
+}
+
+#[derive(structopt::StructOpt, Debug, PartialEq)]
+enum SubCommand {
+    #[structopt(name = "save")]
+    Save {
+        #[structopt(name = "message")]
+        message: Option<String>,
+    },
+    #[structopt(name = "list")]
+    List,
+    #[structopt(name = "show")]
+    Show {
+        #[structopt(short)]
+        patch: bool,
+        stash: String,
+    },
+    #[structopt(name = "drop")]
+    Drop { stash: String },
+    #[structopt(name = "pop")]
+    Pop { stash: String },
+    #[structopt(name = "apply")]
+    Apply {
+        stash: String,
+        #[structopt(long)]
+        index: bool
+    },
+    // #[structopt(name = "branch")]
+    // Branch {
+    //     branch: String,
+    //     stash: String
+    // },
+    // #[structopt(name = "clear")]
+    Clear,
+}
 
 ///
 pub fn get_stashes(repo_path: &RepoPath) -> Result<Vec<CommitId>> {
@@ -113,6 +158,42 @@ pub fn stash_save(
     let id = repo.stash_save2(&sig, message, Some(options))?;
 
     Ok(CommitId::new(id))
+}
+
+///
+pub fn stash<I>(repo_path: &RepoPath, args: I) -> Result<Value>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let opt = Stash::from_iter_safe(args)?;
+    log::trace!("stash: {:?}", opt);
+
+    let res = match opt.cmd {
+        /*
+        SubCommand::List  => get_stashes(repo_path),
+        SubCommand::Save{ message }  =>  {
+            // TODO include_untracked, keep_index
+            let msg = message.as_ref().map(String::as_str);
+            stash_save(repo_path, msg, false, false)
+        },
+        SubCommand::Drop{ stash } => {
+            let stashid = CommitId::from(stash);
+            stash_drop(repo_path, stash)
+        },
+        SubCommand::Pop{ stash }  => stash_pop(repo_path, stash),
+        // TODO
+        SubCommand::Apply{ stash, index }  => stash_apply(repo_path, false, index),
+        */
+        // SubCommand::Branch{ branch, stash }  => println!("branch {} {}", branch, stash),
+        // SubCommand::Clear  => println!("{:?}", "clear"),
+        _ => (),
+    };
+
+    match serde_json::to_value(res) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(anyhow!("Error serializing {}", e)),
+    }
 }
 
 #[cfg(test)]
@@ -308,5 +389,26 @@ mod tests {
 
         assert!(res.is_err());
         assert_eq!( repo_read_file(&repo, "test.txt").unwrap(), "test3");
+    }
+
+    #[test]
+    fn test_stash_subcommand() {
+        let opt = Stash::from_iter(["save"]);
+        assert_eq!(opt.cmd, SubCommand::Save{message: None});
+        let opt = Stash::from_iter(["save", "message"]);
+        assert_eq!(opt.cmd, SubCommand::Save{message: Some("message".to_string())});
+
+        let opt = Stash::from_iter(["list"]);
+        assert_eq!(opt.cmd, SubCommand::List);
+
+        let opt = Stash::from_iter_safe(["drop"]);
+        assert_eq!(opt.is_err(), true);
+        let opt = Stash::from_iter(["drop", "stash"]);
+        assert_eq!(opt.cmd, SubCommand::Drop{ stash : "stash".to_string() });
+
+        let opt = Stash::from_iter(["apply", "stash"]);
+        assert_eq!(opt.cmd, SubCommand::Apply{ stash : "stash".to_string() , index: false});
+        let opt = Stash::from_iter(["apply", "stash", "--index"]);
+        assert_eq!(opt.cmd, SubCommand::Apply{ stash : "stash".to_string() , index: true});
     }
 }

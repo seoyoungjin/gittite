@@ -12,20 +12,23 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#![deny(warnings)]
+// TODO
+// #![deny(warnings)]
 
 use git2::{AutotagOption, FetchOptions, RemoteCallbacks, Repository};
 use std::io::{self, Write};
 use std::str;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 struct Args {
     #[structopt(name = "remote")]
     arg_remote: Option<String>,
 }
 
-fn run(args: &Args) -> Result<(), git2::Error> {
+fn fetch(args: &Args) -> Result<(), git2::Error> {
     let repo = Repository::open(".")?;
     let remote = args.arg_remote.as_ref().map(|s| &s[..]).unwrap_or("origin");
 
@@ -118,10 +121,15 @@ fn run(args: &Args) -> Result<(), git2::Error> {
     Ok(())
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_fetch() {
+        let args = Args::from_args();
+        match fetch(&args) {
+            Ok(()) => {}
+            Err(e) => println!("error: {}", e),
+        }
     }
 }

@@ -1,12 +1,8 @@
 //! Git API
 
-// TODO
-// pub type Result<T> = std::result::Result<T, String>;
-
 use crate::app_data::{AppData, AppDataState};
 use std::sync::MutexGuard;
 
-use anyhow::anyhow;
 use std::path::Path;
 use git2::StatusShow;
 
@@ -25,26 +21,24 @@ pub mod reset;
 
 pub mod diff;
 pub mod revlog;
-pub mod rev_list;
+mod rev_list;
+// spec revspec
+mod rev_parse;
 pub mod status;
 // show grep
 
 // branch merge rebase reset switch
-// pub mod tag;
+pub mod tag;
 pub mod stash;
-// pub mod blame;
+pub mod blame;
 
-// push
-// pub mod fetch;
+// TODO push
+pub mod fetch;
 // pub mod pull;
-
-// sig tree blob
-// pub mod cat-file;
-
 pub mod remote;
 
-// spec revspec
-// pub mod rev-parse;
+// sig tree blob
+// pub mod cat_file;
 pub mod utils;
 
 use repository::RepoPath;
@@ -97,7 +91,7 @@ pub fn set_repo(args: String, app_data: AppDataState<'_>) -> Result<(), String> 
     let repo_path: RepoPath = args.as_str().into();
     log::trace!("repo_path: {:?}", repo_path);
     match repository::repo_open(&repo_path) {
-        Ok(repo) => {
+        Ok(_repo) => {
             app_data.repo_path = Some(repo_path);
             Ok(())
         },

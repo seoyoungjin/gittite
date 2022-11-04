@@ -35,7 +35,7 @@ export default {
     Stash the changes in a dirty working directory away stashing your work
     <pre>
 git stash
-git save [message]
+git stash save [message]
     </pre>
 
     list

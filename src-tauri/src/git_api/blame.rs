@@ -12,14 +12,16 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#![deny(warnings)]
+// #![deny(warnings)]
 
 use git2::{BlameOptions, Repository};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 #[allow(non_snake_case)]
 struct Args {
     #[structopt(name = "path")]
@@ -37,7 +39,7 @@ struct Args {
     flag_F: bool,
 }
 
-fn run(args: &Args) -> Result<(), git2::Error> {
+fn blame(args: &Args) -> Result<(), git2::Error> {
     let repo = Repository::open(".")?;
     let path = Path::new(&args.arg_path[..]);
 
@@ -95,10 +97,15 @@ fn run(args: &Args) -> Result<(), git2::Error> {
     Ok(())
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_blame() {
+        let args = Args::from_args();
+        match blame(&args) {
+            Ok(()) => {}
+            Err(e) => println!("error: {}", e),
+        }
     }
 }

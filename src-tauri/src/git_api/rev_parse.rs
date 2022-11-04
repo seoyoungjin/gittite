@@ -12,12 +12,14 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#![deny(warnings)]
+// #![deny(warnings)]
 
 use git2::Repository;
 use structopt::StructOpt;
+use structopt::clap::AppSettings;
 
 #[derive(StructOpt)]
+#[structopt(setting(AppSettings::NoBinaryName))]
 struct Args {
     #[structopt(name = "spec")]
     arg_spec: String,
@@ -26,7 +28,7 @@ struct Args {
     flag_git_dir: Option<String>,
 }
 
-fn run(args: &Args) -> Result<(), git2::Error> {
+fn rev_parse(args: &Args) -> Result<(), git2::Error> {
     let path = args.flag_git_dir.as_ref().map(|s| &s[..]).unwrap_or(".");
     let repo = Repository::open(path)?;
 
@@ -51,10 +53,16 @@ fn run(args: &Args) -> Result<(), git2::Error> {
     Ok(())
 }
 
-fn main() {
-    let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+#[cfg(test)]
+mod tests {
+    use super::{rev_parse, Args};
+    use structopt::StructOpt;
+
+    fn test_rev_parse() {
+        let args = Args::from_args();
+        match rev_parse(&args) {
+            Ok(()) => {}
+            Err(e) => println!("error: {}", e),
+        }
     }
 }
