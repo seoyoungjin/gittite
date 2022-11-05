@@ -5,6 +5,7 @@ use std::sync::MutexGuard;
 
 use std::path::Path;
 use git2::StatusShow;
+use serde_json::Value;
 
 pub mod init;
 pub mod clone;
@@ -288,6 +289,18 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
     verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     match remote::get_remotes(repo_path) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn stash(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, String> {
+    log::trace!("stash() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match stash::stash(repo_path, &args) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

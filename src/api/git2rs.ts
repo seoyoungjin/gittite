@@ -7,7 +7,6 @@ export async function runCmd<T = any>(
   options: { [key: string]: any } = {}
 ) {
   return (await invoke(cmd, options).catch((e) => {
-    alert(e);
     throw e;
   })) as T;
 }
@@ -39,5 +38,55 @@ export async function getStatus(args: string) {
     } else {
       return { error: JSON.stringify(e) };
     }
+  }
+}
+
+/// stash
+export async function stashSave(
+    message: string | null,
+    includeUntracked: bool,
+    keepIndex: bool)
+{
+  try {
+    var arr = ["save", message];
+    if (includeUntracked)
+        arr[arr.length] = "-u";
+    if (keepIndex)
+        arr[arr.length] = "-k";
+    return await invoke("stash", {args: arr});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function stashList() {
+  try {
+    return await invoke("stash", {args: ["list"]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function stashApply(stashid: string) {
+  try {
+    return await invoke("stash", {args: ["apply", stashid]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function stashPop(stashid: string) {
+  try {
+    return await invoke("stash", {args: ["pop", stashid]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function stashDrop(stashid: string) {
+  try {
+    return await invoke("stash", {args: ["drop", stashid]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
   }
 }

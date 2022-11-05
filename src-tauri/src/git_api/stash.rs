@@ -1,6 +1,6 @@
 use super::{CommitId, RepoPath};
 use crate::git_api::repository::repo_open;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use std::ffi::OsString;
 use git2::{
     build::CheckoutBuilder, Oid, Repository, StashApplyOptions,
@@ -10,6 +10,7 @@ use serde_json::Value;
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
 
+///
 #[derive(StructOpt, Debug)]
 #[structopt(setting(AppSettings::NoBinaryName))]
 struct Stash {
@@ -23,6 +24,10 @@ enum SubCommand {
     Save {
         #[structopt(name = "message")]
         message: Option<String>,
+        #[structopt(short = "u", long = "include-untracked")]
+        untracked: bool,
+        #[structopt(short = "k", long = "keep-index")]
+        keep_index: bool,
     },
     #[structopt(name = "list")]
     List,
@@ -50,6 +55,53 @@ enum SubCommand {
     // #[structopt(name = "clear")]
     Clear,
 }
+
+///
+pub fn stash<I>(repo_path: &RepoPath, args: I) -> Result<Value>
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone
+{
+    let opt = Stash::from_iter_safe(args)?;
+    log::trace!("stash: {:?}", opt);
+
+    let res = match opt.cmd {
+        SubCommand::Save { message, untracked, keep_index }  =>  {
+            let msg = message.as_ref().map(String::as_str);
+            let res = stash_save(repo_path, msg, untracked, keep_index)?;
+            serde_json::to_value(res)
+        },
+        SubCommand::List  => {
+            let res = get_stashes(repo_path)?;
+            serde_json::to_value(res)
+        },
+        SubCommand::Drop { stash } => {
+            let stash = CommitId::from_str(stash.as_str())?;
+            let res = stash_drop(repo_path, stash)?;
+            serde_json::to_value(res)
+        },
+        SubCommand::Pop { stash } => {
+            let stash = CommitId::from_str(stash.as_str())?;
+            let res = stash_pop(repo_path, stash)?;
+            serde_json::to_value(res)
+        },
+        SubCommand::Apply { stash, index } => {
+            // if allow_conflicts then keep-index can fail
+            let stash = CommitId::from_str(stash.as_str())?;
+            let res = stash_apply(repo_path, stash, index)?;
+            serde_json::to_value(res)
+        },
+        _ => {
+            bail!("stash command not found")
+        },
+    };
+
+    match res {
+        Ok(v) => Ok(v),
+        Err(e) => Err(anyhow!(e.to_string())),
+    }
+}
+
 
 ///
 pub fn get_stashes(repo_path: &RepoPath) -> Result<Vec<CommitId>> {
@@ -158,42 +210,6 @@ pub fn stash_save(
     let id = repo.stash_save2(&sig, message, Some(options))?;
 
     Ok(CommitId::new(id))
-}
-
-///
-pub fn stash<I>(repo_path: &RepoPath, args: I) -> Result<Value>
-where
-    I: IntoIterator,
-    I::Item: Into<OsString> + Clone
-{
-    let opt = Stash::from_iter_safe(args)?;
-    log::trace!("stash: {:?}", opt);
-
-    let res = match opt.cmd {
-        /*
-        SubCommand::List  => get_stashes(repo_path),
-        SubCommand::Save{ message }  =>  {
-            // TODO include_untracked, keep_index
-            let msg = message.as_ref().map(String::as_str);
-            stash_save(repo_path, msg, false, false)
-        },
-        SubCommand::Drop{ stash } => {
-            let stashid = CommitId::from(stash);
-            stash_drop(repo_path, stash)
-        },
-        SubCommand::Pop{ stash }  => stash_pop(repo_path, stash),
-        // TODO
-        SubCommand::Apply{ stash, index }  => stash_apply(repo_path, false, index),
-        */
-        // SubCommand::Branch{ branch, stash }  => println!("branch {} {}", branch, stash),
-        // SubCommand::Clear  => println!("{:?}", "clear"),
-        _ => (),
-    };
-
-    match serde_json::to_value(res) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(anyhow!("Error serializing {}", e)),
-    }
 }
 
 #[cfg(test)]
@@ -394,9 +410,21 @@ mod tests {
     #[test]
     fn test_stash_subcommand() {
         let opt = Stash::from_iter(["save"]);
-        assert_eq!(opt.cmd, SubCommand::Save{message: None});
-        let opt = Stash::from_iter(["save", "message"]);
-        assert_eq!(opt.cmd, SubCommand::Save{message: Some("message".to_string())});
+        assert_eq!(opt.cmd,
+            SubCommand::Save {
+                message: None,
+                untracked: false,
+                keep_index: false
+            }
+        );
+        let opt = Stash::from_iter(["save", "message", "-u", "-k"]);
+        assert_eq!(opt.cmd,
+            SubCommand::Save {
+                message: Some("message".to_string()),
+                untracked: true,
+                keep_index: true,
+            }
+        );
 
         let opt = Stash::from_iter(["list"]);
         assert_eq!(opt.cmd, SubCommand::List);
@@ -404,11 +432,21 @@ mod tests {
         let opt = Stash::from_iter_safe(["drop"]);
         assert_eq!(opt.is_err(), true);
         let opt = Stash::from_iter(["drop", "stash"]);
-        assert_eq!(opt.cmd, SubCommand::Drop{ stash : "stash".to_string() });
+        assert_eq!(opt.cmd, SubCommand::Drop { stash : "stash".to_string() });
 
         let opt = Stash::from_iter(["apply", "stash"]);
-        assert_eq!(opt.cmd, SubCommand::Apply{ stash : "stash".to_string() , index: false});
+        assert_eq!(opt.cmd,
+            SubCommand::Apply {
+                stash : "stash".to_string(),
+                index: false
+            }
+        );
         let opt = Stash::from_iter(["apply", "stash", "--index"]);
-        assert_eq!(opt.cmd, SubCommand::Apply{ stash : "stash".to_string() , index: true});
+        assert_eq!(opt.cmd,
+            SubCommand::Apply {
+                stash : "stash".to_string(),
+                index: true
+            }
+        );
     }
 }

@@ -66,6 +66,7 @@ fn main() {
       git_api::get_remotes,
       git_api::get_diff,
       // git_api::get_diff_commit,
+      git_api::stash,
     ])
     .setup(|app| {
       let win = app.get_window("main").unwrap();
