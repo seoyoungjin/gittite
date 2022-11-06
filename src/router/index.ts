@@ -85,6 +85,11 @@ const router = createRouter({
       component: () => import("../views/gitcmd/Remote.vue"),
     },
     {
+      path: "/gitcmd/blame",
+      name: "git-blame",
+      component: () => import("../views/gitcmd/Blame.vue"),
+    },
+    {
       path: "/gitcmd/settings",
       name: "git-settings",
       component: () => import("../views/gitcmd/Settings.vue"),

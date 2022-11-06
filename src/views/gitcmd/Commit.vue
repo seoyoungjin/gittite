@@ -174,11 +174,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            this.response = { error: JSON.stringify(e) };
-          }
+          this.response = { error: JSON.stringify(e) };
         });
       this.refresh();
     },
@@ -190,11 +186,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            this.response = { error: JSON.stringify(e) };
-          }
+          this.response = { error: JSON.stringify(e) };
         });
       this.refresh();
     },
@@ -206,11 +198,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            this.response = { error: JSON.stringify(e) };
-          }
+          this.response = { error: JSON.stringify(e) };
         });
     },
 
@@ -221,11 +209,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            this.response = { error: JSON.stringify(e) };
-          }
+          this.response = { error: JSON.stringify(e) };
         });
     },
   },

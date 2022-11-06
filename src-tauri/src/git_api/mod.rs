@@ -47,6 +47,7 @@ use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
 use status::{StatusItem, StatusItemType};
 use diff::FileDiff;
+use blame::FileBlame;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -313,6 +314,23 @@ pub fn stash(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, Str
     verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     match stash::stash(repo_path, &args) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn blame(
+    path: String,
+    commit_id: Option<String>,
+    app_data: AppDataState<'_>
+) -> Result<FileBlame, String> {
+    log::trace!("blame() with : {:?}", path);
+    let mut app_data = app_data.0.lock().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    // TODO option?
+    match blame::blame_file(repo_path, path.as_str(), None) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

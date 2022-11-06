@@ -68,6 +68,7 @@ fn main() {
       // git_api::get_diff_commit,
       git_api::tag,
       git_api::stash,
+      git_api::blame,
     ])
     .setup(|app| {
       let win = app.get_window("main").unwrap();

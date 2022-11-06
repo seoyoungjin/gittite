@@ -129,7 +129,8 @@ export default {
         { icon: 'star_border', text: 'Branch', link: '/gitcmd/branch' },
         { icon: 'whatshot', text: 'Tags', link: '/gitcmd/tags' },
         { icon: 'watch_later', text: 'Stash', link: '/gitcmd/stash' },
-        { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' }
+        { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' },
+        { icon: 'watch_later', text: 'Blame', link: '/gitcmd/blame' },
       ],
       links2: [
         { icon: 'settings', text: 'Settings', link: '/gitcmd/settings' },

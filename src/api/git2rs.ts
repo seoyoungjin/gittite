@@ -33,11 +33,48 @@ export async function getStatus(args: string) {
   try {
     return await invoke("get_status", { statusType: args });
   } catch (e) {
-    if (typeof e == "string") {
-      return { error: e };
-    } else {
       return { error: JSON.stringify(e) };
-    }
+  }
+}
+
+export async function blameFile(path: string, commitId: string | null) {
+  try {
+    return await invoke("blame", { path: path, commitId: commitId });
+  } catch (e) {
+      return { error: JSON.stringify(e) };
+  }
+}
+
+// commit related
+export async function commit(message: string | null) {
+  try {
+    return await invoke("commit", { args: message });
+  } catch (e) {
+      return { error: JSON.stringify(e) };
+  }
+}
+
+export async function commitAmend(message: string | null) {
+  try {
+    return await invoke("amend", { args: message });
+  } catch (e) {
+      return { error: JSON.stringify(e) };
+  }
+}
+
+export async function commitInfo(commitId: string) {
+  try {
+    return await invoke("commit_info", { args: commitId });
+  } catch (e) {
+      return { error: JSON.stringify(e) };
+  }
+}
+
+export async function commitFiles(commitId: string) {
+  try {
+    return await invoke("commit_files", { args: commitId });
+  } catch (e) {
+      return { error: JSON.stringify(e) };
   }
 }
 
