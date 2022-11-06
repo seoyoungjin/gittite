@@ -17,15 +17,15 @@ export async function loadSettings() {
   });
 }
 
-export async function add(name): Promise<bool> {
+export async function add(name): Promise<boolean> {
   return invoke("add", { args: name });
 }
 
-export async function remove(name): Promise<bool> {
+export async function remove(name): Promise<boolean> {
   return invoke("remove", { args: name });
 }
 
-export async function resetStage(name): Promise<bool> {
+export async function resetStage(name): Promise<boolean> {
   return invoke("reset_stage", { args: name });
 }
 
@@ -41,11 +41,52 @@ export async function getStatus(args: string) {
   }
 }
 
-/// stash
+// tag
+export async function tagAdd(
+    tagname: string,
+    object: string | null,
+    message: string | null,
+    force: boolean)
+{
+  try {
+    var arr: (string)[] = ["add", tagname];
+    if (object)
+        arr[arr.length] = object;
+    if (force)
+        arr[arr.length] = "-f";
+    if (message) {
+        arr[arr.length] = "-m";
+        arr[arr.length] = message;
+    }
+    return await invoke("tag", {args: arr});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function tagList(pattern: string | null) {
+  try {
+    if (pattern == null)
+        pattern = "";
+    return await invoke("tag", {args: ["list", pattern]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function tagDelete(tagname: string) {
+  try {
+    return await invoke("tag", {args: ["delete", tagname]});
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+// stash
 export async function stashSave(
     message: string | null,
-    includeUntracked: bool,
-    keepIndex: bool)
+    includeUntracked: boolean,
+    keepIndex: boolean)
 {
   try {
     var arr = ["save", message];

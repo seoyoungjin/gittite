@@ -42,6 +42,10 @@ pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
     repo.workdir().ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
 }
 
+pub(crate) fn bytes2string(bytes: &[u8]) -> Result<String> {
+    Ok(String::from_utf8(bytes.to_vec())?)
+}
+
 /// write a file in repo
 pub(crate) fn repo_write_file(
     repo: &Repository,

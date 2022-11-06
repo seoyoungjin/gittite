@@ -295,6 +295,18 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
+pub fn tag(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, String> {
+    log::trace!("tag() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match tag::tag(repo_path, &args) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
 pub fn stash(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, String> {
     log::trace!("stash() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
