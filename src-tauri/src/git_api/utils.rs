@@ -1,9 +1,9 @@
 //! git_api various methods
 
-use anyhow::{anyhow, Result};
+use super::error::{Error, Result};
 use super::CommitId;
 use super::repository::{repo_open, RepoPath};
-use git2::{Error, ErrorClass, ErrorCode, Repository};
+use git2::Repository;
 use std::{fs::File, io::Write, path::Path};
 use std::{
     collections::hash_map::DefaultHasher,
@@ -19,20 +19,20 @@ pub fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
 }
 
 ///
-pub fn get_head(repo_path: &RepoPath) -> Result<CommitId, Error> {
+pub fn get_head(repo_path: &RepoPath) -> Result<CommitId> {
     let repo = repo_open(repo_path)?;
     get_head_repo(&repo)
 }
 
 ///
-pub fn get_head_repo(repo: &Repository) -> Result<CommitId, Error> {
+pub fn get_head_repo(repo: &Repository) -> Result<CommitId> {
     let head = repo.head()?.target();
     head.map_or(
-        Err(Error::new(
-            ErrorCode::NotFound,
-            ErrorClass::Reference,
+        Err(Error::Git(git2::Error::new(
+            git2::ErrorCode::NotFound,
+            git2::ErrorClass::Reference,
             "head not found".to_string()
-        )),
+        ))),
         |head_id| Ok(head_id.into()),
     )
 }
@@ -53,7 +53,9 @@ pub(crate) fn repo_write_file(
     content: &str,
 ) -> Result<()> {
     let dir = work_dir(repo)?.join(file);
-    let file_path = dir.to_str().ok_or_else(|| {anyhow!("invalid file path")})?;
+    let file_path = dir.to_str().ok_or_else(|| {
+        Error::Generic(String::from("invalid file path"))
+    })?;
     let mut file = File::create(file_path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
@@ -67,7 +69,9 @@ pub(crate) fn repo_read_file(
     use std::io::Read;
 
     let dir = work_dir(repo)?.join(file);
-    let file_path = dir.to_str().ok_or_else(|| {anyhow!("invalid file path")})?;
+    let file_path = dir.to_str().ok_or_else(|| {
+        Error::Generic(String::from("invalid file path"))
+    })?;
 
     let mut file = File::open(file_path)?;
     let mut buffer = Vec::new();

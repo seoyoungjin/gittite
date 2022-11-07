@@ -31,7 +31,6 @@ pub(crate) fn get_branch_name_repo(
             return Ok(name.into());
         }
     }
-    // Err(anyhow!("git: no head found"))
 	Err(Error::NoHead)
 }
 

@@ -1,7 +1,7 @@
 // TODO
 // #![deny(warnings)]
 
-use anyhow::{anyhow, bail, Result};
+use super::error::{Error, Result};
 use super::{CommitId, RepoPath};
 use crate::git_api::repository::repo_open;
 use crate::git_api::commit_info::{
@@ -72,13 +72,13 @@ where
             serde_json::to_value(res)
         },
         _ => {
-            bail!("invalid tag command")
+            return Err(Error::Generic("invalid tag command".to_string()))
         },
     };
 
     match res {
         Ok(v) => Ok(v),
-        Err(e) => Err(anyhow!(e.to_string())),
+        Err(e) => Err(Error::Generic(e.to_string()))
     }
 }
 
@@ -212,7 +212,8 @@ pub fn get_tag_metadata(
         };
         return Ok(tag_meta);
     }
-    bail!("can not get commit_id")
+
+    Err(Error::Generic("no commit_id".to_string()))
 }
 
 ///

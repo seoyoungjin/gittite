@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::error::Result;
 use super::repository::{repo_open, RepoPath};
 use git2::{Commit, Error, Oid, Signature};
 use std::str::FromStr;
@@ -238,8 +238,8 @@ pub fn get_message(
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
     use super::{get_commits_info, CommitId};
+    use crate::git_api::error::Result;
     use crate::git_api::{commit::commit, RepoPath};
     use crate::git_api::tests::{init_log, repo_init_empty};
     use crate::git_api::addremove::stage_add_file;

@@ -1,7 +1,7 @@
 // #![deny(warnings)]
 
 use super::repository::{repo_open, RepoPath};
-use anyhow::{anyhow, Result};
+use super::error::{Error, Result};
 use git2::{Delta, Status, StatusOptions, StatusShow};
 use std::path::Path;
 use serde::{Deserialize, Serialize};
@@ -97,11 +97,16 @@ pub fn get_status(
                 .path()
                 .and_then(Path::to_str)
                 .map(String::from)
-                .ok_or_else(|| anyhow!("failed to get path to diff's new file."))?,
-            None => e
-                .path()
-                .map(String::from)
-                .ok_or_else(|| anyhow!("failed to get the path to indexed file."))?,
+                .ok_or_else(|| {
+                    Error::Generic(
+                        "failed to get path to diff's new file.".to_string()
+                    )
+                })?,
+            None => e.path().map(String::from).ok_or_else(|| {
+                Error::Generic(
+                    "failed to get the path to indexed file.".to_string()
+                )
+            })?,
         };
 
         res.push(StatusItem {

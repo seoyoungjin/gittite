@@ -1,6 +1,6 @@
-use anyhow::Result;
-use git2::{build::CheckoutBuilder, ObjectType};
+use super::error::Result;
 use super::repository::{repo_open, RepoPath};
+use git2::{build::CheckoutBuilder, ObjectType};
 
 ///
 pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {

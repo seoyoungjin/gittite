@@ -1,6 +1,6 @@
 //! Functions for getting infos about files in commits
 
-use anyhow::Result;
+use super::error::Result;
 use super::{diff::DiffOptions, CommitId, RepoPath, StatusItem, StatusItemType};
 use crate::git_api::{repository::repo_open, stash::is_stash_commit};
 use git2::{Diff, Repository};
@@ -136,7 +136,7 @@ pub fn get_commit_diff<'a>(
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
+    use crate::git_api::error::Result;
     use super::get_commit_files;
     use crate::git_api::{
         commit::commit, addremove::stage_add_file, stash::stash_save,

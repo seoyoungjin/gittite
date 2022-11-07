@@ -1,6 +1,6 @@
 //! sync git api for fetching a diff
 
-use anyhow::{anyhow, Result};
+use super::error::{Error, Result};
 use super::{
     commit_files::{get_commit_diff, get_compare_commits_diff},
     utils::{get_head_repo, work_dir},
@@ -311,7 +311,9 @@ fn raw_diff_to_file_diff<'a>(
                 if delta.status() == Delta::Untracked {
                     let relative_path =
                         delta.new_file().path().ok_or_else(|| {
-                            anyhow!("new file path is unspecified.")
+                            Error::Generic(
+                                "new file path is unspecified.".to_string(),
+                            )
                         })?;
 
                     let newfile_path = work_dir.join(relative_path);
@@ -363,7 +365,7 @@ fn raw_diff_to_file_diff<'a>(
         if !current_lines.is_empty() {
             adder(
                 &current_hunk.map_or_else(
-                    || Err(anyhow!("invalid hunk")),
+                    || Err(Error::Generic("invalid hunk".to_owned())),
                     Ok,
                 )?,
                 &current_lines,
@@ -374,7 +376,8 @@ fn raw_diff_to_file_diff<'a>(
             res.borrow_mut().untracked = true;
         }
     }
-    let res = Rc::try_unwrap(res).map_err(|_| anyhow!("rc unwrap error"))?;
+    let res = Rc::try_unwrap(res)
+        .map_err(|_| Error::Generic("rc unwrap error".to_owned()))?;
     Ok(res.into_inner())
 }
 
@@ -402,7 +405,7 @@ fn new_file_content(path: &Path) -> Option<Vec<u8>> {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
+    use crate::git_api::error::Result;
     use git2::StatusShow;
     use super::{get_diff, get_diff_commit};
     use crate::git_api::{

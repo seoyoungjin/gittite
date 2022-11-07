@@ -346,7 +346,7 @@ mod tests {
     use super::utils::{get_head_repo, repo_write_file};
     use super::{commit, addremove};
 
-    use anyhow::Result;
+    use super::Result;
     use git2::{Repository, StatusShow};
     use std::{path::Path, process::Command};
     use tempfile::TempDir;

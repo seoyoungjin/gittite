@@ -1,9 +1,5 @@
 //!
 
-// $ git remote -v
-// origin    https://github.com/seoyoungjin/gittite.git (fetch)
-// origin    https://github.com/seoyoungjin/gittite.git (push)
-
 // TODO 
 // how to get URL?
 // fetch? push?
@@ -11,7 +7,7 @@
 #![deny(warnings)]
 #![allow(dead_code)]
 
-use anyhow::{anyhow, Result};
+use super::error::{Error, Result};
 use git2::Repository;
 use super::repository::{repo_open, RepoPath};
 
@@ -47,7 +43,7 @@ pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
         return Ok(DEFAULT_REMOTE_NAME.into());
     }
 
-    //if only one remote exists pick that
+    // if only one remote exists pick that
     if remotes.len() == 1 {
         let first_remote = remotes
             .iter()
@@ -55,15 +51,14 @@ pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
             .flatten()
             .map(String::from)
             .ok_or_else(|| {
-                anyhow!("no remote found")
+                Error::Generic("no remote found".into())
             })?;
 
         return Ok(first_remote);
     }
 
-    // TODO
     //inconclusive
-    Err(anyhow!("no default remote found"))
+    Err(Error::NoDefaultRemoteFound)
 }
 
 #[cfg(test)]

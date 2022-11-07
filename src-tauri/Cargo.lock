@@ -952,7 +952,6 @@ dependencies = [
 name = "gittite"
 version = "0.0.1"
 dependencies = [
- "anyhow",
  "atomicwrites",
  "env_logger",
  "git2",

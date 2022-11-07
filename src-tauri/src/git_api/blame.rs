@@ -1,6 +1,6 @@
 //! Sync git API for fetching a file blame
 
-use anyhow::{anyhow, Error, Result};
+use super::error::{Error, Result};
 use super::{utils, CommitId, RepoPath};
 use crate::git_api::{
     commit_info::get_commits_info, repository::repo_open
@@ -79,7 +79,9 @@ pub fn blame_file(
     let blob = repo.find_blob(object.id())?;
 
     if blob.is_binary() {
-        return Err(anyhow!("No blame on binary file"));
+        return Err(
+            Error::Generic("No blame on binary file".to_string())
+        );
     }
 
     let mut opts = BlameOptions::new();
@@ -152,8 +154,8 @@ pub fn blame_file(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use anyhow::Result;
     use crate::git_api::{
+        error::Result,
         commit::commit,
         addremove::stage_add_file,
         tests::repo_init_empty

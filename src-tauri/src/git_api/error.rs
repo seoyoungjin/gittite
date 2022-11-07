@@ -1,10 +1,8 @@
 #![allow(renamed_and_removed_lints, clippy::unknown_clippy_lints)]
 
-use anyhow;
 use std::{
 	num::TryFromIntError,
     path::StripPrefixError,
-    str::Utf8Error,
 	string::FromUtf8Error,
 };
 use thiserror::Error;
@@ -61,16 +59,18 @@ pub enum Error {
 	StripPrefix(#[from] StripPrefixError),
 
 	///
-	#[error("anyhow error:{0}")]
-	Anyhow(#[from] anyhow::Error),
-
-	///
 	#[error("utf8 error:{0}")]
 	Utf8Conversion(#[from] FromUtf8Error),
 
 	///
 	#[error("TryFromInt error:{0}")]
 	IntConversion(#[from] TryFromIntError),
+
+	#[error("serde_json error:{0}")]
+	SerdeError(#[from] serde_json::Error),
+
+	#[error("structopt::clap error:{0}")]
+	ClapError(#[from] structopt::clap::Error),
 
 	// #[error("EasyCast error:{0}")]
 	// EasyCast(#[from] easy_cast::Error),

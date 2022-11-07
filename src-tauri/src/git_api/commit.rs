@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::error::Result;
 use super::{CommitId, RepoPath};
 use crate::git_api::repository::repo_open;
 use crate::git_api::utils::get_head_repo;
@@ -113,7 +113,7 @@ pub fn tag_commit(
 #[cfg(test)]
 mod tests {
     use super::{commit, amend, tag_commit};
-    use anyhow::Result;
+    use crate::git_api::error::Result;
     use crate::git_api::RepoPath;
     use crate::git_api::{
         revlog::get_commits,

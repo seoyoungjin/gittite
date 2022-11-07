@@ -1,6 +1,8 @@
 use super::{CommitId, RepoPath};
-use crate::git_api::repository::repo_open;
-use anyhow::{anyhow, bail, Result};
+use super::{
+    error::{Error, Result},
+    repository::repo_open,
+};
 use std::ffi::OsString;
 use git2::{
     build::CheckoutBuilder, Oid, Repository, StashApplyOptions,
@@ -92,13 +94,13 @@ where
             serde_json::to_value(res)
         },
         _ => {
-            bail!("stash command not found")
+            return Err(Error::Generic("stash command not found".to_string()))
         },
     };
 
     match res {
         Ok(v) => Ok(v),
-        Err(e) => Err(anyhow!(e.to_string())),
+        Err(e) => Err(Error::SerdeError(e)),
     }
 }
 
@@ -186,7 +188,7 @@ fn get_stash_index(
     })?;
 
     idx.ok_or_else(|| {
-        anyhow!("stash commit not found".to_string())
+        Error::Generic("stash commit not found".to_string())
     })
 }
 
