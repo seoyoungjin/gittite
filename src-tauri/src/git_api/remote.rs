@@ -36,7 +36,7 @@ pub fn get_default_remote(repo_path: &RepoPath) -> Result<String> {
 }
 
 /// see `get_default_remote`
-fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
+pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
     let remotes = repo.remotes()?;
 
     // if `origin` exists return that

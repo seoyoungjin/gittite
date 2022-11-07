@@ -964,6 +964,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tempfile",
+ "thiserror",
  "time 0.1.44",
  "unicode-truncate",
 ]

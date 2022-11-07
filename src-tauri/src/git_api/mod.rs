@@ -7,6 +7,7 @@ use std::path::Path;
 use git2::StatusShow;
 use serde_json::Value;
 
+mod error;
 pub mod init;
 pub mod clone;
 pub mod repository;
@@ -28,7 +29,8 @@ mod rev_parse;
 pub mod status;
 // show grep
 
-// branch merge rebase reset switch
+// merge rebase reset switch
+pub mod branch;
 pub mod tag;
 pub mod stash;
 pub mod blame;
@@ -42,6 +44,7 @@ pub mod remote;
 // pub mod cat_file;
 pub mod utils;
 
+use error::{Error, Result};
 use repository::RepoPath;
 use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
@@ -391,6 +394,15 @@ mod tests {
             config.set_str("user.email", "email")?;
         }
         Ok((td, repo))
+    }
+
+    /// Same as `repo_init`, but the repo is a bare repo (--bare)
+    pub fn repo_init_bare() -> Result<(TempDir, Repository)> {
+        init_log();
+
+        let tmp_repo_dir = TempDir::new()?;
+        let bare_repo = Repository::init_bare(tmp_repo_dir.path())?;
+        Ok((tmp_repo_dir, bare_repo))
     }
 
     ///
