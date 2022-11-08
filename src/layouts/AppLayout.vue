@@ -21,16 +21,10 @@
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn round dense flat color="grey-8" icon="apps" v-if="$q.screen.gt.sm">
-            <q-tooltip>Apps</q-tooltip>
-          </q-btn>
-          <q-btn round dense flat color="grey-8" icon="message">
-            <q-tooltip>Messages</q-tooltip>
-          </q-btn>
+          <set-layout />
         </div>
       </q-toolbar>
     </q-header>
-
 
     <q-page-container>
       <router-view />
@@ -39,7 +33,12 @@
 </template>
 
 <script lang="ts">
+import SetLayout from "@/components/SetLayout.vue";
+
 export default {
-  name: 'AppLayout',
-}
+  name: "AppLayout",
+  components: {
+    "set-layout": SetLayout,
+  },
+};
 </script>

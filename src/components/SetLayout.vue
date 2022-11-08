@@ -1,18 +1,37 @@
 <template>
   <v-container fluid fill-height>
     <v-layout align-center justify-center>
-      <v-btn color="primary" @click="setLayout('app-layout')">App Layout</v-btn>
-      <v-btn color="secondary" @click="setLayout('dev-layout')">Dev Layout</v-btn>
+      <q-btn
+        round
+        dense
+        flat
+        color="grey-8"
+        icon="apps"
+        @click="store.setLayout('app-layout')"
+      >
+        <q-tooltip>App</q-tooltip>
+      </q-btn>
+      <q-btn
+        round
+        dense
+        flat
+        color="grey-8"
+        icon="message"
+        @click="store.setLayout('dev-layout')"
+      >
+        <q-tooltip>Dev</q-tooltip>
+      </q-btn>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+import { useLayoutStore } from '@/stores/layout.js';
+
 export default {
-  methods: {
-    setLayout (layout) {
-      // this.$store.commit('SET_LAYOUT', layout)
-    }
-  }
-}
+  setup() {
+    const store = useLayoutStore();
+    return { store, }
+  },
+};
 </script>

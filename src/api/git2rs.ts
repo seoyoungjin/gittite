@@ -33,7 +33,7 @@ export async function getStatus(args: string) {
   try {
     return await invoke("get_status", { statusType: args });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
@@ -41,7 +41,7 @@ export async function blameFile(path: string, commitId: string | null) {
   try {
     return await invoke("blame", { path: path, commitId: commitId });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
@@ -50,7 +50,7 @@ export async function commit(message: string | null) {
   try {
     return await invoke("commit", { args: message });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
@@ -58,7 +58,7 @@ export async function commitAmend(message: string | null) {
   try {
     return await invoke("amend", { args: message });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
@@ -66,7 +66,7 @@ export async function commitInfo(commitId: string) {
   try {
     return await invoke("commit_info", { args: commitId });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
@@ -74,28 +74,26 @@ export async function commitFiles(commitId: string) {
   try {
     return await invoke("commit_files", { args: commitId });
   } catch (e) {
-      return { error: JSON.stringify(e) };
+    return { error: JSON.stringify(e) };
   }
 }
 
 // tag
 export async function tagAdd(
-    tagname: string,
-    object: string | null,
-    message: string | null,
-    force: boolean)
-{
+  tagname: string,
+  object: string | null,
+  message: string | null,
+  force: boolean
+) {
   try {
-    var arr: (string)[] = ["add", tagname];
-    if (object)
-        arr[arr.length] = object;
-    if (force)
-        arr[arr.length] = "-f";
+    const arr: string[] = ["add", tagname];
+    if (object) arr[arr.length] = object;
+    if (force) arr[arr.length] = "-f";
     if (message) {
-        arr[arr.length] = "-m";
-        arr[arr.length] = message;
+      arr[arr.length] = "-m";
+      arr[arr.length] = message;
     }
-    return await invoke("tag", {args: arr});
+    return await invoke("tag", { args: arr });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -103,9 +101,8 @@ export async function tagAdd(
 
 export async function tagList(pattern: string | null) {
   try {
-    if (pattern == null)
-        pattern = "";
-    return await invoke("tag", {args: ["list", pattern]});
+    if (pattern == null) pattern = "";
+    return await invoke("tag", { args: ["list", pattern] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -113,7 +110,7 @@ export async function tagList(pattern: string | null) {
 
 export async function tagDelete(tagname: string) {
   try {
-    return await invoke("tag", {args: ["delete", tagname]});
+    return await invoke("tag", { args: ["delete", tagname] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -121,17 +118,15 @@ export async function tagDelete(tagname: string) {
 
 // stash
 export async function stashSave(
-    message: string | null,
-    includeUntracked: boolean,
-    keepIndex: boolean)
-{
+  message: string | null,
+  includeUntracked: boolean,
+  keepIndex: boolean
+) {
   try {
-    var arr = ["save", message];
-    if (includeUntracked)
-        arr[arr.length] = "-u";
-    if (keepIndex)
-        arr[arr.length] = "-k";
-    return await invoke("stash", {args: arr});
+    const arr = ["save", message];
+    if (includeUntracked) arr[arr.length] = "-u";
+    if (keepIndex) arr[arr.length] = "-k";
+    return await invoke("stash", { args: arr });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -139,7 +134,7 @@ export async function stashSave(
 
 export async function stashList() {
   try {
-    return await invoke("stash", {args: ["list"]});
+    return await invoke("stash", { args: ["list"] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -147,7 +142,7 @@ export async function stashList() {
 
 export async function stashApply(stashid: string) {
   try {
-    return await invoke("stash", {args: ["apply", stashid]});
+    return await invoke("stash", { args: ["apply", stashid] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -155,7 +150,7 @@ export async function stashApply(stashid: string) {
 
 export async function stashPop(stashid: string) {
   try {
-    return await invoke("stash", {args: ["pop", stashid]});
+    return await invoke("stash", { args: ["pop", stashid] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -163,7 +158,7 @@ export async function stashPop(stashid: string) {
 
 export async function stashDrop(stashid: string) {
   try {
-    return await invoke("stash", {args: ["drop", stashid]});
+    return await invoke("stash", { args: ["drop", stashid] });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }

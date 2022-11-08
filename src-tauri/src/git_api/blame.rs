@@ -9,7 +9,7 @@ use git2::BlameOptions;
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// A `BlameHunk` contains all the information that will be shown to the user.
 #[derive(Serialize)]

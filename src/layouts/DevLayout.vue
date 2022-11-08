@@ -21,12 +21,7 @@
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn round dense flat color="grey-8" icon="apps" v-if="$q.screen.gt.sm">
-            <q-tooltip>Apps</q-tooltip>
-          </q-btn>
-          <q-btn round dense flat color="grey-8" icon="message">
-            <q-tooltip>Messages</q-tooltip>
-          </q-btn>
+          <set-layout />
         </div>
       </q-toolbar>
     </q-header>
@@ -41,7 +36,13 @@
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item v-for="link in links1" :key="link.text" @click="$router.push(link.link)" v-ripple clickable>
+          <q-item
+            v-for="link in links1"
+            :key="link.text"
+            @click="$router.push(link.link)"
+            v-ripple
+            clickable
+          >
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -52,7 +53,13 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item v-for="link in links2" :key="link.text" @click="$router.push(link.link)" v-ripple clickable>
+          <q-item
+            v-for="link in links2"
+            :key="link.text"
+            @click="$router.push(link.link)"
+            v-ripple
+            clickable
+          >
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -100,16 +107,21 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import SetLayout from "@/components/SetLayout.vue";
+import { ref } from "vue";
 
 export default {
-  name: 'DevLayout',
+  name: "DevLayout",
 
-  setup () {
-    const leftDrawerOpen = ref(false)
+  components: {
+    "set-layout": SetLayout,
+  },
 
-    function toggleLeftDrawer () {
-      leftDrawerOpen.value = !leftDrawerOpen.value
+  setup() {
+    const leftDrawerOpen = ref(false);
+
+    function toggleLeftDrawer() {
+      leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
     return {
@@ -117,33 +129,29 @@ export default {
       toggleLeftDrawer,
 
       links1: [
-        { icon: 'home', text: 'home', link: '/' },
-        { icon: 'subscriptions', text: 'Repository', link: '/gitcmd/repo' },
-        { icon: 'subscriptions', text: 'Init', link: '/gitcmd/init' },
-        { icon: 'subscriptions', text: 'Clone', link: '/gitcmd/clone' },
-        { icon: 'home', text: 'Status', link: '/gitcmd/status' },
-        { icon: 'restore', text: 'Logs', link: '/gitcmd/logs' },
-        { icon: 'restore', text: 'Commit', link: '/gitcmd/commit' },
-        { icon: 'restore', text: 'Diff', link: '/gitcmd/diff' },
-        { icon: 'folder', text: 'App/Remove', link: '/gitcmd/addremove' },
-        { icon: 'star_border', text: 'Branch', link: '/gitcmd/branch' },
-        { icon: 'whatshot', text: 'Tags', link: '/gitcmd/tags' },
-        { icon: 'watch_later', text: 'Stash', link: '/gitcmd/stash' },
-        { icon: 'thumb_up_alt', text: 'Remote', link: '/gitcmd/remote' },
-        { icon: 'watch_later', text: 'Blame', link: '/gitcmd/blame' },
+        { icon: "home", text: "home", link: "/" },
+        { icon: "subscriptions", text: "Repository", link: "/gitcmd/repo" },
+        { icon: "subscriptions", text: "Init", link: "/gitcmd/init" },
+        { icon: "subscriptions", text: "Clone", link: "/gitcmd/clone" },
+        { icon: "home", text: "Status", link: "/gitcmd/status" },
+        { icon: "restore", text: "Logs", link: "/gitcmd/logs" },
+        { icon: "restore", text: "Commit", link: "/gitcmd/commit" },
+        { icon: "restore", text: "Diff", link: "/gitcmd/diff" },
+        { icon: "folder", text: "App/Remove", link: "/gitcmd/addremove" },
+        { icon: "star_border", text: "Branch", link: "/gitcmd/branch" },
+        { icon: "whatshot", text: "Tags", link: "/gitcmd/tags" },
+        { icon: "watch_later", text: "Stash", link: "/gitcmd/stash" },
+        { icon: "thumb_up_alt", text: "Remote", link: "/gitcmd/remote" },
+        { icon: "watch_later", text: "Blame", link: "/gitcmd/blame" },
       ],
       links2: [
-        { icon: 'settings', text: 'Settings', link: '/gitcmd/settings' },
+        { icon: "settings", text: "Settings", link: "/gitcmd/settings" },
       ],
-      buttons1: [
-        { text: 'About', link: '/about' },
-      ],
-      buttons2: [
-        { text: 'Test features', link: '/test' }
-      ]
-    }
-  }
-}
+      buttons1: [{ text: "About", link: "/about" }],
+      buttons2: [{ text: "Test features", link: "/test" }],
+    };
+  },
+};
 </script>
 
 <style>
@@ -151,10 +159,10 @@ export default {
   color: inherit;
   text-decoration: none;
   font-weight: 500;
-  font-size: .75rem;
+  font-size: 0.75rem;
 }
 
 .YL__drawer-footer-link:hover {
-    color: #000;
+  color: #000;
 }
 </style>

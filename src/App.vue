@@ -5,15 +5,18 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useLayoutStore } from './stores/layout.js';
 import AppLayout from './layouts/AppLayout.vue'
 import DevLayout from './layouts/DevLayout.vue'
 
 export default {
-  computed: {
-    layout () {
-      // return this.$store.getters.layout
-      return 'dev-layout';
-    }
+  setup() {
+    const store = useLayoutStore();
+    const layout = computed(() => store.layout);
+    return {
+      layout,
+    };
   },
   components: {
     'app-layout': AppLayout,
