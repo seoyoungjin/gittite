@@ -52,6 +52,7 @@ use revlog::CommitData;
 use status::{StatusItem, StatusItemType};
 use diff::FileDiff;
 use blame::FileBlame;
+use branch::BranchInfo;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -290,15 +291,86 @@ pub fn reset_stage(
     }
 }
 
+#[tauri::command]
+pub fn create_branch(args: String, app_data: AppDataState<'_>) -> Result<String, String> {
+    log::trace!("create_branch() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::create_branch(repo_path, args.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn delete_branch(args: String, app_data: AppDataState<'_>) -> Result<(), String> {
+    log::trace!("delete_branch() with : {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::delete_branch(repo_path, args.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn rename_branch(
+    refs: String,
+    name: String,
+    app_data: AppDataState<'_>
+) -> Result<(), String> {
+    log::trace!("rename_branch() with : {:?} {:?}", refs, name);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::rename_branch(repo_path, refs.as_str(), name.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn get_branch_remote(
+    branch: String,
+    app_data: AppDataState<'_>
+) -> Result<Option<String>, String> {
+    log::trace!("get_branch_remote() with : {:?}", branch);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::get_branch_remote(repo_path, branch.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 /*
-create_branch
-delete_branch
-rename_branch
-get_branches_info
-get_branch_remote
 checkout_branch
 checkout_remote_branch
 branch_compare_upstream
+*/
+/*
+#[tauri::command]
+pub fn get_branches_info(
+    local: bool,
+    app_data: AppDataState<'_>
+) -> Result<Vec<BranchInfo>, String> {
+    log::trace!("get_branches_info() with : {:?}", local);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::get_branches_info(repo_path, local) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
 */
 
 #[tauri::command]

@@ -78,6 +78,33 @@ export async function commitFiles(commitId: string) {
   }
 }
 
+// branch
+export async function createBranch(name: string) {
+  try {
+    return await invoke("create_branch", { args: name });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function deleteBranch(name: string) {
+  try {
+    return await invoke("delete_branch", { args: name });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function renameBranch(branchRef: string, newName: string) {
+  try {
+    return await invoke("rename_branch",
+      { branch_ref: branchRef, new_name: newName }
+    );
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
 // tag
 export async function tagAdd(
   tagname: string,
