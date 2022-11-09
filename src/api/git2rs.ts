@@ -95,11 +95,43 @@ export async function deleteBranch(name: string) {
   }
 }
 
-export async function renameBranch(branchRef: string, newName: string) {
+export async function renameBranch(branch: string, name: string) {
   try {
     return await invoke("rename_branch",
-      { branch_ref: branchRef, new_name: newName }
+      { branch: branch, name: name }
     );
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function branchesInfo(local: bool) {
+  try {
+    return await invoke("get_branches_info", { local : local });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function branchRemote(branch: string) {
+  try {
+    return await invoke("get_branch_remote", { branch : branch });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function branchCompareUpstream(branch: string) {
+  try {
+    return await invoke("branch_compare_upstream", { branch : branch });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
+export async function checkoutBranch(branch: string) {
+  try {
+    return await invoke("checkout_branch", { branchRef : branch });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }

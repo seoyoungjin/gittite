@@ -52,7 +52,7 @@ use revlog::CommitData;
 use status::{StatusItem, StatusItemType};
 use diff::FileDiff;
 use blame::FileBlame;
-use branch::BranchInfo;
+use branch::{BranchInfo, BranchCompare};
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -319,16 +319,16 @@ pub fn delete_branch(args: String, app_data: AppDataState<'_>) -> Result<(), Str
 
 #[tauri::command]
 pub fn rename_branch(
-    refs: String,
+    branch: String,
     name: String,
     app_data: AppDataState<'_>
 ) -> Result<(), String> {
-    log::trace!("rename_branch() with : {:?} {:?}", refs, name);
+    log::trace!("rename_branch() with : {:?} {:?}", branch, name);
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
-    match branch::rename_branch(repo_path, refs.as_str(), name.as_str()) {
+    match branch::rename_branch(repo_path, branch.as_str(), name.as_str()) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }
@@ -350,12 +350,22 @@ pub fn get_branch_remote(
     }
 }
 
-/*
-checkout_branch
-checkout_remote_branch
-branch_compare_upstream
-*/
-/*
+#[tauri::command]
+pub fn branch_compare_upstream(
+    branch: String,
+    app_data: AppDataState<'_>
+) -> Result<BranchCompare, String> {
+    log::trace!("branch_compare_upstream() with : {:?}", branch);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::branch_compare_upstream(repo_path, branch.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 #[tauri::command]
 pub fn get_branches_info(
     local: bool,
@@ -371,6 +381,25 @@ pub fn get_branches_info(
         Err(e) => Err(e.to_string()),
     }
 }
+
+#[tauri::command]
+pub fn checkout_branch(
+    branch_ref: String,
+    app_data: AppDataState<'_>
+) -> Result<(), String> {
+    log::trace!("checkout_branch() with : {:?}", branch_ref);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::checkout_branch(repo_path, branch_ref.as_str()) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/* TODO CommitId deserialize
+checkout_remote_branch
 */
 
 #[tauri::command]

@@ -8,12 +8,18 @@ origin   https://github.com/... (fetch)
 origin   https://github.com/... (push)
     </pre>
 
-    <q-btn color="primary" no-caps @click="getRemotes()"> Both</q-btn>
+    <q-btn color="primary" no-caps @click="gitFetch()">Fetch</q-btn>
     <br />
     <br />
-
     <div>
-      <vue-json-pretty :data="response" />
+      <vue-json-pretty :data="resFetch" />
+    </div>
+
+    <q-btn color="primary" no-caps @click="gitPush()">Push</q-btn>
+    <br />
+    <br />
+    <div>
+      <vue-json-pretty :data="resPush" />
     </div>
   </q-page>
 </template>
@@ -21,7 +27,7 @@ origin   https://github.com/... (push)
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from '../../api/git2rs';
 
 export default {
   components: {
@@ -30,22 +36,29 @@ export default {
 
   data() {
     return {
-      response: null,
+      resFetch: null,
+      resPush: null,
     };
   },
 
   methods: {
-    getRemotes() {
-      invoke("get_remotes")
+    gitFetch() {
+      git2rs.fetch()
         .then((message) => {
-          this.response = message;
+          this.resFetch = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            this.response = { error: JSON.stringify(e) };
-          }
+          this.resFetch = { error: JSON.stringify(e) };
+        });
+    },
+
+    gitPush() {
+      git2rs.push()
+        .then((message) => {
+          this.resFetch = message;
+        })
+        .catch((e) => {
+          this.resFetch = { error: JSON.stringify(e) };
         });
     },
   },
