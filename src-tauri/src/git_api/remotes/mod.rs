@@ -1,11 +1,15 @@
 //!
 
+//#![deny(warnings)]
+#![allow(dead_code)]
+
+// mod callbacks;
+pub(crate) mod push;
+pub(crate) mod tags;
+
 // TODO 
 // how to get URL?
 // fetch? push?
-
-#![deny(warnings)]
-#![allow(dead_code)]
 
 use super::error::{Error, Result};
 use git2::Repository;

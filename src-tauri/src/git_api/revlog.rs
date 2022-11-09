@@ -1,11 +1,12 @@
 // TODO
 // #![deny(warnings)]
 
-use super::repository::{repo_open, RepoPath};
+use super::{CommitId, RepoPath};
+use super::repository::{repo_open};
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{Error, Pathspec};
 use std::ffi::OsString;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -14,9 +15,9 @@ use structopt::StructOpt;
 // js and rust time exchange format
 // tree_id ,tree is used for diff
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub struct CommitData {
-    sha: String,
+    pub commit_id: CommitId,
     summary: String,
     body: String,
     date: String,
@@ -194,7 +195,7 @@ where
     for commit in revwalk {
         let commit = commit?;
         let mut cd = CommitData {
-            sha: commit.id().to_string(),
+            commit_id: commit.id().into(),
             summary: commit.summary().unwrap().to_string(),
             body: match commit.body() {
                 Some(s) => s.to_string(),

@@ -72,8 +72,8 @@ pub enum Error {
 	#[error("structopt::clap error:{0}")]
 	ClapError(#[from] structopt::clap::Error),
 
-	// #[error("EasyCast error:{0}")]
-	// EasyCast(#[from] easy_cast::Error),
+	#[error("EasyCast error:{0}")]
+	EasyCast(#[from] easy_cast::Error),
 
 	// #[error("shellexpand error:{0}")]
 	// Shell(#[from] shellexpand::LookupError<std::env::VarError>),

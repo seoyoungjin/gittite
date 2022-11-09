@@ -8,6 +8,7 @@ use git2::StatusShow;
 use serde_json::Value;
 
 mod error;
+pub mod cred;
 pub mod init;
 pub mod clone;
 pub mod repository;
@@ -38,13 +39,13 @@ pub mod blame;
 // TODO push
 pub mod fetch;
 // pub mod pull;
-pub mod remote;
+pub mod remotes;
 
 // sig tree blob
 // pub mod cat_file;
 pub mod utils;
+mod progress;
 
-use error::{Error, Result};
 use repository::RepoPath;
 use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
@@ -273,7 +274,10 @@ pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> 
 }
 
 #[tauri::command]
-pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+pub fn reset_stage(
+    args: String,
+    app_data: AppDataState<'_>
+) -> Result<bool, String> {
     log::trace!("reset_stage() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -286,13 +290,24 @@ pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, Str
     }
 }
 
+/*
+create_branch
+delete_branch
+rename_branch
+get_branches_info
+get_branch_remote
+checkout_branch
+checkout_remote_branch
+branch_compare_upstream
+*/
+
 #[tauri::command]
 pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
-    match remote::get_remotes(repo_path) {
+    match remotes::get_remotes(repo_path) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }
@@ -341,12 +356,11 @@ pub fn blame(
 
 #[cfg(test)]
 mod tests {
+    use super::error::Result;
     use super::{CommitId, RepoPath};
-    use super::status::get_status;
-    use super::utils::{get_head_repo, repo_write_file};
-    use super::{commit, addremove};
+    use super::{commit, addremove, revlog, status};
+    use super::utils::repo_write_file;
 
-    use super::Result;
     use git2::{Repository, StatusShow};
     use std::{path::Path, process::Command};
     use tempfile::TempDir;
@@ -452,9 +466,19 @@ mod tests {
     /// helper returning amount of files with changes in the (wd,stage)
     pub fn get_statuses(repo_path: &RepoPath) -> (usize, usize) {
         (
-            get_status(repo_path, StatusShow::Workdir).unwrap().len(),
-            get_status(repo_path, StatusShow::Index).unwrap().len()
+            status::get_status(repo_path, StatusShow::Workdir).unwrap().len(),
+            status::get_status(repo_path, StatusShow::Index).unwrap().len()
         )
+    }
+
+    /// helper to fetch commmit details using log walker
+    pub fn get_commit_ids(
+        repo_path: &RepoPath,
+        max_count: usize,
+    ) -> Vec<CommitId> {
+        let args = ["-n".to_string(), max_count.to_string()];
+        let commit_data = revlog::get_commits(repo_path, &args).unwrap();
+        commit_data.iter().map(|t| t.commit_id).collect::<Vec<_>>()
     }
 
     ///

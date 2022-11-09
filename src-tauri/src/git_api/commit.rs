@@ -115,16 +115,16 @@ mod tests {
     use super::{commit, amend, tag_commit};
     use crate::git_api::error::Result;
     use crate::git_api::RepoPath;
+    use crate::git_api::tag::Tag;
     use crate::git_api::{
         revlog::get_commits,
         addremove::stage_add_file,
         commit_info::get_commit_info,
         commit_files::get_commit_files,
-        // tags::get_tags, // TODO
+        tag::get_tags,
         utils::get_head,
     };
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
-    use git2::Repository;
     use std::{fs::File, io::Write, path::Path};
 
     fn count_commits(repo_path: &RepoPath, max: usize) -> usize {
@@ -257,8 +257,7 @@ mod tests {
         assert!(matches!(success, Ok(_)));
         assert_eq!(count_commits(&repo_path, 10), 1);
 
-        let mut info =
-            get_commit_info(repo_path, success.unwrap()).unwrap();
+        let mut info = get_commit_info(repo_path, success.unwrap()).unwrap();
 
         assert_eq!(info.author.name, "unknown");
         assert_eq!(info.author.email, "email");
@@ -277,7 +276,7 @@ mod tests {
         Ok(())
     }
 
-    /* TODO
+    /* TODO Tag sould containt commit_id?
     #[test]
     fn test_tag() -> Result<()> {
         let file_path = Path::new("foo");
@@ -292,19 +291,19 @@ mod tests {
         tag_commit(repo_path, &new_id, "tag", None)?;
 
         assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
+            get_tags(repo_path, None).unwrap()[&new_id],
             vec![Tag::new("tag")]
         );
 
         assert!(matches!(tag_commit(repo_path, &new_id, "tag", None), Err(_)));
         assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
+            get_tags(repo_path, None).unwrap()[&new_id],
             vec![Tag::new("tag")]
         );
 
         tag_commit(repo_path, &new_id, "second-tag", None)?;
         assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id],
+            get_tags(repo_path, None).unwrap()[&new_id],
             vec![Tag::new("second-tag"), Tag::new("tag")]
         );
 
