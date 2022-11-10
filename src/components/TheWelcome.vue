@@ -15,7 +15,7 @@ import SupportIcon from './icons/IconSupport.vue'
     </template>
     <template #heading></template>
 
-    This is the place to test the function of git one by one.
+    This is the place to test git function one by one.
     The return of each command can be viewed directly in json format
     or in a different layout.
   </WelcomeItem>
@@ -26,12 +26,11 @@ import SupportIcon from './icons/IconSupport.vue'
     </template>
     <template #heading>Tooling</template>
 
-    This project is based on tauri framework <code>git2-rs</code> library.
+    This project is based on tauri framework and <code>git2-rs</code> library.
     And most of code is copied from Gitui project.
     <ul>
       <li><a href="https://tauri.app/" target="_blank" rel="noopener">Tauri</a></li>
-      <li><a href="https://docs.rs/git2/latest/git2/" target="_blank" rel="noopener">git2-rs</a></li>
-      <li><a href="https://github.com/extrawurst/gitui" target="_blank" rel="noopener">Giuui</a></li>
+      <li><a href="https://github.com/extrawurst/gitui" target="_blank" rel="noopener">Gitui</a></li>
     </ul>
     User interface is written with <code>Vue.js</code> and <code>Quasar</code>.
     <ul>
@@ -45,13 +44,6 @@ import SupportIcon from './icons/IconSupport.vue'
       <DocumentationIcon />
     </template>
     <template #heading>Documentaion</template>
-
-    Documentation will be composed of three parts.
-    <ul>
-      <li>program manual</li>
-      <li>javascript api description</li>
-      <li>rust code explanation</li>
-    </ul>
     More instructions are available in <code>README.md</code>
   </WelcomeItem>
 
@@ -62,7 +54,6 @@ import SupportIcon from './icons/IconSupport.vue'
     <template #heading>Test</template>
 
     The test consists of a rust code unit test and a javascript case test.
-    I am planning to add more cases in the future.
     <br />
     Visit <code>test features</code> page.
   </WelcomeItem>

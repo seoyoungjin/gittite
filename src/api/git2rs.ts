@@ -17,6 +17,12 @@ export async function loadSettings() {
   });
 }
 
+export async function clone(gitUrl: string, localDir: string) {
+  return await runCmd("clone", {args: [girUrl, localDir]}).then((res) => {
+    return res;
+  });
+}
+
 export async function add(name): Promise<boolean> {
   return invoke("add", { args: name });
 }

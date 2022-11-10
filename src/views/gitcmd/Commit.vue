@@ -142,7 +142,7 @@ export default {
         message: null,
       },
       amendForm: {
-        // TODO retried message
+        // TODO retrieve message
         message: null,
       },
       infoForm: {
