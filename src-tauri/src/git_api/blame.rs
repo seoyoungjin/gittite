@@ -9,10 +9,10 @@ use git2::BlameOptions;
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// A `BlameHunk` contains all the information that will be shown to the user.
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[derive(Clone, Hash, Debug, PartialEq, Eq)]
 pub struct BlameHunk {
     ///
@@ -32,7 +32,7 @@ pub struct BlameHunk {
 /// A `BlameFile` represents a collection of lines. This is targeted at how the
 /// data will be used by the UI.
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[derive(Clone, Debug)]
 pub struct FileBlame {
     ///

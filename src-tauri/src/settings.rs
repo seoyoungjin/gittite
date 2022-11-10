@@ -2,7 +2,7 @@ use crate::throw;
 use atomicwrites::{AtomicFile, OverwriteBehavior};
 use std::{fs::File, path::PathBuf};
 use std::io::{Read, Write};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Settings {

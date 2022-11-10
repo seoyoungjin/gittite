@@ -7,7 +7,7 @@ use crate::git_api::{
 };
 use git2::{Branch, BranchType, Repository};
 use std::collections::HashSet;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// returns the branch-name head is currently pointing to
 /// this might be expensive, see `cached::BranchName`
@@ -36,7 +36,7 @@ pub(crate) fn get_branch_name_repo(
 }
 
 ///
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct LocalBranch {
     ///
     pub is_head: bool,
@@ -47,14 +47,14 @@ pub struct LocalBranch {
 }
 
 ///
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct RemoteBranch {
     ///
     pub has_tracking: bool,
 }
 
 ///
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum BranchDetails {
     ///
     Local(LocalBranch),
@@ -63,7 +63,7 @@ pub enum BranchDetails {
 }
 
 ///
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct BranchInfo {
     ///
     pub name: String,

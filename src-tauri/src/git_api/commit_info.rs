@@ -1,13 +1,18 @@
 use super::error::Result;
 use super::repository::{repo_open, RepoPath};
 use git2::{Commit, Error, Oid, Signature};
-use std::str::FromStr;
 use unicode_truncate::UnicodeTruncateStr;
-use serde::{Serialize, Deserialize, Serializer};
+use serde_with::{serde_as, DisplayFromStr};
+use serde::{Serialize, Deserialize};
 
 /// identifies a single commit
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
-pub struct CommitId(Oid);
+#[serde_as]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct CommitId(
+    #[serde_as(as = "DisplayFromStr")]
+    Oid
+);
 
 impl Default for CommitId {
     fn default() -> Self {
@@ -44,13 +49,6 @@ impl ToString for CommitId {
     }
 }
 
-impl FromStr for CommitId {
-    type Err = Error;
-    fn from_str(s: &str) -> Result<Self, Error> {
-        CommitId::from_str(s)
-    }
-}
-
 impl From<CommitId> for Oid {
     fn from(id: CommitId) -> Self {
         id.0
@@ -60,15 +58,6 @@ impl From<CommitId> for Oid {
 impl From<Oid> for CommitId {
     fn from(id: Oid) -> Self {
         Self::new(id)
-    }
-}
-
-impl Serialize for CommitId {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&self.0.to_string())
     }
 }
 
@@ -139,7 +128,7 @@ impl CommitMessage {
 }
 
 ///
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CommitInfo {
     ///
     pub id: CommitId,
@@ -247,14 +236,18 @@ mod tests {
     use serde_json;
 
     #[test]
-    fn test_commit_id_serde() -> Result<()> {
+    fn test_commit_id_serde() {
         init_log();
-        let c1:CommitId = CommitId::from_str("12345678").unwrap();
+        let c1: CommitId = CommitId::from_str("12345678").unwrap();
         assert_eq!(c1.to_string()[0..8], "12345678".to_string());
         log::trace!("commit_id: {}", c1.to_string());
-        log::trace!("commit_id: {:?}", serde_json::to_string(&c1).unwrap());
 
-        Ok(())
+        let c1_serialized = serde_json::to_string(&c1).unwrap();
+        log::trace!("commit_id_serial: {:?}", c1_serialized);
+
+        let c2: CommitId = serde_json::from_str(c1_serialized.as_str()).unwrap();
+        log::trace!("commit_id2: {}", c2.to_string());
+        assert_eq!(c1, c2);
     }
 
     #[test]
@@ -288,8 +281,7 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))?.write_all(b"a")?;
         stage_add_file(repo_path, file_path).unwrap();

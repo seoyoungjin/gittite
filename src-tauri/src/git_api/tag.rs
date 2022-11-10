@@ -9,7 +9,7 @@ use crate::git_api::commit_info::{
 };
 use crate::git_api::utils::bytes2string;
 use std::{ffi::OsString, ops::Not};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use structopt::StructOpt;
 use structopt::clap::AppSettings;

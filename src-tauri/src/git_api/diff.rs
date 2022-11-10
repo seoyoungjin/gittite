@@ -9,7 +9,7 @@ use super::{
 use crate::git_api::{utils::hash, repository::repo_open};
 use git2::{Delta, Diff, DiffDelta, DiffFormat, DiffHunk, Patch};
 use git2::Repository;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::{cell::RefCell, fs, path::Path, rc::Rc};
 
 /// type of diff of a single line
@@ -129,9 +129,8 @@ pub struct FileDiff {
 }
 
 /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
-#[derive(
-    Debug, Hash, Clone, Copy, PartialEq, Eq, Serialize, Deserialize,
-)]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
 pub struct DiffOptions {
     /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
     pub ignore_whitespace: bool,

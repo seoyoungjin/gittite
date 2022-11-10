@@ -4,7 +4,7 @@ use super::repository::{repo_open, RepoPath};
 use super::error::{Error, Result};
 use git2::{Delta, Status, StatusOptions, StatusShow};
 use std::path::Path;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 // https://git-scm.com/docs/git-status
 

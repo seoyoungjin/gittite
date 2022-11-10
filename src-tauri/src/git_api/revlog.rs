@@ -6,7 +6,7 @@ use super::repository::{repo_open};
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{Error, Pathspec};
 use std::ffi::OsString;
-use serde::{Serialize};
+use serde::Serialize;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
