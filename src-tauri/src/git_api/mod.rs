@@ -76,10 +76,13 @@ struct Payload {
   message: String,
 }
 
+use std::{thread, time};
+
 #[tauri::command]
-pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
+pub async fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
 
+    /*
     // TODO can use for progress?
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
     let ok = match clone::clone(&args) {
@@ -88,6 +91,24 @@ pub fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String>
     };
     window.emit("clone-progress", Payload { message: "Clone done!".into() }).unwrap();
     ok
+    */
+    window.emit("PROGRESS", Payload { message: "start".into() }).unwrap();
+    // let handle = tauri::async_runtime::spawn(move || {
+    let handle = thread::spawn(move || {
+        let millis = time::Duration::from_millis(500);
+        let mut frames = 0;
+        loop {
+            frames += 1;
+            if frames == 10 {
+                break
+            }
+            window.emit("PROGRESS", Payload { message: "end".into() }).unwrap();
+            thread::sleep(millis)
+        }
+    });
+    handle.join().unwrap();
+
+    Ok("ok".to_string())
 }
 
 #[tauri::command]

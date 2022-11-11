@@ -18,7 +18,7 @@ export async function loadSettings() {
 }
 
 export async function clone(gitUrl: string, localDir: string) {
-  return await runCmd("clone", {args: [girUrl, localDir]}).then((res) => {
+  return await runCmd("clone", {args: [gitUrl, localDir]}).then((res) => {
     return res;
   });
 }

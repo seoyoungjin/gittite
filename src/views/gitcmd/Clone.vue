@@ -19,14 +19,74 @@
         </q-form>
       </q-card-section>
     </q-card>
+
+    <div>
+      <h6>PROGRESS events</h6>
+      <ol>
+        <li v-for="input in inputs">
+          {{input}}
+        </li>
+      </ol>
+    </div>
   </q-page>
+
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
 import { useQuasar } from "quasar";
-import { invoke } from "@tauri-apps/api/tauri";
+import { listen } from '@tauri-apps/api/event'
+import { appWindow } from '@tauri-apps/api/window';
+import ProgressDialog from "../../components/ProgressDialog"
+import * as git2rs from '../../api/git2rs'
 
 export default {
+  setup() {
+    const inputs = ref([]);
+    const $q = useQuasar()
+
+    listen('PROGRESS', (event) => {
+      console.log("js: rs2js: " + event);
+      let input = event.payload;
+      inputs.value.push({ timestamp: Date.now(), payload: input })
+      if (input.message == 'start') {
+        showProgress();
+      }
+    });
+
+    function showProgress () {
+      const dialog = $q.dialog({
+        message: 'Uploading... 0%',
+        progress: true, // we enable default settings
+        persistent: true, // we want the user to not be able to close it
+        ok: false // we want the user to not be able to close it
+      })
+
+      // we simulate some progress here...
+      let percentage = 0
+      const interval = setInterval(() => {
+        percentage = Math.min(100, percentage + Math.floor(Math.random() * 22))
+
+        // we update the dialog
+        dialog.update({
+          message: `Uploading... ${percentage}%`
+        })
+
+        // if we are done, we're gonna close it
+        if (percentage === 100) {
+          clearInterval(interval)
+          setTimeout(() => {
+            dialog.hide()
+          }, 350)
+        }
+      }, 500)
+    }
+
+    return {
+      inputs,
+    }
+  },
+
   data() {
     return {
       form: {
@@ -38,13 +98,10 @@ export default {
 
   methods: {
     gitClone() {
-      // alert(JSON.stringify(this.form, null, 4));
       const gitURL = this.form.gitURL;
       const localDir = this.form.directory;
 
-      invoke("clone", {
-        args: [gitURL, localDir],
-      })
+      git2rs.clone(gitURL, localDir)
         .then((message) => {
           this.$q.notify({
             color: "green-5",
@@ -54,7 +111,7 @@ export default {
           });
         })
         .catch((e) => {
-          var message = typeof e == "string" ? e : JSON.stringify(e, null, 4);
+          var message =JSON.stringify(e, null, 4);
           this.$q.notify({
             color: "red-5",
             textColor: "white",
@@ -63,6 +120,7 @@ export default {
           });
         });
     },
+
     onSubmit() {
       this.gitClone();
     },
