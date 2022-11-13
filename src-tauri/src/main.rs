@@ -31,6 +31,7 @@ fn main() {
   if cfg!(debug_assertions) {
     env_logger::init();
   }
+
   let settings = match settings::Settings::load() {
     Ok(v) => v,
     Err(e) => {
@@ -39,14 +40,11 @@ fn main() {
     }
   };
 
-  let app_data = AppData {
-    settings: settings,
-    repo_path: None,
-  };
+  // progress message
+  let (tx_git, mut rx_git) = std::sync::mpsc::channel::<String>();
 
   let context = tauri::generate_context!();
   tauri::Builder::default()
-    .manage(ArcAppData::new(app_data))
     .invoke_handler(tauri::generate_handler![
       app_data::get_settings,
       app_data::save_settings,
@@ -79,10 +77,31 @@ fn main() {
       git_api::blame,
     ])
     .setup(|app| {
+      // set window size
       let win = app.get_window("main").unwrap();
       win.set_size(
           Size::Physical(PhysicalSize{width: 900, height: 800})
       ).unwrap();
+
+      // emit received progress message to window
+      std::thread::spawn(move || {
+        loop {
+          // TODO error check
+          if let payload = rx_git.recv().unwrap() {
+            println!("payload {}", payload);
+            win.emit("PROGRESS", payload).unwrap();
+          }
+        }
+      });
+
+      // set state data
+      let app_data = AppData {
+        settings: settings,
+        repo_path: None,
+        tx_git: tx_git
+      };
+      app.manage(ArcAppData::new(app_data));
+
       Ok(())
     })
     .run(context)

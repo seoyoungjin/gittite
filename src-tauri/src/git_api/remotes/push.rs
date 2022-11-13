@@ -1,24 +1,13 @@
 use crate::git_api::{
     error::{Error, Result},
-    progress::ProgressPercent,
     branch::branch_set_upstream,
     cred::BasicAuthCredential,
-    // remotes::{proxy_auto, Callbacks},
+    remotes::proxy_auto,
     repository::repo_open,
     CommitId, RepoPath,
 };
-use std::sync::mpsc::Sender;
+use super::callbacks::{Callbacks, Sender};
 use git2::{PackBuilderStage, PushOptions};
-
-///
-/*
-pub trait AsyncProgress: Clone + Send + Sync {
-    ///
-    fn is_done(&self) -> bool;
-    ///
-    fn progress(&self) -> ProgressPercent;
-}
-*/
 
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -60,37 +49,6 @@ pub enum ProgressNotification {
     ///
     Done,
 }
-
-/*
-impl AsyncProgress for ProgressNotification {
-    fn is_done(&self) -> bool {
-        *self == Self::Done
-    }
-    fn progress(&self) -> ProgressPercent {
-        match *self {
-            Self::Packing {
-                stage,
-                current,
-                total,
-            } => match stage {
-                PackBuilderStage::AddingObjects
-                | PackBuilderStage::Deltafication => {
-                    ProgressPercent::new(current, total)
-                }
-            },
-            Self::PushTransfer { current, total, .. } => {
-                ProgressPercent::new(current, total)
-            }
-            Self::Transfer {
-                objects,
-                total_objects,
-                ..
-            } => ProgressPercent::new(objects, total_objects),
-            _ => ProgressPercent::full(),
-        }
-    }
-}
-*/
 
 ///
 #[derive(Copy, Clone, Debug)]
@@ -145,10 +103,10 @@ pub fn push_raw(
     let mut remote = repo.find_remote(remote)?;
 
     let mut options = PushOptions::new();
-    // options.proxy_options(proxy_auto());
+    options.proxy_options(proxy_auto());
 
-    // let callbacks = Callbacks::new(progress_sender, basic_credential);
-    // options.remote_callbacks(callbacks.callbacks());
+    let callbacks = Callbacks::new(progress_sender, basic_credential);
+    options.remote_callbacks(callbacks.callbacks());
     options.packbuilder_parallelism(0);
 
     let branch_modifier = match (force, delete) {
@@ -166,7 +124,6 @@ pub fn push_raw(
         format!("{branch_modifier}refs/{ref_type}/{branch}");
     remote.push(&[branch_name.as_str()], Some(&mut options))?;
 
-    /*
     if let Some((reference, msg)) =
         callbacks.get_stats()?.push_rejected_msg
     {
@@ -175,7 +132,6 @@ pub fn push_raw(
             reference, msg
         )));
     }
-    */
 
     if !delete {
         branch_set_upstream(&repo, branch)?;

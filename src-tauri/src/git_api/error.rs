@@ -1,100 +1,106 @@
 #![allow(renamed_and_removed_lints, clippy::unknown_clippy_lints)]
 
 use std::{
-	num::TryFromIntError,
+    num::TryFromIntError,
     path::StripPrefixError,
-	string::FromUtf8Error,
+    string::FromUtf8Error,
 };
 use thiserror::Error;
 
 ///
 #[derive(Error, Debug)]
 pub enum Error {
-	///
-	#[error("`{0}`")]
-	Generic(String),
+    ///
+    #[error("`{0}`")]
+    Generic(String),
 
-	///
-	#[error("git: no head found")]
-	NoHead,
+    ///
+    #[error("git: no head found")]
+    NoHead,
 
-	///
-	#[error("git: conflict during rebase")]
-	RebaseConflict,
+    ///
+    #[error("git: conflict during rebase")]
+    RebaseConflict,
 
-	///
-	#[error("git: remote url not found")]
-	UnknownRemote,
+    ///
+    #[error("git: remote url not found")]
+    UnknownRemote,
 
-	///
-	#[error("git: inconclusive remotes")]
-	NoDefaultRemoteFound,
+    ///
+    #[error("git: inconclusive remotes")]
+    NoDefaultRemoteFound,
 
-	///
-	#[error("git: work dir error")]
-	NoWorkDir,
+    ///
+    #[error("git: work dir error")]
+    NoWorkDir,
 
-	///
-	#[error("git: uncommitted changes")]
-	UncommittedChanges,
+    ///
+    #[error("git: uncommitted changes")]
+    UncommittedChanges,
 
-	///
-	#[error("git: can\u{2019}t run blame on a binary file")]
-	NoBlameOnBinaryFile,
+    ///
+    #[error("git: can\u{2019}t run blame on a binary file")]
+    NoBlameOnBinaryFile,
 
-	///
-	#[error("binary file")]
-	BinaryFile,
+    ///
+    #[error("binary file")]
+    BinaryFile,
 
-	///
-	#[error("io error:{0}")]
-	Io(#[from] std::io::Error),
+    ///
+    #[error("io error:{0}")]
+    Io(#[from] std::io::Error),
 
-	///
-	#[error("git error:{0}")]
-	Git(#[from] git2::Error),
+    ///
+    #[error("git error:{0}")]
+    Git(#[from] git2::Error),
 
-	///
-	#[error("strip prefix error: {0}")]
-	StripPrefix(#[from] StripPrefixError),
+    ///
+    #[error("strip prefix error: {0}")]
+    StripPrefix(#[from] StripPrefixError),
 
-	///
-	#[error("utf8 error:{0}")]
-	Utf8Conversion(#[from] FromUtf8Error),
+    ///
+    #[error("utf8 error:{0}")]
+    Utf8Conversion(#[from] FromUtf8Error),
 
-	///
-	#[error("TryFromInt error:{0}")]
-	IntConversion(#[from] TryFromIntError),
+    ///
+    #[error("TryFromInt error:{0}")]
+    IntConversion(#[from] TryFromIntError),
 
-	#[error("serde_json error:{0}")]
-	SerdeError(#[from] serde_json::Error),
+    #[error("serde_json error:{0}")]
+    SerdeError(#[from] serde_json::Error),
 
-	#[error("structopt::clap error:{0}")]
-	ClapError(#[from] structopt::clap::Error),
+    #[error("structopt::clap error:{0}")]
+    ClapError(#[from] structopt::clap::Error),
 
-	#[error("EasyCast error:{0}")]
-	EasyCast(#[from] easy_cast::Error),
+    #[error("EasyCast error:{0}")]
+    EasyCast(#[from] easy_cast::Error),
 
-	// #[error("shellexpand error:{0}")]
-	// Shell(#[from] shellexpand::LookupError<std::env::VarError>),
+    // #[error("shellexpand error:{0}")]
+    // Shell(#[from] shellexpand::LookupError<std::env::VarError>),
 
-	///
-	#[error("path string error")]
-	PathString,
+    ///
+    #[error("path string error")]
+    PathString,
 }
 
 ///
 // pub type Result<T> = std::result::Result<T, Error>;
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
-// impl<T> From<std::sync::PoisonError<T>> for Error {
-// 	fn from(error: std::sync::PoisonError<T>) -> Self {
-// 		Self::Generic(format!("poison error: {error}"))
-// 	}
-// }
+impl<T> From<std::sync::PoisonError<T>> for Error {
+    fn from(error: std::sync::PoisonError<T>) -> Self {
+        Self::Generic(format!("poison error: {error}"))
+    }
+}
 
 // impl<T> From<crossbeam_channel::SendError<T>> for Error {
-// 	fn from(error: crossbeam_channel::SendError<T>) -> Self {
-// 		Self::Generic(format!("send error: {error}"))
-// 	}
+//     fn from(error: crossbeam_channel::SendError<T>) -> Self {
+//         Self::Generic(format!("send error: {error}"))
+//     }
 // }
+
+impl<T> From<std::sync::mpsc::SendError<T>> for Error {
+    fn from(error: std::sync::mpsc::SendError<T>) -> Self {
+        Self::Generic(format!("send error: {error}"))
+    }
+}

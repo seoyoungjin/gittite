@@ -22,8 +22,8 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
 
-// TODO
-// - progress
+use serde::Serialize;
+use tauri::Window;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -41,11 +41,28 @@ struct State {
     path: Option<PathBuf>,
 }
 
-fn print(state: &mut State) {
-    println!("progress");
+// TODO => ProgressPercent
+#[derive(Serialize, Clone)]
+struct Payload {
+    rcv: usize,
+    tot: usize,
+    pct: usize,
 }
 
-pub fn clone<I>(args: I) -> Result<(), git2::Error>
+fn send_progress(state: &mut State, window: Option<&Window>) {
+    if let Some(win) = window {
+        let stats = state.progress.as_ref().unwrap();
+        let payload = Payload {
+            rcv: stats.received_objects(),
+            tot: stats.total_objects(),
+            pct: (100 * stats.received_objects()) / stats.total_objects(),
+        };
+        println!("XX {} {} {}", payload.rcv, payload.tot, payload.pct);
+        win.emit("PROGRESS", payload).unwrap();
+    }
+}
+
+pub fn clone<I>(args: I, win: Option<&Window>) -> Result<(), git2::Error>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone
@@ -61,7 +78,7 @@ where
     cb.transfer_progress(|stats| {
         let mut state = state.borrow_mut();
         state.progress = Some(stats.to_owned());
-        print(&mut *state);
+        send_progress(&mut *state, win);
         true
     });
 
@@ -71,7 +88,7 @@ where
         state.path = path.map(|p| p.to_path_buf());
         state.current = cur;
         state.total = total;
-        print(&mut *state);
+        send_progress(&mut *state, win);
     });
 
     let mut fo = FetchOptions::new();
@@ -100,7 +117,7 @@ mod tests {
         let td_path = td.path().as_os_str().to_str().unwrap();
 
         let args = vec![r1_dir, td_path];
-        let res = clone(&args);
+        let res = clone(&args, None);
         assert_eq!(res.is_ok(), true);
     }
 }

@@ -1,16 +1,14 @@
 //!
 
-// use super::push::AsyncProgress;
 use crate::git_api::{
     error::Result,
     cred::BasicAuthCredential,
-    progress::ProgressPercent,
-    // remotes::{proxy_auto, Callbacks},
+    remotes::proxy_auto,
     repository::repo_open,
     RepoPath,
 };
 // use crossbeam_channel::Sender;
-use std::sync::mpsc::Sender;
+use super::callbacks::{Callbacks, Sender};
 use git2::{Direction, PushOptions};
 use std::collections::HashSet;
 
@@ -30,23 +28,6 @@ pub enum PushTagsProgress {
     Done,
 }
 
-/*
-impl AsyncProgress for PushTagsProgress {
-    fn progress(&self) -> ProgressPercent {
-        match self {
-            Self::CheckRemote => ProgressPercent::empty(),
-            Self::Push { pushed, total } => {
-                ProgressPercent::new(*pushed, *total)
-            }
-            Self::Done => ProgressPercent::full(),
-        }
-    }
-    fn is_done(&self) -> bool {
-        *self == Self::Done
-    }
-}
-*/
-
 /// lists the remotes tags
 fn remote_tag_refs(
     repo_path: &RepoPath,
@@ -55,14 +36,11 @@ fn remote_tag_refs(
 ) -> Result<Vec<String>> {
     let repo = repo_open(repo_path)?;
     let mut remote = repo.find_remote(remote)?;
-    // let callbacks = Callbacks::new(None, basic_credential);
+    let callbacks = Callbacks::new(None, basic_credential);
     let conn = remote.connect_auth(
         Direction::Fetch,
-        // TODO
-        // Some(callbacks.callbacks()),
-        // Some(proxy_auto()),
-        None,
-        None
+        Some(callbacks.callbacks()),
+        Some(proxy_auto()),
     )?;
 
     let remote_heads = conn.list()?;
@@ -128,12 +106,10 @@ pub fn push_tags(
 
     for (idx, tag) in tags_missing.into_iter().enumerate() {
         let mut options = PushOptions::new();
-        // TODO
-        //let callbacks =
-        //    Callbacks::new(None, basic_credential.clone());
-        // options.remote_callbacks(callbacks.callbacks());
-        // options.packbuilder_parallelism(0);
-        // options.proxy_options(proxy_auto());
+        let callbacks = Callbacks::new(None, basic_credential.clone());
+        options.remote_callbacks(callbacks.callbacks());
+        options.packbuilder_parallelism(0);
+        options.proxy_options(proxy_auto());
         remote.push(&[tag.as_str()], Some(&mut options))?;
 
         progress_sender.as_ref().map(|sender| {
@@ -146,7 +122,9 @@ pub fn push_tags(
 
     drop(basic_credential);
 
-    progress_sender.map(|sender| sender.send(PushTagsProgress::Done));
+    progress_sender.map(|sender| {
+        sender.send(PushTagsProgress::Done);
+    });
 
     Ok(())
 }
@@ -158,7 +136,7 @@ mod tests {
         git_api::{
             self, tag, commit,
             remotes::{
-                // TODO fetch, fetch_all,
+                fetch::{fetch, fetch_all},
                 push::{push_branch, push_raw},
             },
             tests::{repo_clone, repo_init_bare},
@@ -195,7 +173,6 @@ mod tests {
         push_tags(clone1_dir, "origin", None, None).unwrap();
 
         // clone2
-
         let _commit2 = write_commit_file(
             &clone2,
             "test2.txt",
@@ -205,11 +182,11 @@ mod tests {
 
         assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 0);
 
-        /* TODO
         //lets fetch from origin
         let bytes = fetch(clone2_dir, "master", None, None).unwrap();
         assert!(bytes > 0);
 
+        /* TODO
         tag::merge_upstream_commit(clone2_dir, "master").unwrap();
         assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 1);
         */
@@ -242,9 +219,7 @@ mod tests {
         push_tags(clone1_dir, "origin", None, None).unwrap();
 
         // clone2
-
-        let tags =
-            remote_tag_refs(clone2_dir, "origin", None).unwrap();
+        let tags = remote_tag_refs(clone2_dir, "origin", None).unwrap();
 
         assert_eq!(
             tags.as_slice(),
@@ -285,7 +260,6 @@ mod tests {
         assert!(tags_missing.is_empty());
     }
 
-    /* TODO
     #[test]
     fn test_tags_fetch() {
         let (r1_dir, _repo) = repo_init_bare().unwrap();
@@ -353,7 +327,6 @@ mod tests {
         assert!(tags_missing.is_empty());
 
         // clone 2 - pull
-
         fetch_all(clone2_dir, &None, &None).unwrap();
         let tags2 = tag::get_tags(clone2_dir, None).unwrap();
         assert_eq!(tags1, tags2);
@@ -404,9 +377,7 @@ mod tests {
         push_tags(clone1_dir, "origin", None, None).unwrap();
 
         // clone 2
-
         fetch_all(clone2_dir, &None, &None).unwrap();
         assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 0);
     }
-    */
 }

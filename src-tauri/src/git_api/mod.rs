@@ -37,7 +37,7 @@ pub mod stash;
 pub mod blame;
 
 // TODO push
-pub mod fetch;
+// pub mod fetch;
 // pub mod pull;
 pub mod remotes;
 
@@ -53,6 +53,7 @@ use status::{StatusItem, StatusItemType};
 use diff::FileDiff;
 use blame::FileBlame;
 use branch::{BranchInfo, BranchCompare};
+use progress::ProgressPercent;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -79,9 +80,15 @@ struct Payload {
 use std::{thread, time};
 
 #[tauri::command]
-pub async fn clone(args: Vec<String>, window: tauri::Window) -> Result<String, String> {
+pub async fn clone(
+    args: Vec<String>,
+    app_data: AppDataState<'_>,
+    window: tauri::Window
+) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
 
+    app_data.tx_git.send("SEND".to_string());
     /*
     // TODO can use for progress?
     window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();

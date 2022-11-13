@@ -3,20 +3,27 @@
 //#![deny(warnings)]
 #![allow(dead_code)]
 
-// mod callbacks;
+mod callbacks;
 pub(crate) mod push;
 pub(crate) mod tags;
+pub(crate) mod fetch;
 
-// TODO 
-// how to get URL?
-// fetch? push?
-
-use super::error::{Error, Result};
-use git2::Repository;
-use super::repository::{repo_open, RepoPath};
+use crate::git_api::{
+    error::{Error, Result},
+    repository::{repo_open, RepoPath},
+};
+use git2::{ProxyOptions, Repository};
+pub use callbacks::Callbacks;
 
 /// origin
 pub const DEFAULT_REMOTE_NAME: &str = "origin";
+
+///
+pub fn proxy_auto<'a>() -> ProxyOptions<'a> {
+    let mut proxy = ProxyOptions::new();
+    proxy.auto();
+    proxy
+}
 
 ///
 pub fn get_remotes(repo_path: &RepoPath) -> Result<Vec<String>> {

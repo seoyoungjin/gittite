@@ -2,6 +2,8 @@
 
 use easy_cast::{Conv, ConvFloat};
 use std::cmp;
+use git2::PackBuilderStage;
+use super::remotes::{push::ProgressNotification, tags::PushTagsProgress};
 
 ///
 #[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
@@ -25,6 +27,58 @@ impl ProgressPercent {
     ///
     pub const fn full() -> Self {
         Self { progress: 100 }
+    }
+}
+
+///
+pub trait AsyncProgress: Clone + Send + Sync {
+    ///
+    fn is_done(&self) -> bool;
+    ///
+    fn progress(&self) -> ProgressPercent;
+}
+
+impl AsyncProgress for ProgressNotification {
+    fn is_done(&self) -> bool {
+        *self == Self::Done
+    }
+    fn progress(&self) -> ProgressPercent {
+        match *self {
+            Self::Packing {
+                stage,
+                current,
+                total,
+            } => match stage {
+                PackBuilderStage::AddingObjects
+                | PackBuilderStage::Deltafication => {
+                    ProgressPercent::new(current, total)
+                }
+            },
+            Self::PushTransfer { current, total, .. } => {
+                ProgressPercent::new(current, total)
+            }
+            Self::Transfer {
+                objects,
+                total_objects,
+                ..
+            } => ProgressPercent::new(objects, total_objects),
+            _ => ProgressPercent::full(),
+        }
+    }
+}
+
+impl AsyncProgress for PushTagsProgress {
+    fn progress(&self) -> ProgressPercent {
+        match self {
+            Self::CheckRemote => ProgressPercent::empty(),
+            Self::Push { pushed, total } => {
+                ProgressPercent::new(*pushed, *total)
+            }
+            Self::Done => ProgressPercent::full(),
+        }
+    }
+    fn is_done(&self) -> bool {
+        *self == Self::Done
     }
 }
 

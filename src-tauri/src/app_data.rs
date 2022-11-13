@@ -1,13 +1,15 @@
 use crate::settings::Settings;
 use crate::git_api::repository::RepoPath;
 
-use std::sync::{Arc, Mutex};
 use tauri::State;
+use std::sync::{Arc, Mutex};
+use std::sync::mpsc;
 use serde_json::Value;
 
 pub struct AppData {
   pub settings: Settings,
   pub repo_path: Option<RepoPath>,
+  pub tx_git: mpsc::Sender<String>
 }
 
 impl AppData {

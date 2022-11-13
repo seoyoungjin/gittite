@@ -1,6 +1,13 @@
+use crate::git_api::{
+    error::Result,
+    cred::BasicAuthCredential
+};
 use super::push::ProgressNotification;
-use super::{error::Result, cred::BasicAuthCredential};
-use std::sync::mpsc::Sender;
+
+// use tokio::sync::mpsc::Sender;
+// use crossbeam_channel::Sender;
+pub use std::sync::mpsc::Sender;
+
 use git2::{Cred, Error as GitError, RemoteCallbacks};
 use std::sync::{
 	atomic::{AtomicBool, Ordering},
@@ -195,8 +202,7 @@ impl Callbacks {
 
 		// This boolean is used to avoid multiple calls to credentials callback.
 		if self.first_call_to_credentials.load(Ordering::Relaxed) {
-			self.first_call_to_credentials
-				.store(false, Ordering::Relaxed);
+			self.first_call_to_credentials.store(false, Ordering::Relaxed);
 		} else {
 			return Err(GitError::from_str("Bad credentials."));
 		}
