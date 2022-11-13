@@ -26,12 +26,12 @@
 </template>
 
 <script>
-import { useLayoutStore } from '@/stores/layout.js';
+import { useLayoutStore } from "@/stores/layout.js";
 
 export default {
   setup() {
     const store = useLayoutStore();
-    return { store, }
+    return { store };
   },
 };
 </script>

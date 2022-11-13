@@ -18,7 +18,7 @@ export async function loadSettings() {
 }
 
 export async function clone(gitUrl: string, localDir: string) {
-  return await runCmd("clone", {args: [gitUrl, localDir]}).then((res) => {
+  return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
     return res;
   });
 }
@@ -103,9 +103,7 @@ export async function deleteBranch(name: string) {
 
 export async function renameBranch(branch: string, name: string) {
   try {
-    return await invoke("rename_branch",
-      { branch: branch, name: name }
-    );
+    return await invoke("rename_branch", { branch: branch, name: name });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -113,7 +111,7 @@ export async function renameBranch(branch: string, name: string) {
 
 export async function branchesInfo(local: bool) {
   try {
-    return await invoke("get_branches_info", { local : local });
+    return await invoke("get_branches_info", { local: local });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -121,7 +119,7 @@ export async function branchesInfo(local: bool) {
 
 export async function branchRemote(branch: string) {
   try {
-    return await invoke("get_branch_remote", { branch : branch });
+    return await invoke("get_branch_remote", { branch: branch });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -129,7 +127,7 @@ export async function branchRemote(branch: string) {
 
 export async function branchCompareUpstream(branch: string) {
   try {
-    return await invoke("branch_compare_upstream", { branch : branch });
+    return await invoke("branch_compare_upstream", { branch: branch });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -137,7 +135,7 @@ export async function branchCompareUpstream(branch: string) {
 
 export async function checkoutBranch(branch: string) {
   try {
-    return await invoke("checkout_branch", { branchRef : branch });
+    return await invoke("checkout_branch", { branchRef: branch });
   } catch (e) {
     return { error: JSON.stringify(e) };
   }

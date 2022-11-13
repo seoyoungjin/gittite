@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useLayoutStore } from './stores/layout.js';
-import AppLayout from './layouts/AppLayout.vue'
-import DevLayout from './layouts/DevLayout.vue'
+import { computed } from "vue";
+import { useLayoutStore } from "./stores/layout.js";
+import AppLayout from "./layouts/AppLayout.vue";
+import DevLayout from "./layouts/DevLayout.vue";
 
 export default {
   setup() {
@@ -19,8 +19,8 @@ export default {
     };
   },
   components: {
-    'app-layout': AppLayout,
-    'dev-layout': DevLayout
-  }
-}
+    "app-layout": AppLayout,
+    "dev-layout": DevLayout,
+  },
+};
 </script>

@@ -21,7 +21,7 @@
     <br />
     <br />
 
-    <q-btn type=submit color="primary" no-caps @click="gitInit">Confirm</q-btn>
+    <q-btn type=submit color="primary" no-caps @click="gitDiff">Confirm</q-btn>
     <br />
     <br />
 
@@ -50,7 +50,7 @@ export default {
     }
   },
   methods: {
-    gitInit: function() {
+    gitDiff: function() {
       var filename = this.form.filename;
       invoke('get_diff', {args: filename}).then((message) => {
         this.response = message;
