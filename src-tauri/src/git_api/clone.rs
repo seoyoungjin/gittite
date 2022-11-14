@@ -14,7 +14,7 @@
 
 //#![deny(warnings)]
 
-use super::RemoteProgress;
+use super::{ProgressPercent, RemoteProgress};
 use super::remotes::push::ProgressNotification;
 use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
@@ -38,12 +38,26 @@ struct State {
     progress: Option<Progress<'static>>,
     total: usize,
     current: usize,
-    path: Option<PathBuf>,
 }
 
 fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>) {
     if let Some(sender) = sender {
         let stats = state.progress.as_ref().unwrap();
+
+        // prevent too many progress
+        static mut PERCENT: u8 = 0;
+        let progress = ProgressPercent::new(
+            stats.received_objects(),
+            stats.total_objects()
+        ).progress;
+        // TODO
+        unsafe {
+            if (progress == PERCENT) {
+                return;
+            }
+            PERCENT = progress;
+        }
+
         log::debug!(
             "transfer: {}/{}",
             stats.received_objects(),
@@ -56,11 +70,10 @@ fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>)
     }
 }
 
-fn checkout_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>) {
-    // TODO
-}
-
-pub fn clone<I>(args: I, sender: Option<Sender<RemoteProgress>>) -> Result<(), git2::Error>
+pub fn clone<I>(
+    args: I,
+    sender: Option<Sender<RemoteProgress>>
+) -> Result<(), git2::Error>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone
@@ -70,7 +83,6 @@ where
         progress: None,
         total: 0,
         current: 0,
-        path: None,
     });
     let mut cb = RemoteCallbacks::new();
     cb.transfer_progress(|stats| {
@@ -81,16 +93,10 @@ where
     });
 
     let mut co = CheckoutBuilder::new();
-    co.progress(|path, cur, total| {
-        let mut state = state.borrow_mut();
-        state.path = path.map(|p| p.to_path_buf());
-        state.current = cur;
-        state.total = total;
-        checkout_progress(&mut *state, &sender);
-    });
-
+    // co.progress(|path, cur, total| {};
     let mut fo = FetchOptions::new();
     fo.remote_callbacks(cb);
+
     RepoBuilder::new()
         .fetch_options(fo)
         .with_checkout(co)

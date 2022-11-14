@@ -42,7 +42,7 @@ fn main() {
   };
 
   // progress message
-  let (tx_git, mut rx_git) = std::sync::mpsc::channel::<RemoteProgress>();
+  let (tx_git, rx_git) = std::sync::mpsc::channel::<RemoteProgress>();
 
   let context = tauri::generate_context!();
   tauri::Builder::default()
@@ -76,6 +76,7 @@ fn main() {
       git_api::tag,
       git_api::stash,
       git_api::blame,
+      git_api::test_progress,
     ])
     .setup(|app| {
       // set window size

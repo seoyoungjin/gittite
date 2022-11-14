@@ -1,7 +1,8 @@
 //!
 
+#![allow(dead_code)]
+
 use super::remotes::{push::ProgressNotification, tags::PushTagsProgress};
-use easy_cast::{Conv, ConvFloat};
 use std::cmp;
 use git2::PackBuilderStage;
 use serde::Serialize;
@@ -16,9 +17,12 @@ pub struct ProgressPercent {
 impl ProgressPercent {
     ///
     pub fn new(current: usize, total: usize) -> Self {
-        let total = f64::conv(cmp::max(current, total));
-        let progress = f64::conv(current) / total * 100.0;
-        let progress = u8::try_conv_nearest(progress).unwrap_or(100);
+        let total = cmp::max(current, total);
+        let progress = if total > 0 {
+            100 * current / total
+        } else {
+            100
+        } as u8;
         Self { progress }
     }
     ///
