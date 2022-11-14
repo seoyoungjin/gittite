@@ -1,11 +1,14 @@
 <script>
+import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
+
 export default {
+  components: {
+    ProgressDialog,
+  },
+
   data() {
     return {
-      message: "Hello World!",
-      appName: "Unknown",
-      appVersion: "0.0.0!",
-      tauriVersion: "0.0.0!",
+      showProgress: false,
     };
   },
 };
@@ -13,13 +16,12 @@ export default {
 
 <template>
   <h4>Test</h4>
-  {{ message }}
+
+  <div>
+    <q-btn label="Progress" @click="showProgress=true" color="primary" />
+  </div>
 
   <br />
 
-  <pre>
-  name : {{ appName }}
-  version : {{ appVersion }}
-  tauriVersion : {{ tauriVersion }}
-  </pre>
+  <ProgressDialog v-model="showProgress" />
 </template>

@@ -194,5 +194,15 @@ git branch -D [branchname]
     <pre>
 git checkout -b [branchname]
     </pre>
+
+    checkout remote branch
+    <pre>
+git checkout -t origin/[branchname]
+    </pre>
+
+    delete remote branch
+    <pre>
+git push origin --delete [branchname]
+    </pre>
   </q-page>
 </template>

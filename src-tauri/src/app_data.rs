@@ -1,5 +1,5 @@
 use crate::settings::Settings;
-use crate::git_api::repository::RepoPath;
+use crate::git_api::{RemoteProgress, RepoPath};
 
 use tauri::State;
 use std::sync::{Arc, Mutex};
@@ -9,7 +9,7 @@ use serde_json::Value;
 pub struct AppData {
   pub settings: Settings,
   pub repo_path: Option<RepoPath>,
-  pub tx_git: mpsc::Sender<String>
+  pub tx_git: mpsc::Sender<RemoteProgress>
 }
 
 impl AppData {

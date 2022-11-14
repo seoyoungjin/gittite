@@ -4,6 +4,7 @@
 )]
 
 use crate::app_data::{ArcAppData, AppData};
+use crate::git_api::RemoteProgress;
 use tauri::Manager;
 use tauri::{Size, PhysicalSize};
 
@@ -41,7 +42,7 @@ fn main() {
   };
 
   // progress message
-  let (tx_git, mut rx_git) = std::sync::mpsc::channel::<String>();
+  let (tx_git, mut rx_git) = std::sync::mpsc::channel::<RemoteProgress>();
 
   let context = tauri::generate_context!();
   tauri::Builder::default()
@@ -86,10 +87,14 @@ fn main() {
       // emit received progress message to window
       std::thread::spawn(move || {
         loop {
-          // TODO error check
-          if let payload = rx_git.recv().unwrap() {
-            println!("payload {}", payload);
-            win.emit("PROGRESS", payload).unwrap();
+          match rx_git.recv() {
+            Ok(payload) => {
+              println!("payload {:?}", payload);
+              win.emit("PROGRESS", payload).unwrap();
+            },
+            Err(e) => {
+              log::error!( "progress receiver error: {}", e);
+            }
           }
         }
       });

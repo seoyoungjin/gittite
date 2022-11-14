@@ -5,9 +5,8 @@ use crate::git_api::{
     error::Result,
     repository::{repo_open, RepoPath},
     utils,
-    ProgressPercent,
+    RemoteProgress, ProgressPercent,
 };
-use super::push::ProgressNotification;
 use super::callbacks::{Callbacks, Sender};
 use super::proxy_auto;
 use utils::bytes2string;
@@ -18,7 +17,7 @@ fn fetch_from_remote(
 	repo_path: &RepoPath,
 	remote: &str,
 	basic_credential: Option<BasicAuthCredential>,
-	progress_sender: Option<Sender<ProgressNotification>>,
+	progress_sender: Option<Sender<RemoteProgress>>,
 ) -> Result<()> {
 	let repo = repo_open(repo_path)?;
 
@@ -78,7 +77,7 @@ pub(crate) fn fetch(
 	repo_path: &RepoPath,
 	branch: &str,
 	basic_credential: Option<BasicAuthCredential>,
-	progress_sender: Option<Sender<ProgressNotification>>,
+	progress_sender: Option<Sender<RemoteProgress>>,
 ) -> Result<usize> {
 	let repo = repo_open(repo_path)?;
 	let branch_ref = repo

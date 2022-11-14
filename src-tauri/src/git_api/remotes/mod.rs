@@ -3,7 +3,7 @@
 //#![deny(warnings)]
 #![allow(dead_code)]
 
-mod callbacks;
+pub mod callbacks;
 pub(crate) mod push;
 pub(crate) mod tags;
 pub(crate) mod fetch;

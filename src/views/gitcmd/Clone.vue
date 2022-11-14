@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
-import * as git2rs from "../../api/git2rs";
+import * as git2rs from "@/api/git2rs";
 
 export default {
   components: {
@@ -51,6 +51,8 @@ export default {
 
   methods: {
     gitClone() {
+      // const gitURL = "https://github.com/rust-lang/git2-rs.git";
+      // const localDir = "/home/yjseo/tmp/test";
       const gitURL = this.form.gitURL;
       const localDir = this.form.directory;
 

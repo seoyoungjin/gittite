@@ -152,18 +152,13 @@ mod tests {
         let r1_dir = r1_dir.path().to_str().unwrap();
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
-
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
         let (clone2_dir, clone2) = repo_clone(r1_dir).unwrap();
-
-        let clone2_dir: &RepoPath =
-            &clone2_dir.path().to_str().unwrap().into();
+        let clone2_dir: &RepoPath = &clone2_dir.path().to_str().unwrap().into();
 
         // clone1
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
 
         push_branch(

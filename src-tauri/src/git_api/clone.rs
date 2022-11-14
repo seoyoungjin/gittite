@@ -14,6 +14,8 @@
 
 //#![deny(warnings)]
 
+use super::RemoteProgress;
+use super::remotes::push::ProgressNotification;
 use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
@@ -21,9 +23,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
-
-use serde::Serialize;
-use tauri::Window;
+use std::sync::mpsc::Sender;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -41,28 +41,26 @@ struct State {
     path: Option<PathBuf>,
 }
 
-// TODO => ProgressPercent
-#[derive(Serialize, Clone)]
-struct Payload {
-    rcv: usize,
-    tot: usize,
-    pct: usize,
-}
-
-fn send_progress(state: &mut State, window: Option<&Window>) {
-    if let Some(win) = window {
+fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>) {
+    if let Some(sender) = sender {
         let stats = state.progress.as_ref().unwrap();
-        let payload = Payload {
-            rcv: stats.received_objects(),
-            tot: stats.total_objects(),
-            pct: (100 * stats.received_objects()) / stats.total_objects(),
-        };
-        println!("XX {} {} {}", payload.rcv, payload.tot, payload.pct);
-        win.emit("PROGRESS", payload).unwrap();
+        log::debug!(
+            "transfer: {}/{}",
+            stats.received_objects(),
+            stats.total_objects()
+        );
+        sender.send(ProgressNotification::Transfer {
+            objects: stats.received_objects(),
+            total_objects: stats.total_objects(),
+        }.into());
     }
 }
 
-pub fn clone<I>(args: I, win: Option<&Window>) -> Result<(), git2::Error>
+fn checkout_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>) {
+    // TODO
+}
+
+pub fn clone<I>(args: I, sender: Option<Sender<RemoteProgress>>) -> Result<(), git2::Error>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone
@@ -78,7 +76,7 @@ where
     cb.transfer_progress(|stats| {
         let mut state = state.borrow_mut();
         state.progress = Some(stats.to_owned());
-        send_progress(&mut *state, win);
+        transfer_progress(&mut *state, &sender);
         true
     });
 
@@ -88,7 +86,7 @@ where
         state.path = path.map(|p| p.to_path_buf());
         state.current = cur;
         state.total = total;
-        send_progress(&mut *state, win);
+        checkout_progress(&mut *state, &sender);
     });
 
     let mut fo = FetchOptions::new();

@@ -1,12 +1,13 @@
 //!
 
+use super::remotes::{push::ProgressNotification, tags::PushTagsProgress};
 use easy_cast::{Conv, ConvFloat};
 use std::cmp;
 use git2::PackBuilderStage;
-use super::remotes::{push::ProgressNotification, tags::PushTagsProgress};
+use serde::Serialize;
 
 ///
-#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
+#[derive(Serialize, Clone, Copy, Default, Debug, PartialEq, Eq)]
 pub struct ProgressPercent {
     /// percent 0..100
     pub progress: u8,
@@ -30,55 +31,83 @@ impl ProgressPercent {
     }
 }
 
-///
-pub trait AsyncProgress: Clone + Send + Sync {
+/// used for push/pull
+#[derive(Serialize, Clone, Debug)]
+pub enum RemoteProgressState {
     ///
-    fn is_done(&self) -> bool;
+    PackingAddingObject,
     ///
-    fn progress(&self) -> ProgressPercent;
+    PackingDeltafiction,
+    ///
+    Pushing,
+    /// fetch progress
+    Transfer,
+    /// remote progress done
+    Done,
 }
 
-impl AsyncProgress for ProgressNotification {
-    fn is_done(&self) -> bool {
-        *self == Self::Done
+///
+#[derive(Serialize, Clone, Debug)]
+pub struct RemoteProgress {
+    ///
+    pub state: RemoteProgressState,
+    ///
+    pub progress: ProgressPercent,
+}
+
+impl RemoteProgress {
+    ///
+    pub fn new(
+        state: RemoteProgressState,
+        current: usize,
+        total: usize,
+    ) -> Self {
+        Self {
+            state,
+            progress: ProgressPercent::new(current, total),
+        }
     }
-    fn progress(&self) -> ProgressPercent {
-        match *self {
-            Self::Packing {
+}
+
+impl From<ProgressNotification> for RemoteProgress {
+    fn from(progress: ProgressNotification) -> Self {
+        match progress {
+            ProgressNotification::Packing {
                 stage,
                 current,
                 total,
             } => match stage {
-                PackBuilderStage::AddingObjects
-                | PackBuilderStage::Deltafication => {
-                    ProgressPercent::new(current, total)
-                }
+                PackBuilderStage::AddingObjects => Self::new(
+                    RemoteProgressState::PackingAddingObject,
+                    current,
+                    total,
+                ),
+                PackBuilderStage::Deltafication => Self::new(
+                    RemoteProgressState::PackingDeltafiction,
+                    current,
+                    total,
+                ),
             },
-            Self::PushTransfer { current, total, .. } => {
-                ProgressPercent::new(current, total)
-            }
-            Self::Transfer {
+            ProgressNotification::PushTransfer {
+                current,
+                total,
+                ..
+            } => Self::new(
+                RemoteProgressState::Pushing,
+                current,
+                total,
+            ),
+            ProgressNotification::Transfer {
                 objects,
                 total_objects,
                 ..
-            } => ProgressPercent::new(objects, total_objects),
-            _ => ProgressPercent::full(),
+            } => Self::new(
+                RemoteProgressState::Transfer,
+                objects,
+                total_objects,
+            ),
+            _ => Self::new(RemoteProgressState::Done, 1, 1),
         }
-    }
-}
-
-impl AsyncProgress for PushTagsProgress {
-    fn progress(&self) -> ProgressPercent {
-        match self {
-            Self::CheckRemote => ProgressPercent::empty(),
-            Self::Push { pushed, total } => {
-                ProgressPercent::new(*pushed, *total)
-            }
-            Self::Done => ProgressPercent::full(),
-        }
-    }
-    fn is_done(&self) -> bool {
-        *self == Self::Done
     }
 }
 

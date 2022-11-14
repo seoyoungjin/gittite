@@ -3,6 +3,7 @@ use crate::git_api::{
     branch::branch_set_upstream,
     cred::BasicAuthCredential,
     remotes::proxy_auto,
+    progress::RemoteProgress,
     repository::repo_open,
     CommitId, RepoPath,
 };
@@ -73,7 +74,7 @@ pub fn push_branch(
     force: bool,
     delete: bool,
     basic_credential: Option<BasicAuthCredential>,
-    progress_sender: Option<Sender<ProgressNotification>>,
+    progress_sender: Option<Sender<RemoteProgress>>,
 ) -> Result<()> {
     push_raw(
         repo_path,
@@ -97,7 +98,7 @@ pub fn push_raw(
     force: bool,
     delete: bool,
     basic_credential: Option<BasicAuthCredential>,
-    progress_sender: Option<Sender<ProgressNotification>>,
+    progress_sender: Option<Sender<RemoteProgress>>,
 ) -> Result<()> {
     let repo = repo_open(repo_path)?;
     let mut remote = repo.find_remote(remote)?;

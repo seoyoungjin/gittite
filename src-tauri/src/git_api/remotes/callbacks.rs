@@ -1,6 +1,7 @@
 use crate::git_api::{
     error::Result,
-    cred::BasicAuthCredential
+    cred::BasicAuthCredential,
+    progress::RemoteProgress
 };
 use super::push::ProgressNotification;
 
@@ -23,7 +24,7 @@ pub struct CallbackStats {
 ///
 #[derive(Clone)]
 pub struct Callbacks {
-	sender: Option<Sender<ProgressNotification>>,
+	sender: Option<Sender<RemoteProgress>>,
 	basic_credential: Option<BasicAuthCredential>,
 	stats: Arc<Mutex<CallbackStats>>,
 	first_call_to_credentials: Arc<AtomicBool>,
@@ -32,7 +33,7 @@ pub struct Callbacks {
 impl Callbacks {
 	///
 	pub fn new(
-		sender: Option<Sender<ProgressNotification>>,
+		sender: Option<Sender<RemoteProgress>>,
 		basic_credential: Option<BasicAuthCredential>,
 	) -> Self {
 		let stats = Arc::new(Mutex::new(CallbackStats::default()));
@@ -138,7 +139,7 @@ impl Callbacks {
 				stage,
 				total,
 				current,
-			})
+			}.into())
 		});
 	}
 
@@ -152,7 +153,7 @@ impl Callbacks {
 			sender.send(ProgressNotification::Transfer {
 				objects: p.received_objects(),
 				total_objects: p.total_objects(),
-			})
+			}.into())
 		});
 	}
 
@@ -163,7 +164,7 @@ impl Callbacks {
 				name: name.to_string(),
 				a: a.into(),
 				b: b.into(),
-			})
+			}.into())
 		});
 	}
 
@@ -179,7 +180,7 @@ impl Callbacks {
 				current,
 				total,
 				bytes,
-			})
+			}.into())
 		});
 	}
 

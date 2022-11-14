@@ -46,14 +46,14 @@ pub mod remotes;
 pub mod utils;
 mod progress;
 
-use repository::RepoPath;
+pub use repository::RepoPath;
 use commit_info::{CommitId, CommitInfo};
 use revlog::CommitData;
 use status::{StatusItem, StatusItemType};
 use diff::FileDiff;
 use blame::FileBlame;
 use branch::{BranchInfo, BranchCompare};
-use progress::ProgressPercent;
+pub use progress::{RemoteProgress, ProgressPercent};
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -72,50 +72,19 @@ pub fn init(args: Vec<String>) -> Result<String, String> {
     }
 }
 
-#[derive(Clone, serde::Serialize)]
-struct Payload {
-  message: String,
-}
-
-use std::{thread, time};
-
 #[tauri::command]
 pub async fn clone(
     args: Vec<String>,
     app_data: AppDataState<'_>,
-    window: tauri::Window
 ) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    app_data.tx_git.send("SEND".to_string());
-    /*
-    // TODO can use for progress?
-    window.emit("clone-progress", Payload { message: "Tauri is awesome!".into() }).unwrap();
-    let ok = match clone::clone(&args) {
+    let tx_git = app_data.tx_git.clone();
+    match clone::clone(&args, Some(tx_git)) {
         Ok(()) => Ok("Cloned".to_string()),
         Err(e) => return Err(e.to_string()),
-    };
-    window.emit("clone-progress", Payload { message: "Clone done!".into() }).unwrap();
-    ok
-    */
-    window.emit("PROGRESS", Payload { message: "start".into() }).unwrap();
-    // let handle = tauri::async_runtime::spawn(move || {
-    let handle = thread::spawn(move || {
-        let millis = time::Duration::from_millis(500);
-        let mut frames = 0;
-        loop {
-            frames += 1;
-            if frames == 10 {
-                break
-            }
-            window.emit("PROGRESS", Payload { message: "end".into() }).unwrap();
-            thread::sleep(millis)
-        }
-    });
-    handle.join().unwrap();
-
-    Ok("ok".to_string())
+    }
 }
 
 #[tauri::command]
@@ -481,6 +450,30 @@ pub fn blame(
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }
+}
+
+#[tauri::command]
+pub async fn test_progress(
+    args: Vec<String>,
+    app_data: AppDataState<'_>
+) -> Result<(), String> {
+    log::trace!("test_progress args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    let handle = std::thread::spawn(move || {
+        let millis = std::time::Duration::from_millis(500);
+        let mut frames = 0;
+        loop {
+            frames += 1;
+            if frames == 10 {
+                break
+            }
+            std::thread::sleep(millis)
+        }
+    });
+    handle.join().unwrap();
+
+    Ok(())
 }
 
 #[cfg(test)]
