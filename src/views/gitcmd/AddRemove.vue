@@ -71,7 +71,6 @@ export default {
     refreshStatus() {
       (async () => {
         this.stagedJson = await this.getStatus("stage");
-        // alert(JSON.stringify(this.stagedJson, null, 4));
         this.unstagedJson = await this.getStatus("workdir");
       })();
     },
@@ -105,9 +104,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
+          if (e) {
             this.response = { error: JSON.stringify(e) };
           }
         });
@@ -118,9 +115,7 @@ export default {
       try {
         return await invoke("get_status", { statusType: args });
       } catch (e) {
-        if (typeof e == "string") {
-          return { error: e };
-        } else {
+        if (e) {
           return { error: JSON.stringify(e) };
         }
       }

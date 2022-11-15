@@ -17,8 +17,16 @@ export async function loadSettings() {
   });
 }
 
+/// git
+
 export async function clone(gitUrl: string, localDir: string) {
   return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
+    return res;
+  });
+}
+
+export async function getCommits() {
+  return await runCmd("get_commits", { args: [] }).then((res) => {
     return res;
   });
 }
