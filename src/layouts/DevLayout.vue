@@ -129,7 +129,7 @@ export default {
       toggleLeftDrawer,
 
       links1: [
-        { icon: "home", text: "Home", link: "/" },
+        { icon: "home", text: "Home", link: "/gitcmd" },
         { icon: "subscriptions", text: "Repository", link: "/gitcmd/repo" },
         { icon: "list", text: "Init", link: "/gitcmd/init" },
         { icon: "file_copy", text: "Clone", link: "/gitcmd/clone" },

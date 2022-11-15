@@ -20,6 +20,5 @@ module.exports = {
   },
   rules: {
     "vue/multi-word-component-names": "off",
-    "quotes": [2, "single", { "avoidEscape": true }]
   },
 };

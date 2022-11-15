@@ -41,8 +41,9 @@ html 을 함수에서 return 한다. code 읽기 쉽지 않다.
 
 아직 vue3 미지원
 
-## Link
+## misc
 
-- How to return the result of an asynchronous function in JavaScript
+```
+yarn run eslint yourfile.js
+```
 
-  https://flaviocopes.com/how-to-return-result-asynchronous-function/

@@ -7,7 +7,7 @@
         flat
         color="grey-8"
         icon="apps"
-        @click="store.setLayout('app-layout')"
+        @click="setLayout('app-layout')"
       >
         <q-tooltip>App</q-tooltip>
       </q-btn>
@@ -17,7 +17,7 @@
         flat
         color="grey-8"
         icon="message"
-        @click="store.setLayout('dev-layout')"
+        @click="setLayout('dev-layout')"
       >
         <q-tooltip>Dev</q-tooltip>
       </q-btn>
@@ -33,5 +33,15 @@ export default {
     const store = useLayoutStore();
     return { store };
   },
+  methods: {
+    setLayout(layout) {
+      if (layout === "app-layout") {
+        this.$router.push("/");
+      } else if (this.$route.path === "/") {
+        this.$router.push("/gitcmd");
+      }
+      this.store.setLayout(layout);
+    },
+  }
 };
 </script>
