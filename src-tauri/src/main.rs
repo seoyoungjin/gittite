@@ -90,7 +90,7 @@ fn main() {
         loop {
           match rx_git.recv() {
             Ok(payload) => {
-              println!("payload {:?}", payload);
+              println!("{:?}", payload);
               win.emit("PROGRESS", payload).unwrap();
             },
             Err(e) => {

@@ -38,9 +38,7 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
+          if (e) {
             this.response = { error: JSON.stringify(e) };
           }
         });

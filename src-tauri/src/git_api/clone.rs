@@ -20,7 +20,7 @@ use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
 use std::ffi::OsString;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
 use std::sync::mpsc::Sender;
@@ -52,7 +52,7 @@ fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>)
         ).progress;
         // TODO
         unsafe {
-            if (progress == PERCENT) {
+            if progress == PERCENT {
                 return;
             }
             PERCENT = progress;
@@ -66,7 +66,8 @@ fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>)
         sender.send(ProgressNotification::Transfer {
             objects: stats.received_objects(),
             total_objects: stats.total_objects(),
-        }.into());
+        }.into())
+            .expect("send progress error");
     }
 }
 
@@ -92,7 +93,7 @@ where
         true
     });
 
-    let mut co = CheckoutBuilder::new();
+    let co = CheckoutBuilder::new();
     // co.progress(|path, cur, total| {};
     let mut fo = FetchOptions::new();
     fo.remote_callbacks(cb);

@@ -123,7 +123,7 @@ pub fn push_tags(
     drop(basic_credential);
 
     progress_sender.map(|sender| {
-        sender.send(PushTagsProgress::Done);
+        sender.send(PushTagsProgress::Done)
     });
 
     Ok(())

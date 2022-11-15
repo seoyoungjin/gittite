@@ -129,7 +129,7 @@ mod tests {
 
     fn count_commits(repo_path: &RepoPath, max: usize) -> usize {
         let args = ["-n".to_string(), max.to_string()];
-        let mut items = get_commits(repo_path, &args).unwrap();
+        let items = get_commits(repo_path, &args).unwrap();
         items.len()
     }
 

@@ -106,7 +106,6 @@ Todo: diff --name-status
             <div>
               <vue-json-pretty :data="response" />
             </div>
-
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -174,7 +173,9 @@ export default {
           this.response = message;
         })
         .catch((e) => {
-          this.response = { error: JSON.stringify(e) };
+          if (e) {
+            this.response = { error: JSON.stringify(e) };
+          }
         });
       this.refresh();
     },

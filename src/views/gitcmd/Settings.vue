@@ -1,9 +1,8 @@
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
 import { readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   data() {

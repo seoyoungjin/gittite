@@ -1,23 +1,22 @@
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   data() {
     return {
       tagAddForm: {
-        tagname : null,
-        object : null,
-        message : null,
-        force : false,
+        tagname: null,
+        object: null,
+        message: null,
+        force: false,
       },
       tagListForm: {
-        pattern : null,
+        pattern: null,
       },
       tagDeleteForm: {
-        tagname : null,
+        tagname: null,
       },
       resTagAdd: null,
       resTagList: null,
@@ -33,29 +32,44 @@ export default {
       var object = this.tagAddForm.object;
       var message = this.tagAddForm.message;
       var force = this.tagAddForm.force;
-      git2rs.tagAdd(tagname, object, message, force).then((message) => {
+      git2rs
+        .tagAdd(tagname, object, message, force)
+        .then((message) => {
           this.resTagAdd = message;
-      }).catch((e) => {
-        this.resTagAdd = { error: JSON.stringify(e) };
-      });
+        })
+        .catch((e) => {
+          if (e) {
+            this.resTagAdd = { error: JSON.stringify(e) };
+          }
+        });
     },
 
     tagList() {
       var pattern = this.tagListForm.pattern;
-      git2rs.tagList(pattern).then((message) => {
-        this.resTagList = message;
-      }).catch((e) => {
-        this.resTagList = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .tagList(pattern)
+        .then((message) => {
+          this.resTagList = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resTagList = { error: JSON.stringify(e) };
+          }
+        });
     },
 
     tagDelete() {
       var tagname = this.tagDeleteForm.tagname;
-      git2rs.tagDelete(tagname).then((message) => {
-        this.resTagDelete = message;
-      }).catch((e) => {
-        this.resTagDelete = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .tagDelete(tagname)
+        .then((message) => {
+          this.resTagDelete = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resTagDelete = { error: JSON.stringify(e) };
+          }
+        });
     },
   },
 };
@@ -68,9 +82,9 @@ export default {
     <!-- add -->
     <h6>Tag Add</h6>
     <q-form id="tag-add">
-      <q-input v-model="tagAddForm.tagname" label="Tag Name"/>
-      <q-input v-model="tagAddForm.object" label="Target Commit Id"/>
-      <q-input v-model="tagAddForm.message" label="Tag Message"/>
+      <q-input v-model="tagAddForm.tagname" label="Tag Name" />
+      <q-input v-model="tagAddForm.object" label="Target Commit Id" />
+      <q-input v-model="tagAddForm.message" label="Tag Message" />
       <q-checkbox v-model="tagAddForm.force" label="Force" />
     </q-form>
     <q-btn color="primary" no-caps @click="tagAdd">Add</q-btn>
@@ -84,7 +98,7 @@ export default {
     <!-- list -->
     <h6>Tag List</h6>
     <q-form id="tag-list">
-      <q-input v-model="tagListForm.pattern" label="Search Pattern"/>
+      <q-input v-model="tagListForm.pattern" label="Search Pattern" />
     </q-form>
     <q-btn color="primary" no-caps @click="tagList">List</q-btn>
     <br /><br />
@@ -97,7 +111,7 @@ export default {
     <!-- delete -->
     <h6>Tag Delete</h6>
     <q-form id="tag-delete">
-      <q-input v-model="tagDeleteForm.tagname" label="Tag Name"/>
+      <q-input v-model="tagDeleteForm.tagname" label="Tag Name" />
     </q-form>
     <q-btn color="primary" no-caps @click="tagDelete">Delete</q-btn>
     <br /><br />
@@ -160,6 +174,5 @@ git push origin v1.0.3
 git push origin --tags
 git push origin :v1.0.0
     </pre>
-
   </q-page>
 </template>

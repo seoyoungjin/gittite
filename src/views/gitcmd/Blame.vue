@@ -5,8 +5,16 @@
     </div>
 
     <q-form id="git-blame">
-      <q-input v-model="blameForm.filePath" label="File" hint="Enter filename" />
-      <q-input v-model="blameForm.commitId" label="Commit ID" hint="Enter Commit ID" />
+      <q-input
+        v-model="blameForm.filePath"
+        label="File"
+        hint="Enter filename"
+      />
+      <q-input
+        v-model="blameForm.commitId"
+        label="Commit ID"
+        hint="Enter Commit ID"
+      />
     </q-form>
 
     <div>
@@ -15,9 +23,7 @@
     </div>
     <br />
 
-    <div class="text-h7">
-      Commit files
-    </div>
+    <div class="text-h7">Commit files</div>
     <div>
       <vue-json-pretty :data="commitFiles" />
     </div>
@@ -29,9 +35,7 @@ Todo
 - complicated blame format like diff
     </pre>
 
-    <div class="text-h7">
-      Blame File
-    </div>
+    <div class="text-h7">Blame File</div>
     <div>
       <vue-json-pretty :data="resBlame" />
     </div>
@@ -42,8 +46,7 @@ Todo
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   components: {
@@ -56,7 +59,7 @@ export default {
 
   data() {
     return {
-      blameForm : {
+      blameForm: {
         filePath: "",
         commitId: "",
       },
@@ -85,15 +88,19 @@ export default {
 
     async blameFile() {
       alert(this.blameForm.filePath);
-      if (!this.blameForm.filePath)
-        return;
+      if (!this.blameForm.filePath) return;
       var path = this.blameForm.filePath;
       // TODO - commitId
-      git2rs.blameFile(path, null).then((message) => {
-        this.resBlame = message;
-      }).catch((e) => {
-        this.resBlame = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .blameFile(path, null)
+        .then((message) => {
+          this.resBlame = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resBlame = { error: JSON.stringify(e) };
+          }
+        });
     },
   },
 };

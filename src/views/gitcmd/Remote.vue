@@ -27,7 +27,7 @@ origin   https://github.com/... (push)
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   components: {
@@ -43,7 +43,8 @@ export default {
 
   methods: {
     gitFetch() {
-      git2rs.fetch()
+      git2rs
+        .fetch()
         .then((message) => {
           this.resFetch = message;
         })
@@ -53,12 +54,15 @@ export default {
     },
 
     gitPush() {
-      git2rs.push()
+      git2rs
+        .push()
         .then((message) => {
           this.resFetch = message;
         })
         .catch((e) => {
-          this.resFetch = { error: JSON.stringify(e) };
+          if (e) {
+            this.resFetch = { error: JSON.stringify(e) };
+          }
         });
     },
   },

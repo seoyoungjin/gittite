@@ -1,19 +1,18 @@
 <script lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   data() {
     return {
       stashSaveForm: {
-        message : null,
-        includeUntracked : false,
-        keepIndex : false,
+        message: null,
+        includeUntracked: false,
+        keepIndex: false,
       },
       stashForm: {
-        stashid : null,
+        stashid: null,
       },
       resStashSave: null,
       resStashList: null,
@@ -30,46 +29,69 @@ export default {
       var message = this.stashSaveForm.message;
       var untracked = this.stashSaveForm.includeUntracked;
       var keepIndex = this.stashSaveForm.keepIndex;
-      git2rs.stashSave(message, untracked, keepIndex).then((message) => {
+      git2rs
+        .stashSave(message, untracked, keepIndex)
+        .then((message) => {
           this.resStashSave = message;
-      }).catch((e) => {
-        this.resStashSave = { error: JSON.stringify(e) };
-      });
+        })
+        .catch((e) => {
+          this.resStashSave = { error: JSON.stringify(e) };
+        });
     },
 
     stashList() {
-      git2rs.stashList().then((message) => {
-        this.resStashList = message;
-      }).catch((e) => {
-        this.resStashList = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .stashList()
+        .then((message) => {
+          this.resStashList = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resStashList = { error: JSON.stringify(e) };
+          }
+        });
     },
 
     stashDrop() {
       var stashid = this.stashForm.stashid;
-      git2rs.stashDrop(stashid).then((message) => {
-        this.resStashDPA = message;
-      }).catch((e) => {
-        this.resStashDPA = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .stashDrop(stashid)
+        .then((message) => {
+          this.resStashDPA = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resStashDPA = { error: JSON.stringify(e) };
+          }
+        });
     },
 
     stashPop() {
       var stashid = this.stashForm.stashid;
-      git2rs.stashPop(stashid).then((message) => {
-        this.resStashDPA = message;
-      }).catch((e) => {
-        this.resStashDPA = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .stashPop(stashid)
+        .then((message) => {
+          this.resStashDPA = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resStashDPA = { error: JSON.stringify(e) };
+          }
+        });
     },
 
     stashApply() {
       var stashid = this.stashForm.stashid;
-      git2rs.stashApply(stashid).then((message) => {
-        this.resStashDPA = message;
-      }).catch((e) => {
-        this.resStashDPA = { error: JSON.stringify(e) };
-      });
+      git2rs
+        .stashApply(stashid)
+        .then((message) => {
+          this.resStashDPA = message;
+        })
+        .catch((e) => {
+          if (e) {
+            this.resStashDPA = { error: JSON.stringify(e) };
+          }
+        });
     },
   },
 };
@@ -81,8 +103,11 @@ export default {
 
     <!-- save -->
     <q-form v-on:submit="stashSave" id="stash-save">
-      <q-input v-model="stashSaveForm.message" label="Stash Message"/>
-      <q-checkbox v-model="stashSaveForm.includeUntracked" label="Stash Untracked" />
+      <q-input v-model="stashSaveForm.message" label="Stash Message" />
+      <q-checkbox
+        v-model="stashSaveForm.includeUntracked"
+        label="Stash Untracked"
+      />
       <q-checkbox v-model="stashSaveForm.keepIndex" label="Keep Index" />
     </q-form>
     <q-btn color="primary" no-caps @click="stashSave">Stash Save</q-btn>
@@ -104,12 +129,12 @@ export default {
 
     <!-- drop/pop/apply -->
     <q-form id="stash-form">
-      <q-input v-model="stashForm.stashid" label="Stash ID"/>
+      <q-input v-model="stashForm.stashid" label="Stash ID" />
     </q-form>
     <div>
-    <q-btn color="primary" no-caps @click="stashDrop">Drop</q-btn>
-    <q-btn color="primary" no-caps @click="stashPop">Pop</q-btn>
-    <q-btn color="primary" no-caps @click="stashApply">Apply</q-btn>
+      <q-btn color="primary" no-caps @click="stashDrop">Drop</q-btn>
+      <q-btn color="primary" no-caps @click="stashPop">Pop</q-btn>
+      <q-btn color="primary" no-caps @click="stashApply">Apply</q-btn>
     </div>
     <br /><br />
 

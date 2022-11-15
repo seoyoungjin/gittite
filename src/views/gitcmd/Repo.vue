@@ -4,9 +4,7 @@
       <h6>Select Repository</h6>
     </div>
 
-    <div class="text-h7">
-      Settings: {{ this.gitdir }}
-    </div>
+    <div class="text-h7">Settings: {{ this.gitdir }}</div>
     <br />
 
     <q-btn color="primary" no-caps @click="selectRepo">Confirm</q-btn>
@@ -24,7 +22,7 @@ import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
 import { invoke } from "@tauri-apps/api/tauri";
-import * as git2rs from '../../api/git2rs';
+import * as git2rs from "../../api/git2rs";
 
 export default {
   components: {
@@ -62,9 +60,7 @@ export default {
           this.response = { "Current repository": selected };
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
+          if (e) {
             this.response = { error: JSON.stringify(e) };
           }
         });

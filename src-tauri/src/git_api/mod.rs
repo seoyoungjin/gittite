@@ -54,6 +54,7 @@ use diff::FileDiff;
 use blame::FileBlame;
 use branch::{BranchInfo, BranchCompare};
 pub use progress::{RemoteProgress, ProgressPercent};
+use remotes::push::ProgressNotification;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -453,19 +454,22 @@ pub fn blame(
 }
 
 #[tauri::command]
-pub async fn test_progress(
-    args: Vec<String>,
-    app_data: AppDataState<'_>
-) -> Result<(), String> {
-    log::trace!("test_progress args {:?}", args);
+pub async fn test_progress(app_data: AppDataState<'_>) -> Result<(), String> {
+    log::trace!("test_progress");
     let mut app_data = app_data.0.lock().unwrap();
 
+    let tx_git = app_data.tx_git.clone();
     let handle = std::thread::spawn(move || {
         let millis = std::time::Duration::from_millis(500);
         let mut frames = 0;
         loop {
+            tx_git.send(ProgressNotification::Transfer {
+                objects: frames * 100,
+                total_objects: 1000,
+            }.into())
+                .expect("send progress error");
             frames += 1;
-            if frames == 10 {
+            if frames > 10 {
                 break
             }
             std::thread::sleep(millis)

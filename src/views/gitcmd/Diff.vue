@@ -5,7 +5,11 @@
     <q-card>
       <q-card-section>
         <q-form v-on:submit="getDiff" id="git-diff">
-          <q-input v-model="form.filename" label="File" hint="Enter file name" />
+          <q-input
+            v-model="form.filename"
+            label="File"
+            hint="Enter file name"
+          />
           <q-checkbox v-model="form.stageCheck" label="Stage" />
         </q-form>
       </q-card-section>
@@ -21,20 +25,22 @@
     <br />
     <br />
 
-    <q-btn type=submit color="primary" no-caps @click="gitDiff">Confirm</q-btn>
+    <q-btn type="submit" color="primary" no-caps @click="gitDiff"
+      >Confirm</q-btn
+    >
     <br />
     <br />
 
     <div>
-      <vue-json-pretty :data=response />
+      <vue-json-pretty :data="response" />
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import 'vue-json-pretty/lib/styles.css';
-import VueJsonPretty from 'vue-json-pretty';
-import { invoke } from '@tauri-apps/api/tauri';
+import "vue-json-pretty/lib/styles.css";
+import VueJsonPretty from "vue-json-pretty";
+import { invoke } from "@tauri-apps/api/tauri";
 
 export default {
   components: {
@@ -42,26 +48,30 @@ export default {
   },
   data() {
     return {
-      form : {
-        file: '',
+      form: {
+        file: "",
         stageCheck: false,
       },
-      response: null
-    }
+      response: null,
+    };
   },
   methods: {
-    gitDiff: function() {
+    gitDiff: function () {
       var filename = this.form.filename;
-      invoke('get_diff', {args: filename}).then((message) => {
-        this.response = message;
-      }).catch((e) => {
-        if (typeof e == 'string') {
-          this.response = {"error": e};
-        } else {
-          this.response = {"error": JSON.stringify(e)};
-        }
-      });
-    }
-  }
-}
+      invoke("get_diff", { args: filename })
+        .then((message) => {
+          this.response = message;
+        })
+        .catch((e) => {
+          if (typeof e == "string") {
+            this.response = { error: e };
+          } else {
+            if (e) {
+              this.response = { error: JSON.stringify(e) };
+            }
+          }
+        });
+    },
+  },
+};
 </script>
