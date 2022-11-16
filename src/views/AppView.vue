@@ -16,7 +16,6 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="changes">
-            <div class="text-h6">Changed</div>
             <ChangesList />
           </q-tab-panel>
 

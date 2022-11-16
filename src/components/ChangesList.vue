@@ -1,18 +1,18 @@
 <template>
-  <div class="q-pa-md" style="max-width: 350px">
-    <q-list dense bordered padding class="rounded-borders">
-      <q-item clickable v-ripple>
-        <q-item-section>
-          Unstaged
-        </q-item-section>
-      </q-item>
-
-      <q-item v-for="item in unstagedData" clickable v-ripple>
-        <q-item-section>
-          {{ item.status }} {{ item.path }}
-        </q-item-section>
-      </q-item>
-    </q-list>
+  <div class="q-ma-none">
+    <!--Unstaged-->
+    <div class="text-h7">
+      Unstaged Changes
+    </div>
+    <q-scroll-area style="height: 400px;">
+      <q-list dense bordered padding class="rounded-borders">
+        <q-item v-for="item in unstagedData" clickable v-ripple>
+          <q-item-section>
+            {{ item.status }} {{ item.path }}
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-scroll-area>
 
     <q-list dense bordered padding class="rounded-borders">
       <q-item clickable v-ripple>
@@ -40,8 +40,8 @@ export default {
 
   data() {
     return {
-      stagedData: null,
-      unstagedData: null,
+      stagedData: [],
+      unstagedData: [],
     };
   },
 

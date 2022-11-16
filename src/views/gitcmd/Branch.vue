@@ -138,7 +138,7 @@ export default {
     <q-btn color="primary" no-caps @click="createBranch">Create</q-btn>
     <q-btn color="primary" no-caps @click="deleteBranch">Delete</q-btn>
     <br /><br />
-    <div>
+    <div v-if="resBranch">
       <vue-json-pretty :data="resBranch" />
     </div>
     <br />
@@ -155,7 +155,7 @@ export default {
     </q-form>
     <q-btn color="primary" no-caps @click="renameBranch">Rename</q-btn>
     <br /><br />
-    <div>
+    <div v-if="resRenameBranch">
       <vue-json-pretty :data="resRenameBranch" />
     </div>
     <br />
@@ -167,7 +167,7 @@ export default {
     </q-form>
     <q-btn color="primary" no-caps @click="branchesInfo">Branches Info</q-btn>
     <br /><br />
-    <div>
+    <div v-if="resBranchesInfo">
       <vue-json-pretty :data="resBranchesInfo" />
     </div>
     <br />
@@ -182,7 +182,7 @@ export default {
       >Compare Upstream</q-btn
     >
     <br /><br />
-    <div>
+    <div v-if="resBranchRemote">
       <vue-json-pretty :data="resBranchRemote" />
     </div>
     <br />
@@ -194,7 +194,7 @@ export default {
     </q-form>
     <q-btn color="primary" no-caps @click="checkoutBranch">Checkout</q-btn>
     <br /><br />
-    <div>
+    <div v-if="resCheckoutBranch">
       <vue-json-pretty :data="resCheckoutBranch" />
     </div>
     <br />

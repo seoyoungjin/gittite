@@ -90,7 +90,7 @@ export default {
     <q-btn color="primary" no-caps @click="tagAdd">Add</q-btn>
     <br /><br />
 
-    <div>
+    <div v-if="resTagAdd">
       <vue-json-pretty :data="resTagAdd" />
     </div>
     <br />
@@ -103,7 +103,7 @@ export default {
     <q-btn color="primary" no-caps @click="tagList">List</q-btn>
     <br /><br />
 
-    <div>
+    <div v-if="resTagList">
       <vue-json-pretty :data="resTagList" />
     </div>
     <br />
@@ -116,7 +116,7 @@ export default {
     <q-btn color="primary" no-caps @click="tagDelete">Delete</q-btn>
     <br /><br />
 
-    <div>
+    <div v-if="resTagDelete">
       <vue-json-pretty :data="resTagDelete" />
     </div>
     <br />

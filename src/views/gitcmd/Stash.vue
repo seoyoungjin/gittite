@@ -113,7 +113,7 @@ export default {
     <q-btn color="primary" no-caps @click="stashSave">Stash Save</q-btn>
     <br /><br />
 
-    <div>
+    <div v-if="resStashSave">
       <vue-json-pretty :data="resStashSave" />
     </div>
     <br />
@@ -122,7 +122,7 @@ export default {
     <q-btn color="primary" no-caps @click="stashList">Stash List</q-btn>
     <br /><br />
 
-    <div>
+    <div v-if="resStashList">
       <vue-json-pretty :data="resStashList" />
     </div>
     <br />
@@ -138,7 +138,7 @@ export default {
     </div>
     <br /><br />
 
-    <div>
+    <div v-if="resStashDPA">
       <vue-json-pretty :data="resStashDPA" />
     </div>
     <br />

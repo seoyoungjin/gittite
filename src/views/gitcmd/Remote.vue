@@ -11,14 +11,14 @@ origin   https://github.com/... (push)
     <q-btn color="primary" no-caps @click="gitFetch()">Fetch</q-btn>
     <br />
     <br />
-    <div>
+    <div v-if="resFetch">
       <vue-json-pretty :data="resFetch" />
     </div>
 
     <q-btn color="primary" no-caps @click="gitPush()">Push</q-btn>
     <br />
     <br />
-    <div>
+    <div v-if="resPush">
       <vue-json-pretty :data="resPush" />
     </div>
   </q-page>

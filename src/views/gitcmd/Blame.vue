@@ -24,7 +24,7 @@
     <br />
 
     <div class="text-h7">Commit files</div>
-    <div>
+    <div v-if="commitFiles">
       <vue-json-pretty :data="commitFiles" />
     </div>
     <br />
@@ -36,7 +36,7 @@ Todo
     </pre>
 
     <div class="text-h7">Blame File</div>
-    <div>
+    <div v-if="resBlame">
       <vue-json-pretty :data="resBlame" />
     </div>
   </q-page>

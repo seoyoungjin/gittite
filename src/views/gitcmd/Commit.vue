@@ -34,12 +34,12 @@
             </q-form>
             <br />
             <br />
-            <div>
+            <div v-if="response">
               <vue-json-pretty :data="response" />
             </div>
             <br />
             <div class="text-h5 q-mb-md">Staged</div>
-            <div>
+            <div v-if="stagedJson">
               <vue-json-pretty :data="stagedJson" />
             </div>
           </q-tab-panel>
@@ -60,7 +60,7 @@
             </q-form>
             <br />
             <br />
-            <div>
+            <div v-if="response">
               <vue-json-pretty :data="response" />
             </div>
           </q-tab-panel>
@@ -80,7 +80,7 @@
             </q-form>
             <br />
             <br />
-            <div>
+            <div v-if="response">
               <vue-json-pretty :data="response" />
             </div>
           </q-tab-panel>
@@ -103,7 +103,7 @@ Todo: diff --name-status
             </pre>
             <br />
             <br />
-            <div>
+            <div v-if="response">
               <vue-json-pretty :data="response" />
             </div>
           </q-tab-panel>

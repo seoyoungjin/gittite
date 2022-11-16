@@ -41,10 +41,14 @@ export default {
     2. javascript using "@tauri-apps/api/fs"
 
     <h6>1. via tauri::command</h6>
-    <vue-json-pretty :data="jsonData" />
+    <div v-if="jsonData">
+      <vue-json-pretty :data="jsonData" />
+    </div>
     <br />
 
     <h6>2. with Javascript</h6>
-    <vue-json-pretty :data="jsonData2" />
+    <div v-if="jsonData2">
+      <vue-json-pretty :data="jsonData2" />
+    </div>
   </q-page>
 </template>

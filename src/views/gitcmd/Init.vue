@@ -41,7 +41,7 @@
     <br />
     <br />
 
-    <div>
+    <div v-if="response">
       <vue-json-pretty :data="response" />
     </div>
   </q-page>

@@ -15,7 +15,7 @@
 
     <br />
 
-    <div>
+    <div v-if="response">
       <vue-json-pretty :data="response" />
     </div>
     <br />
@@ -24,14 +24,14 @@
       <q-splitter v-model="splitterModel">
         <template v-slot:before>
           <div class="text-h5 q-mb-md">Unstaged</div>
-          <div>
+          <div v-if="unstagedJson">
             <vue-json-pretty :data="unstagedJson" />
           </div>
         </template>
 
         <template v-slot:after>
           <div class="text-h5 q-mb-md">Staged</div>
-          <div>
+          <div v-if="stagedJson">
             <vue-json-pretty :data="stagedJson" />
           </div>
         </template>
