@@ -1,30 +1,22 @@
 <template>
   <div class="q-ma-none">
     <!--Unstaged-->
-    <div class="text-h7">
-      Unstaged Changes
-    </div>
-    <q-scroll-area style="height: 400px;">
+    <div class="text-h7">Unstaged Changes</div>
+    <q-scroll-area style="height: 400px">
       <q-list dense bordered padding class="rounded-borders">
         <q-item v-for="item in unstagedData" clickable v-ripple>
-          <q-item-section>
-            {{ item.status }} {{ item.path }}
-          </q-item-section>
+          <q-item-section> {{ item.wtree }} {{ item.path }} </q-item-section>
         </q-item>
       </q-list>
     </q-scroll-area>
 
     <q-list dense bordered padding class="rounded-borders">
       <q-item clickable v-ripple>
-        <q-item-section>
-          Staged
-        </q-item-section>
+        <q-item-section> Staged </q-item-section>
       </q-item>
 
       <q-item v-for="item in stagedData" clickable v-ripple>
-        <q-item-section>
-          {{ item.status }} {{ item.path }}
-        </q-item-section>
+        <q-item-section> {{ item.stage }} {{ item.path }} </q-item-section>
       </q-item>
     </q-list>
   </div>
@@ -52,6 +44,6 @@ export default {
         this.unstagedData = await git2rs.getStatus("workdir");
       })();
     },
-  }
+  },
 };
 </script>

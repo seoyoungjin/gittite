@@ -30,7 +30,8 @@ pub fn get_commit_files(
                     .path()
                     .map(|p| p.to_str().unwrap_or("").to_string())
                     .unwrap_or_default(),
-                status,
+                stage: Some(status),
+                wtree: None
             }
         })
         .collect::<Vec<_>>();
@@ -159,7 +160,7 @@ mod tests {
         let diff = get_commit_files(repo_path, id, None)?;
 
         assert_eq!(diff.len(), 1);
-        assert_eq!(diff[0].status, StatusItemType::New);
+        assert_eq!(diff[0].stage, Some(StatusItemType::Added));
 
         Ok(())
     }
@@ -177,7 +178,7 @@ mod tests {
         let diff = get_commit_files(repo_path, id, None)?;
 
         assert_eq!(diff.len(), 1);
-        assert_eq!(diff[0].status, StatusItemType::New);
+        assert_eq!(diff[0].stage, Some(StatusItemType::Added));
 
         Ok(())
     }
@@ -201,8 +202,8 @@ mod tests {
         let id = stash_save(repo_path, None, true, false)?;
         let diff = get_commit_files(repo_path, id, None)?;
         assert_eq!(diff.len(), 2);
-        assert_eq!(diff[0].status, StatusItemType::Modified);
-        assert_eq!(diff[1].status, StatusItemType::New);
+        assert_eq!(diff[0].stage, Some(StatusItemType::Modified));
+        assert_eq!(diff[1].stage, Some(StatusItemType::Added));
 
         Ok(())
     }

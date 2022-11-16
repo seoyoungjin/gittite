@@ -456,7 +456,7 @@ pub fn blame(
 #[tauri::command]
 pub async fn test_progress(app_data: AppDataState<'_>) -> Result<(), String> {
     log::trace!("test_progress");
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
     let tx_git = app_data.tx_git.clone();
     let handle = std::thread::spawn(move || {

@@ -28,8 +28,8 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <div class="text-h4 q-mb-md">After</div>
-          right side
+          <div class="text-h4 q-mb-md">Diff</div>
+            <DiffView />
         </div>
       </template>
 
@@ -41,11 +41,12 @@
 import { ref } from 'vue';
 import ChangesList from '@/components/ChangesList.vue';
 import HistoryList from '@/components/HistoryList.vue';
+import DiffView from '@/components/DiffView.vue';
 
 export default {
   setup () {
     return {
-      splitterModel: ref(200),
+      splitterModel: ref(250),
       tab: ref('changes')
     }
   },
@@ -53,6 +54,7 @@ export default {
   components: {
     ChangesList,
     HistoryList,
+    DiffView,
   },
 }
 </script>
