@@ -10,8 +10,15 @@ use serde_with::skip_serializing_none;
 // https://git-scm.com/docs/git-status
 
 // TOOO
-// - untracked file
-// - submodule
+// untracked file
+// -u[mode], --untracked-files[=mode]
+//  no, normal, all
+//
+// --ignore-submodules[=[when]
+//   none, untracked, dirty, all
+//
+// --ignored=[mode]
+//   traditional, no, matching
 
 /// StatusItemType
 #[derive(Serialize, Deserialize)]
@@ -25,9 +32,7 @@ pub enum StatusItemType {
     Conflicted,
     Unchanged,
     Untracked,
-    // Copied,
-    // Innored,
-    // UpdatedButUnmerged
+    UpdatedButUnmerged
 }
 
 impl From<Status> for StatusItemType {
@@ -73,10 +78,8 @@ pub enum WStatusItemType {
     New,
     Modified,
     Deleted,
-    Copied,
     Renamed,
     Typechange,
-    Untracked,
     Ignored,
 }
 
@@ -95,7 +98,6 @@ impl From<Status> for WStatusItemType {
         } else {
             Self::Modified
         }
-        // TODO copied, untracked
     }
 }
 
@@ -109,7 +111,6 @@ pub struct StatusItem {
     pub wtree: Option<WStatusItemType>,
 }
 
-// TODO show_untracked: Option<ShowUntrackedFilesConfig>,
 /// gurantees sorting
 pub fn get_status(
     repo_path: &RepoPath,
@@ -130,9 +131,8 @@ pub fn get_status(
     opts.exclude_submodules(true);
 
     let statuses = repo.statuses(Some(&mut opts))?;
-
-    // directory status
     let mut res = Vec::with_capacity(statuses.len());
+
     for e in statuses.iter() {
         let st: Status = e.status();
 

@@ -72,8 +72,8 @@ pub enum Error {
     #[error("structopt::clap error:{0}")]
     ClapError(#[from] structopt::clap::Error),
 
-    #[error("EasyCast error:{0}")]
-    EasyCast(#[from] easy_cast::Error),
+    // #[error("EasyCast error:{0}")]
+    // EasyCast(#[from] easy_cast::Error),
 
     // #[error("shellexpand error:{0}")]
     // Shell(#[from] shellexpand::LookupError<std::env::VarError>),
@@ -84,7 +84,6 @@ pub enum Error {
 }
 
 ///
-// pub type Result<T> = std::result::Result<T, Error>;
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 impl<T> From<std::sync::PoisonError<T>> for Error {

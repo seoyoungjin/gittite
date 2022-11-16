@@ -28,8 +28,7 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <div class="text-h4 q-mb-md">Diff</div>
-            <DiffView />
+          <DiffView />
         </div>
       </template>
 

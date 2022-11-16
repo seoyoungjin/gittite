@@ -13,6 +13,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "@tauri-apps/api": "^1.2.0",
+    "diff2html": "^3.4.22",
     "pinia": "^2.0.23",
     "quasar": "^2.10.1",
     "vue": "^3.2.38",
@@ -21,7 +22,7 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
-    "@tauri-apps/cli": "^1.2.1",
+    "@tauri-apps/cli": "^1.2.0",
     "@types/node": "^16.11.56",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vue/eslint-config-prettier": "^7.0.0",
