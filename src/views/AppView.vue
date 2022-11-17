@@ -1,13 +1,8 @@
 <template>
   <div>
     <q-splitter v-model="splitterModel" unit="px">
-
       <template v-slot:before>
-        <q-tabs
-          v-model="tab"
-          no-caps
-          class="bg-orange text-black shadow-2"
-        >
+        <q-tabs v-model="tab" no-caps class="bg-orange text-black shadow-2">
           <q-tab name="changes" label="Changes" />
           <q-tab name="history" label="History" />
         </q-tabs>
@@ -16,7 +11,7 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="changes">
-            <ChangesList />
+            <ChangesList v-on:selectFile="handleSelectFile" />
           </q-tab-panel>
 
           <q-tab-panel name="history">
@@ -28,26 +23,31 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <DiffView />
+          <DiffView :path="currentPath" />
         </div>
       </template>
-
     </q-splitter>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import ChangesList from '@/components/ChangesList.vue';
-import HistoryList from '@/components/HistoryList.vue';
-import DiffView from '@/components/DiffView.vue';
+import { ref } from "vue";
+import ChangesList from "@/components/ChangesList.vue";
+import HistoryList from "@/components/HistoryList.vue";
+import DiffView from "@/components/DiffView.vue";
 
 export default {
-  setup () {
+  setup() {
     return {
       splitterModel: ref(250),
-      tab: ref('changes')
-    }
+      tab: ref("changes"),
+    };
+  },
+
+  data() {
+    return {
+      currentFile: "",
+    };
   },
 
   components: {
@@ -55,5 +55,12 @@ export default {
     HistoryList,
     DiffView,
   },
-}
+
+  methods: {
+    handleSelectFile(path) {
+      this.currentFile = path;
+      alert(path);
+    },
+  },
+};
 </script>

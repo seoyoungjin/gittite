@@ -10,6 +10,7 @@
           :key="index"
           clickable
           v-ripple
+          @click="clickItem(item)"
         >
           <q-item-section side>
             <q-icon name="folder" color="amber" />
@@ -75,6 +76,9 @@ export default {
         this.stagedData = await git2rs.getStatus("stage");
         this.unstagedData = await git2rs.getStatus("workdir");
       })();
+    },
+    clickItem(item) {
+      this.$emit("selectFile", item.path);
     },
   },
 };

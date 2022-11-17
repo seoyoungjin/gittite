@@ -1,4 +1,8 @@
 <template>
+  aa
+  {{ path }}
+  bb
+
   <div v-html="prettyHtml" />
 </template>
 
@@ -8,7 +12,8 @@ import * as Diff2Html from 'diff2html';
 import 'diff2html/bundles/css/diff2html.min.css';
 
 export default {
-  mounted() {
+  props: {
+    path: String,
   },
 
   data() {
