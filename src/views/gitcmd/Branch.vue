@@ -22,12 +22,15 @@ export default {
       checkoutBranchForm: {
         name: null,
       },
+      checkoutRemoteBranchForm: {
+        name: null,
+      },
       resBranch: null,
       resRenameBranch: null,
       resBranchesInfo: null,
       resBranchRemote: null,
       resCheckoutBranch: null,
-      // resCheckoutRemoteBranch : null,
+      resCheckoutRemoteBranch : null,
     };
   },
   components: {
@@ -122,6 +125,18 @@ export default {
           this.resCheckoutBranch = { error: JSON.stringify(e) };
         });
     },
+
+    checkoutRemoteBranch() {
+      var name = this.checkoutRemoteBranchForm.name;
+      git2rs
+        .checkoutRemoteBranch(name)
+        .then((message) => {
+          this.resCheckoutRemoteBranch = message;
+        })
+        .catch((e) => {
+          this.resCheckoutRemoteBranch = { error: JSON.stringify(e) };
+        });
+    },
   },
 };
 </script>
@@ -196,6 +211,18 @@ export default {
     <br /><br />
     <div v-if="resCheckoutBranch">
       <vue-json-pretty :data="resCheckoutBranch" />
+    </div>
+    <br />
+
+    <!-- checkout remote branch -->
+    <h6>Checkout Remote Branch</h6>
+    <q-form id="checkout-remote-branch">
+      <q-input v-model="checkoutRemoteBranchForm.name" label="Branch name" />
+    </q-form>
+    <q-btn color="primary" no-caps @click="checkoutRemoteBranch">Checkout</q-btn>
+    <br /><br />
+    <div v-if="resCheckoutRemoteBranch">
+      <vue-json-pretty :data="resCheckoutRemoteBranch" />
     </div>
     <br />
 

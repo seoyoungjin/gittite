@@ -149,6 +149,14 @@ export async function checkoutBranch(branch: string) {
   }
 }
 
+export async function checkoutRemoteBranch(branch: string) {
+  try {
+    return await invoke("checkout_remote_branch", { branchRef: branch });
+  } catch (e) {
+    return { error: JSON.stringify(e) };
+  }
+}
+
 // tag
 export async function tagAdd(
   tagname: string,
