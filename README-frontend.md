@@ -1,21 +1,20 @@
-nodejs framework 없이는 hot reload가 안되는것 같다.
-당분간 nodejs framework을 쓰면서 svelte, vue, react를 공부한다.
+<pre>
+When I started the project with tauri,
+I planned to organize the UI only with HTML and javascript.
+This is because it can take advantage of tauri compared to electron.
+
+However, following the example, I was forced to encounter nodejs.
+With hot reload function, it is vety convenient to change UI
+while running the app.
+I startd to study nodejs frameworks i.e. react, vue, and velte.
+</pre>
 
 ## Project setup
-
-svelte, typescipt
 
 ```
 yarn create vite
 yarn add -D @tauri-apps/cli
 yarn tauri init
-```
-
-## Run
-
-```
-yarn tauri dev
-
 ```
 
 ## yarn install on Ubuntu
@@ -25,23 +24,26 @@ sudo apt install npm
 sudo npm install -g yarn
 ```
 
-## ui는 vue+quasar 로 결정
+## UI with Vue and Quasar
+
+From a beginner's point of view...
 
 ### svelte
 
-간명하고 쉽게 배울수 있는데 이쁜 ui가 별로 없다.
-sveltekit, sveltstrap, unocss, smui, carbon, daisyui 등을 시도해 보았다.
-daisyui가 가장 그럴듯한데 이것도 css 속성 같은게 많이 나온다.
+It is simple and easy to learn, but there are not many pretty ui.
+I tried sveltekit, sveltstrap, unocss, smui, carbon, daisui, etc.
+Daisyui is the most plausible, but there are also a lot of CSS attributes.
 
 ### react
 
-html 을 함수에서 return 한다. code 읽기 쉽지 않다.
+At the first i reviewed react because it is popular.
+But I give up studying as soon as I see the HTML code in javascript function.
 
 ### vuetify
 
-아직 vue3 미지원
+Vue3 is not supported yet
 
-## misc
+## misc commands
 
 ```
 yarn run eslint yourfile.js

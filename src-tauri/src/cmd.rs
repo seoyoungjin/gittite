@@ -178,7 +178,7 @@ pub fn get_diff(
     args: String,
     app_data: AppDataState<'_>
 ) -> Result<FileDiff, String> {
-    log::trace!("commit_files:: args {:?}", args);
+    log::trace!("get_diff:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
@@ -187,6 +187,22 @@ pub fn get_diff(
     let stage = true;
     let diff_opt = None;
     match diff::get_diff(repo_path, &path, stage, diff_opt) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn diff(
+    args: Vec<String>,
+    app_data: AppDataState<'_>
+) -> Result<String, String> {
+    log::trace!("diff:: args {:?}", args);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match diff2::diff(repo_path, &args) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }

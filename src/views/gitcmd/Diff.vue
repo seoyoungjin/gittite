@@ -32,7 +32,12 @@
     <br />
 
     <div v-if="response">
-      <vue-json-pretty :data="response" />
+      <pre>
+        {{ response }}
+      </pre>
+    </div>
+    <div v-if="error">
+      <vue-json-pretty :data="error" />
     </div>
   </q-page>
 </template>
@@ -53,22 +58,20 @@ export default {
         stageCheck: false,
       },
       response: null,
+      error: null,
     };
   },
   methods: {
     gitDiff: function () {
       var filename = this.form.filename;
-      invoke("get_diff", { args: filename })
+      // invoke("get_diff", { args: filename })
+      invoke("diff", { args: [] })
         .then((message) => {
           this.response = message;
         })
         .catch((e) => {
-          if (typeof e == "string") {
-            this.response = { error: e };
-          } else {
-            if (e) {
-              this.response = { error: JSON.stringify(e) };
-            }
+          if (e) {
+            this.error = { error: JSON.stringify(e) };
           }
         });
     },

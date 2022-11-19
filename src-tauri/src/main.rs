@@ -65,6 +65,7 @@ fn main() {
             cmd::get_status,
             cmd::get_remotes,
             cmd::get_diff,
+            cmd::diff,
             // cmd::get_diff_commit,
             cmd::create_branch,
             cmd::delete_branch,

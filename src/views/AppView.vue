@@ -23,7 +23,7 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <DiffView :path="currentPath" />
+          <DiffView :path="currentFile" />
         </div>
       </template>
     </q-splitter>
@@ -57,9 +57,8 @@ export default {
   },
 
   methods: {
-    handleSelectFile(path) {
-      this.currentFile = path;
-      alert(path);
+    handleSelectFile(file) {
+      this.currentFile = file;
     },
   },
 };

@@ -1,18 +1,16 @@
 <template>
   <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
+    <q-header
+      elevated
+      class="bg-white text-grey-8 q-py-xs"
+      style="height: 50px"
+    >
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          @click="toggleLeftDrawer"
-          aria-label="Menu"
-          icon="menu"
-        />
-
         <q-btn flat no-caps no-wrap class="q-ml-xs" v-if="$q.screen.gt.xs">
-          <q-icon :name="Gittite" color="red" size="28px" />
+          <img alt="Vue logo" src="@/assets/logo.svg" width="25" height="25" />
+          <!--
+          <q-icon :name="menu" color="red" size="28px" />
+          --->
           <q-toolbar-title shrink class="text-weight-bold">
             Gittite
           </q-toolbar-title>

@@ -18,7 +18,6 @@ export async function loadSettings() {
 }
 
 /// git
-
 export async function clone(gitUrl: string, localDir: string) {
   return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
     return res;
@@ -31,15 +30,27 @@ export async function getCommits() {
   });
 }
 
-export async function add(name): Promise<boolean> {
+export async function diff() {
+  return await runCmd("diff", {args: [] }).then((res) => {
+    return res;
+  });
+}
+
+export async function get_diff(path: string) {
+  return await runCmd("get_diff", {args: [path] }).then((res) => {
+    return res;
+  });
+}
+
+export async function add(name: string): Promise<boolean> {
   return invoke("add", { args: name });
 }
 
-export async function remove(name): Promise<boolean> {
+export async function remove(name: string): Promise<boolean> {
   return invoke("remove", { args: name });
 }
 
-export async function resetStage(name): Promise<boolean> {
+export async function resetStage(name: string): Promise<boolean> {
   return invoke("reset_stage", { args: name });
 }
 
