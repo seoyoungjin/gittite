@@ -30,14 +30,8 @@ export async function getCommits() {
   });
 }
 
-export async function diff() {
-  return await runCmd("diff", {args: [] }).then((res) => {
-    return res;
-  });
-}
-
-export async function get_diff(path: string) {
-  return await runCmd("get_diff", {args: [path] }).then((res) => {
+export async function getDiff(path: string, stage: boolean) {
+  return await runCmd("get_diff", { path: path, stage: stage }).then((res) => {
     return res;
   });
 }

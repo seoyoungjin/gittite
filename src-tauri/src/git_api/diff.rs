@@ -3,7 +3,7 @@
 use super::error::{Error, Result};
 use super::{
     commit_files::{get_commit_diff, get_compare_commits_diff},
-    utils::{get_head_repo, work_dir},
+    utils::{get_head_repo, work_dir, diff_to_string},
     CommitId, RepoPath,
 };
 use crate::git_api::{utils::hash, repository::repo_open};
@@ -400,6 +400,18 @@ fn new_file_content(path: &Path) -> Option<Vec<u8>> {
     }
 
     None
+}
+
+/// returns diff of a specific file either in `stage` or workdir
+pub fn get_diff_string(
+    repo_path: &RepoPath,
+    p: &str,
+    stage: bool,
+    options: Option<DiffOptions>,
+) -> Result<String> {
+    let repo = repo_open(repo_path)?;
+    let diff = get_diff_raw(&repo, p, stage, false, options)?;
+    diff_to_string(&diff)
 }
 
 #[cfg(test)]

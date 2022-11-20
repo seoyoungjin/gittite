@@ -15,6 +15,7 @@
               :name="octIconForStatus(item.wtree)"
               color="blue"
               size="14px"
+              @click.stock="stageFile(item)"
             />
           </q-item-section>
           <q-item-section>
@@ -28,7 +29,6 @@
     <div class="text-h7">Staged Changes</div>
     <q-scroll-area style="height: 25vh">
       <q-list dense bordered padding class="rounded-borders">
-
         <q-item
           v-for="(item, index) in stagedData"
           :key="index"
@@ -40,6 +40,7 @@
               :name="octIconForStatus(item.stage)"
               color="amber"
               size="14px"
+              @click.stock="unstageFile(item)"
             />
           </q-item-section>
           <q-item-section>
@@ -105,7 +106,41 @@ export default {
     },
 
     clickItem(item) {
-      this.$emit("selectFile", item.path);
+      this.$emit("selectFile", item);
+    },
+
+    stageFile(item) {
+      git2rs
+        .add(item.path)
+        .then((message) => {
+          this.refreshStatus();
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
+    },
+
+    unstageFile(item) {
+      git2rs
+        .resetStage(item.path)
+        .then((message) => {
+          this.refreshStatus();
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
     },
 
     octIconForStatus(status: string): string {

@@ -10,7 +10,7 @@ import "diff2html/bundles/css/diff2html.min.css";
 export default {
   name: "DiffView",
   props: {
-    path: String,
+    curSelected: Object,
   },
 
   data() {
@@ -22,7 +22,7 @@ export default {
   computed: {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
-        drawFileList: true,
+        drawFileList: false,
         matching: "lines",
         outputFormat: "line-by-line",
         highlight: true,
@@ -32,12 +32,15 @@ export default {
 
   methods: {
     getDiff: async function () {
-      this.diffs = await git2rs.diff();
+      // alert(JSON.stringify(this.curSelected));
+      let current = this.curSelected;
+      if (current == null || !("path" in current)) return;
+      this.diffs = await git2rs.getDiff(current.path, "stage" in current);
     },
   },
 
   watch: {
-    path: "getDiff",
+    curSelected: "getDiff",
   },
 };
 </script>

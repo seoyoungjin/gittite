@@ -3,8 +3,8 @@
 use super::error::{Error, Result};
 use super::CommitId;
 use super::repository::{repo_open, RepoPath};
-use git2::Repository;
-use std::{fs::File, io::Write, path::Path};
+use git2::{Diff, DiffFormat, Repository};
+use std::{fs::File, io::{BufWriter, Write}, path::Path};
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
@@ -59,6 +59,29 @@ pub(crate) fn repo_write_file(
     let mut file = File::create(file_path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
+}
+
+/// diff to string
+pub fn diff_to_string<'a>(
+    diff: &'a Diff
+) -> Result<String> {
+    let mut buf = BufWriter::new(Vec::new());
+    diff.print(
+        DiffFormat::Patch,
+        |delta, hunk, line: git2::DiffLine| {
+            match line.origin() {
+                '+' | '-' | ' ' => write!(buf, "{}", line.origin()).unwrap(),
+                _ => {}
+            }
+            if buf.write_all(line.content()).is_err() {
+                false
+            } else {
+                true
+            }
+        }
+    )?;
+    let bytes = buf.into_inner().unwrap();
+    Ok(String::from_utf8(bytes).unwrap())
 }
 
 #[cfg(test)]

@@ -23,14 +23,14 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <DiffView :path="currentFile" />
+          <DiffView :curSelected="curSelected" />
         </div>
       </template>
     </q-splitter>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import ChangesList from "@/components/ChangesList.vue";
 import HistoryList from "@/components/HistoryList.vue";
@@ -46,7 +46,7 @@ export default {
 
   data() {
     return {
-      currentFile: "",
+      curSelected: null,
     };
   },
 
@@ -57,8 +57,8 @@ export default {
   },
 
   methods: {
-    handleSelectFile(file) {
-      this.currentFile = file;
+    handleSelectFile(item) {
+      this.curSelected = item;
     },
   },
 };
