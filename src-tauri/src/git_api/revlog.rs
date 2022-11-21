@@ -19,11 +19,11 @@ use structopt::StructOpt;
 pub struct CommitData {
     pub commit_id: CommitId,
     summary: String,
-    body: String,
+    // body: String,
     date: String,
     author: String,
-    committer: String,
-    parents: Vec<String>,
+    // committer: String,
+    // parents: Vec<String>,
 }
 
 #[derive(StructOpt)]
@@ -197,21 +197,21 @@ where
         let mut cd = CommitData {
             commit_id: commit.id().into(),
             summary: commit.summary().unwrap().to_string(),
-            body: match commit.body() {
-                Some(s) => s.to_string(),
-                None => "".to_string(),
-            },
+            // body: match commit.body() {
+            //     Some(s) => s.to_string(),
+            //     None => "".to_string(),
+            // },
             date: format_time(&commit.author().when()),
-            author: commit.author().to_string(),
-            committer: commit.committer().to_string(),
-            parents: vec![],
+            author: commit.author().name().unwrap().to_string(),
+            // committer: commit.committer().to_string(),
+            // parents: vec![],
         };
 
-        if commit.parents().len() > 1 {
-            for id in commit.parent_ids() {
-                cd.parents.push(format!("{:.8}", id))
-            }
-        }
+        // if commit.parents().len() > 1 {
+        //     for id in commit.parent_ids() {
+        //         cd.parents.push(format!("{:.8}", id))
+        //     }
+        // }
 
         cv.push(cd);
     }

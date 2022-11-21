@@ -51,13 +51,14 @@
     </q-scroll-area>
 
     <div>
-      <ChangesOption />
+      <CommitMessage />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import ChangesOption from "@/components/ChangesOption.vue";
+import CommitMessage from "@/components/CommitMessage.vue";
 import {
   octDiff16,
   octDiffAdded16,
@@ -84,6 +85,7 @@ export default {
 
   components: {
     ChangesOption,
+    CommitMessage,
   },
 
   mounted() {

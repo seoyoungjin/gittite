@@ -15,7 +15,6 @@
           </q-tab-panel>
 
           <q-tab-panel name="history">
-            <div class="text-h6">History</div>
             <HistoryList />
           </q-tab-panel>
         </q-tab-panels>
@@ -46,7 +45,7 @@ export default {
 
   data() {
     return {
-      curSelected: null,
+      curSelected: Object,
     };
   },
 
@@ -57,7 +56,7 @@ export default {
   },
 
   methods: {
-    handleSelectFile(item) {
+    handleSelectFile(item: any) {
       this.curSelected = item;
     },
   },

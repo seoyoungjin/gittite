@@ -3,30 +3,18 @@
     class="item-row"
     @mouseover.native="showOptions = true"
     @mouseout.native="showOptions = false"
-    @click.native="clickItem(item)"
   >
-    <!--Left Part Checkbox-->
-    <q-item-side v-if="showCheckbox" class="text-center">
-      <q-checkbox color="grey-6" v-model="selected" />
-    </q-item-side>
 
     <!--Main Part-->
-    <q-item-main>
-      <q-item-tile label>{{ item.summary }}</q-item-tile>
-    </q-item-main>
-
-    <q-item-main>
-      {{ item.author }}
-    </q-item-main>
-
-    <q-item-main>
-        {{ item.commit_id }}
-    </q-item-main>
+    <q-item-section>
+      <q-item-label>{{ item.summary }}</q-item-label>
+      <q-item-label caption>{{ item.author }} - {{ item.date }}</q-item-label>
+    </q-item-section>
   </q-item>
 </template>
 
-<script>
-import { mapActions, mapGetters } from "pinia";
+<script lang="ts">
+import { mapActions, mapState } from "pinia";
 import { format } from "quasar";
 
 export default {
@@ -48,10 +36,3 @@ export default {
   },
 };
 </script>
-
-<!--
-<style lang="stylus" scoped>
-.item-row
-    height: 45px
-</style>
--->

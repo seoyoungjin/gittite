@@ -23,7 +23,7 @@ export default {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
         drawFileList: false,
-        matching: "lines",
+        matching: "none",
         outputFormat: "line-by-line",
         highlight: true,
       });

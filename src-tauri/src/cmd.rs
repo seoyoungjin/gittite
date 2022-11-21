@@ -193,6 +193,30 @@ pub fn get_diff(
 }
 
 #[tauri::command]
+pub fn get_diff_commit(
+    commit_id: String,
+    path: String,
+    app_data: AppDataState<'_>
+) -> Result<String, String> {
+    log::trace!("get_diff_commit:: commit_id: {}, path: {}", commit_id, path);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    // TODO error check
+    let repo = repository::repo_open(repo_path).unwrap();
+    let cid = CommitId::from_str(commit_id.as_str()).unwrap();
+    // TODO error check
+    let diff_opt = None;
+    // let diff = commit_files::get_commit_diff(repo_path, &repo, cid, Some(path), diff_opt).unwrap();
+    let diff = commit_files::get_commit_diff(repo_path, &repo, cid, None, diff_opt).unwrap();
+    match utils::diff_to_string(&diff) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
 pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     log::trace!("add() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
