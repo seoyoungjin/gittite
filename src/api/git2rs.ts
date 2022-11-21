@@ -66,19 +66,11 @@ export async function blameFile(path: string, commitId: string | null) {
 
 // commit related
 export async function commit(message: string | null) {
-  try {
-    return await invoke("commit", { args: message });
-  } catch (e) {
-    return { error: JSON.stringify(e) };
-  }
+  return await invoke("commit", { args: message });
 }
 
 export async function commitAmend(message: string | null) {
-  try {
-    return await invoke("amend", { args: message });
-  } catch (e) {
-    return { error: JSON.stringify(e) };
-  }
+  return await invoke("amend", { args: message });
 }
 
 export async function commitInfo(commitId: string) {

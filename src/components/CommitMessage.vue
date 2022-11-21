@@ -29,6 +29,10 @@
 </template>
 
 <script lang="ts">
+import { mapState } from "pinia";
+import { useCommitStageStore } from "@/stores/commitStage";
+import * as git2rs from "@/api/git2rs";
+
 export default {
   name: "CommitMessage",
   props: {
@@ -37,13 +41,35 @@ export default {
       default: "",
     },
   },
+  computed: {
+    ...mapState(useCommitStageStore, ["stagedFileLength"]),
+  },
   data() {
     return {
       commitMessageSummary: "",
+      commitMessageBody: "",
     };
   },
   methods: {
-    commitMessageButton() {},
+    commitMessageButton() {
+      var msg = this.commitMessageSummary;
+      if (!msg) {
+        alert("Enter commit message");
+        return;
+      }
+      if (this.commitMessageBody)
+        msg = msg + "\n\n" + this.commitMessageBody;
+
+      git2rs.commit(msg).catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            error: error,
+          });
+        });
+    },
   },
 };
 </script>

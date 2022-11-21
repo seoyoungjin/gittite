@@ -57,6 +57,8 @@
 </template>
 
 <script lang="ts">
+import { mapActions, mapState } from "pinia";
+import { useCommitStageStore } from "@/stores/commitStage";
 import ChangesOption from "@/components/ChangesOption.vue";
 import CommitMessage from "@/components/CommitMessage.vue";
 import {
@@ -88,10 +90,6 @@ export default {
     CommitMessage,
   },
 
-  mounted() {
-    this.refreshStatus();
-  },
-
   data() {
     return {
       stagedData: [],
@@ -99,11 +97,23 @@ export default {
     };
   },
 
+  mounted() {
+    this.refreshStatus();
+  },
+
+  computed: {
+    ...mapState(useCommitStageStore, ["allStagedFiles"]),
+  },
+
   methods: {
+    ...mapActions(useCommitStageStore, ["updateStagedFiles"]),
+
     refreshStatus() {
       (async () => {
         this.stagedData = await git2rs.getStatus("stage");
         this.unstagedData = await git2rs.getStatus("workdir");
+        // staged list to pinia state
+        this.updateStagedFiles(this.stagedData);
       })();
     },
 
