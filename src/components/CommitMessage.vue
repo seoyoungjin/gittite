@@ -21,6 +21,7 @@
     <q-btn
       :disabled="!stagedFileLength > 0"
       color="primary"
+      no-caps
       @click="commitMessageButton()"
     >
       Commit to <strong>{{ branchName }}</strong>
@@ -60,13 +61,23 @@ export default {
       if (this.commitMessageBody)
         msg = msg + "\n\n" + this.commitMessageBody;
 
-      git2rs.commit(msg).catch((e) => {
+      git2rs.commit(msg)
+        .then((message) => {
+          this.$emit("commit");
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+        })
+        .catch((e) => {
           var message = JSON.stringify(e, null, 4);
           this.$q.notify({
             color: "red-5",
             textColor: "white",
             icon: "warning",
-            error: error,
+            message: message,
           });
         });
     },

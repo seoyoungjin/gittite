@@ -51,7 +51,7 @@
     </q-scroll-area>
 
     <div>
-      <CommitMessage />
+      <CommitMessage v-on:commit="getStatus" />
     </div>
   </div>
 </template>
@@ -98,7 +98,7 @@ export default {
   },
 
   mounted() {
-    this.refreshStatus();
+    this.getStatus();
   },
 
   computed: {
@@ -108,7 +108,7 @@ export default {
   methods: {
     ...mapActions(useCommitStageStore, ["updateStagedFiles"]),
 
-    refreshStatus() {
+    getStatus() {
       (async () => {
         this.stagedData = await git2rs.getStatus("stage");
         this.unstagedData = await git2rs.getStatus("workdir");
@@ -125,7 +125,7 @@ export default {
       git2rs
         .add(item.path)
         .then((message) => {
-          this.refreshStatus();
+          this.getStatus();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);
@@ -142,7 +142,7 @@ export default {
       git2rs
         .resetStage(item.path)
         .then((message) => {
-          this.refreshStatus();
+          this.getStatus();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);
