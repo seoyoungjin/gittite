@@ -51,7 +51,7 @@
     </q-scroll-area>
 
     <div>
-      <CommitMessage v-on:commit="getStatus" />
+      <commit-message v-on:commit="getStatus" :branch-name="branchName" />
     </div>
   </div>
 </template>
@@ -92,12 +92,14 @@ export default {
 
   data() {
     return {
+      branchName: "",
       stagedData: [],
       unstagedData: [],
     };
   },
 
   mounted() {
+    this.getBranchName();
     this.getStatus();
   },
 
@@ -107,6 +109,18 @@ export default {
 
   methods: {
     ...mapActions(useCommitStageStore, ["updateStagedFiles"]),
+
+    getBranchName() {
+      git2rs.getBranchName()
+        .then(res => {
+          this.branchName = res;
+        })
+        .catch(err => {
+          console.log(err);
+          this.branchName = "master";
+        });
+    },
+
 
     getStatus() {
       (async () => {

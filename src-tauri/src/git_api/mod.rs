@@ -1,12 +1,5 @@
 //! Git API
 
-use crate::app_data::{AppData, AppDataState};
-use std::sync::MutexGuard;
-
-use std::path::Path;
-use git2::StatusShow;
-use serde_json::Value;
-
 pub mod error;
 pub mod cred;
 pub mod init;

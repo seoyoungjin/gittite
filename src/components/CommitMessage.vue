@@ -19,12 +19,12 @@
     />
 
     <q-btn
-      :disabled="!stagedFileLength > 0"
+      :disabled="!(stagedFileLength > 0 && commitMessageSummary)"
       color="primary"
       no-caps
       @click="commitMessageButton()"
     >
-      Commit to <strong>{{ branchName }}</strong>
+      Commit to&nbsp;<strong>{{ branchName }}</strong>
     </q-btn>
   </div>
 </template>

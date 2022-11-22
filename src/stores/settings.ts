@@ -1,15 +1,19 @@
 import { defineStore } from "pinia";
 
-export const useLayoutStore = defineStore("layout", {
+export const useSettingsStore = defineStore("settings", {
   state: () => ({
-    layout: "app-layout",
+    settings: {
+      repo: String | null;
+      allRepository: [];
+      repositoryData: {}
+    }
   }),
   getters: {
-    getLayout: (state) => state.layout,
+    getSettings: (state) => state.settings,
   },
   actions: {
-    setLayout(layout = "app-layout") {
-      this.layout = layout;
+    setSettings(settings) {
+      this.settings = settings;
     },
   },
 });

@@ -1,10 +1,10 @@
 use crate::app_data::{AppData, AppDataState};
 use std::sync::MutexGuard;
 
-use std::path::Path;
+use crate::git_api::*;
 use git2::StatusShow;
 use serde_json::Value;
-use crate::git_api::*;
+use std::path::Path;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
@@ -24,10 +24,7 @@ pub fn init(args: Vec<String>) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn clone(
-    args: Vec<String>,
-    app_data: AppDataState<'_>,
-) -> Result<String, String> {
+pub async fn clone(args: Vec<String>, app_data: AppDataState<'_>) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
     let app_data = app_data.0.lock().unwrap();
 
@@ -49,7 +46,7 @@ pub fn set_repo(args: String, app_data: AppDataState<'_>) -> Result<(), String> 
         Ok(_repo) => {
             app_data.repo_path = Some(repo_path);
             Ok(())
-        },
+        }
         Err(e) => return Err(e.to_string()),
     }
 }
@@ -57,7 +54,7 @@ pub fn set_repo(args: String, app_data: AppDataState<'_>) -> Result<(), String> 
 #[tauri::command]
 pub fn get_status(
     status_type: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<Vec<StatusItem>, String> {
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -76,7 +73,7 @@ pub fn get_status(
 #[tauri::command]
 pub fn get_commits(
     args: Vec<String>,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<Vec<CommitData>, String> {
     log::trace!("get_commits:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
@@ -89,10 +86,7 @@ pub fn get_commits(
 }
 
 #[tauri::command]
-pub fn rev_list(
-    args: Vec<String>,
-    app_data: AppDataState<'_>
-) -> Result<(), String> {
+pub fn rev_list(args: Vec<String>, app_data: AppDataState<'_>) -> Result<(), String> {
     log::trace!("rev_list:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -134,10 +128,7 @@ pub fn amend(args: String, app_data: AppDataState<'_>) -> Result<CommitId, Strin
 }
 
 #[tauri::command]
-pub fn commit_info(
-    args: String,
-    app_data: AppDataState<'_>
-) -> Result<CommitInfo, String> {
+pub fn commit_info(args: String, app_data: AppDataState<'_>) -> Result<CommitInfo, String> {
     log::trace!("commit_info:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -154,10 +145,7 @@ pub fn commit_info(
 }
 
 #[tauri::command]
-pub fn commit_files(
-    args: String,
-    app_data: AppDataState<'_>
-) -> Result<Vec<StatusItem>, String> {
+pub fn commit_files(args: String, app_data: AppDataState<'_>) -> Result<Vec<StatusItem>, String> {
     log::trace!("commit_files:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -174,11 +162,7 @@ pub fn commit_files(
 }
 
 #[tauri::command]
-pub fn get_diff(
-    path: String,
-    stage: bool,
-    app_data: AppDataState<'_>
-) -> Result<String, String> {
+pub fn get_diff(path: String, stage: bool, app_data: AppDataState<'_>) -> Result<String, String> {
     log::trace!("get_diff:: path: {}, stage: {}", path, stage);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -196,7 +180,7 @@ pub fn get_diff(
 pub fn get_diff_commit(
     commit_id: String,
     path: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<String, String> {
     log::trace!("get_diff_commit:: commit_id: {}, path: {}", commit_id, path);
     let mut app_data = app_data.0.lock().unwrap();
@@ -208,8 +192,7 @@ pub fn get_diff_commit(
     let cid = CommitId::from_str(commit_id.as_str()).unwrap();
     // TODO error check
     let diff_opt = None;
-    // let diff = commit_files::get_commit_diff(repo_path, &repo, cid, Some(path), diff_opt).unwrap();
-    let diff = commit_files::get_commit_diff(repo_path, &repo, cid, None, diff_opt).unwrap();
+    let diff = commit_files::get_commit_diff(repo_path, &repo, cid, Some(path), diff_opt).unwrap();
     match utils::diff_to_string(&diff) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
@@ -247,10 +230,7 @@ pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> 
 }
 
 #[tauri::command]
-pub fn reset_stage(
-    args: String,
-    app_data: AppDataState<'_>
-) -> Result<bool, String> {
+pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
     log::trace!("reset_stage() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -259,6 +239,19 @@ pub fn reset_stage(
     let path = args.as_str();
     match reset::reset_stage(repo_path, path) {
         Ok(()) => Ok(true),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn get_branch_name(app_data: AppDataState<'_>) -> Result<String, String> {
+    log::trace!("get_branch_name()");
+    let mut app_data = app_data.0.lock().unwrap();
+
+    verify_repo_path(&mut app_data);
+    let repo_path = app_data.repo_path_ref();
+    match branch::get_branch_name(repo_path) {
+        Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
     }
 }
@@ -293,7 +286,7 @@ pub fn delete_branch(args: String, app_data: AppDataState<'_>) -> Result<(), Str
 pub fn rename_branch(
     branch: String,
     name: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<(), String> {
     log::trace!("rename_branch() with : {:?} {:?}", branch, name);
     let mut app_data = app_data.0.lock().unwrap();
@@ -309,7 +302,7 @@ pub fn rename_branch(
 #[tauri::command]
 pub fn get_branch_remote(
     branch: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<Option<String>, String> {
     log::trace!("get_branch_remote() with : {:?}", branch);
     let mut app_data = app_data.0.lock().unwrap();
@@ -325,7 +318,7 @@ pub fn get_branch_remote(
 #[tauri::command]
 pub fn branch_compare_upstream(
     branch: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<BranchCompare, String> {
     log::trace!("branch_compare_upstream() with : {:?}", branch);
     let mut app_data = app_data.0.lock().unwrap();
@@ -341,7 +334,7 @@ pub fn branch_compare_upstream(
 #[tauri::command]
 pub fn get_branches_info(
     local: bool,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<Vec<BranchInfo>, String> {
     log::trace!("get_branches_info() with : {:?}", local);
     let mut app_data = app_data.0.lock().unwrap();
@@ -355,10 +348,7 @@ pub fn get_branches_info(
 }
 
 #[tauri::command]
-pub fn checkout_branch(
-    branch_ref: String,
-    app_data: AppDataState<'_>
-) -> Result<(), String> {
+pub fn checkout_branch(branch_ref: String, app_data: AppDataState<'_>) -> Result<(), String> {
     log::trace!("checkout_branch() with : {:?}", branch_ref);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -373,7 +363,7 @@ pub fn checkout_branch(
 #[tauri::command]
 pub fn checkout_remote_branch(
     branch_ref: String,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<(), String> {
     log::trace!("checkout_remote_branch() with : {:?}", branch_ref);
     let mut app_data = app_data.0.lock().unwrap();
@@ -394,7 +384,7 @@ pub fn checkout_remote_branch(
                 Err(e) => return Err(e.to_string()),
             }
         }
-    };
+    }
     return Err("can not find remote branch".to_string());
 }
 
@@ -438,7 +428,7 @@ pub fn stash(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, Str
 pub fn blame(
     path: String,
     commit_id: Option<String>,
-    app_data: AppDataState<'_>
+    app_data: AppDataState<'_>,
 ) -> Result<FileBlame, String> {
     log::trace!("blame() with : {:?}", path);
     let mut app_data = app_data.0.lock().unwrap();
@@ -461,14 +451,18 @@ pub async fn test_progress(app_data: AppDataState<'_>) -> Result<(), String> {
         let millis = std::time::Duration::from_millis(500);
         let mut frames = 0;
         loop {
-            tx_git.send(ProgressNotification::Transfer {
-                objects: frames * 100,
-                total_objects: 1000,
-            }.into())
+            tx_git
+                .send(
+                    ProgressNotification::Transfer {
+                        objects: frames * 100,
+                        total_objects: 1000,
+                    }
+                    .into(),
+                )
                 .expect("send progress error");
             frames += 1;
             if frames > 10 {
-                break
+                break;
             }
             std::thread::sleep(millis)
         }
