@@ -132,7 +132,7 @@ export default {
     },
 
     clickItem(item) {
-      this.$emit("selectFile", item);
+      this.$emit("selectItem", item);
     },
 
     stageFile(item) {

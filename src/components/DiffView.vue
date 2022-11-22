@@ -22,7 +22,7 @@ export default {
   computed: {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
-        drawFileList: false,
+        drawFileList: ("commit_id" in this.curSelected),
         matching: "none",
         outputFormat: "line-by-line",
         highlight: true,
@@ -34,8 +34,11 @@ export default {
     getDiff: async function () {
       // alert(JSON.stringify(this.curSelected));
       let current = this.curSelected;
-      if (current == null || !("path" in current)) return;
-      this.diffs = await git2rs.getDiff(current.path, "stage" in current);
+      if ("path" in current) {
+        this.diffs = await git2rs.getDiff(current.path, "stage" in current);
+      } else if ("commit_id" in current) {
+        this.diffs = await git2rs.getDiffCommit(current.commit_id, null);
+      }
     },
   },
 

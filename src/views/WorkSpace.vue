@@ -11,18 +11,18 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="changes">
-            <ChangesList v-on:selectFile="handleSelectFile" />
+            <changes-list v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
 
           <q-tab-panel name="history">
-            <HistoryList />
+            <history-list v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
         </q-tab-panels>
       </template>
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <DiffView :curSelected="curSelected" />
+          <diff-view :curSelected="curSelected" />
         </div>
       </template>
     </q-splitter>
@@ -56,7 +56,7 @@ export default {
   },
 
   methods: {
-    handleSelectFile(item: any) {
+    handleSelectItem(item: any) {
       this.curSelected = item;
     },
   },

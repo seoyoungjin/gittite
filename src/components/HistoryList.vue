@@ -42,7 +42,7 @@ export default {
 
     clickItem(item: any) {
       // alert(JSON.stringify(item, null, 4));
-      this.$emit("selectCommit", item.commit_id);
+      this.$emit("selectItem", item);
     },
   },
 };

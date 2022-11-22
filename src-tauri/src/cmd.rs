@@ -24,7 +24,10 @@ pub fn init(args: Vec<String>) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn clone(args: Vec<String>, app_data: AppDataState<'_>) -> Result<String, String> {
+pub async fn clone(
+    args: Vec<String>,
+    app_data: AppDataState<'_>,
+) -> Result<String, String> {
     log::trace!("clone args {:?}", args);
     let app_data = app_data.0.lock().unwrap();
 
@@ -36,7 +39,10 @@ pub async fn clone(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Stri
 }
 
 #[tauri::command]
-pub fn set_repo(args: String, app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn set_repo(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<(), String> {
     log::trace!("setpo args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -86,7 +92,10 @@ pub fn get_commits(
 }
 
 #[tauri::command]
-pub fn rev_list(args: Vec<String>, app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn rev_list(
+    args: Vec<String>,
+    app_data: AppDataState<'_>,
+) -> Result<(), String> {
     log::trace!("rev_list:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -98,7 +107,10 @@ pub fn rev_list(args: Vec<String>, app_data: AppDataState<'_>) -> Result<(), Str
 }
 
 #[tauri::command]
-pub fn commit(args: String, app_data: AppDataState<'_>) -> Result<CommitId, String> {
+pub fn commit(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<CommitId, String> {
     log::trace!("commit:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -111,7 +123,10 @@ pub fn commit(args: String, app_data: AppDataState<'_>) -> Result<CommitId, Stri
 }
 
 #[tauri::command]
-pub fn amend(args: String, app_data: AppDataState<'_>) -> Result<CommitId, String> {
+pub fn amend(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<CommitId, String> {
     log::trace!("amend:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -128,7 +143,10 @@ pub fn amend(args: String, app_data: AppDataState<'_>) -> Result<CommitId, Strin
 }
 
 #[tauri::command]
-pub fn commit_info(args: String, app_data: AppDataState<'_>) -> Result<CommitInfo, String> {
+pub fn commit_info(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<CommitInfo, String> {
     log::trace!("commit_info:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -145,7 +163,10 @@ pub fn commit_info(args: String, app_data: AppDataState<'_>) -> Result<CommitInf
 }
 
 #[tauri::command]
-pub fn commit_files(args: String, app_data: AppDataState<'_>) -> Result<Vec<StatusItem>, String> {
+pub fn commit_files(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<Vec<StatusItem>, String> {
     log::trace!("commit_files:: args {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -162,7 +183,11 @@ pub fn commit_files(args: String, app_data: AppDataState<'_>) -> Result<Vec<Stat
 }
 
 #[tauri::command]
-pub fn get_diff(path: String, stage: bool, app_data: AppDataState<'_>) -> Result<String, String> {
+pub fn get_diff(
+    path: String,
+    stage: bool,
+    app_data: AppDataState<'_>,
+) -> Result<String, String> {
     log::trace!("get_diff:: path: {}, stage: {}", path, stage);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -179,10 +204,10 @@ pub fn get_diff(path: String, stage: bool, app_data: AppDataState<'_>) -> Result
 #[tauri::command]
 pub fn get_diff_commit(
     commit_id: String,
-    path: String,
+    path: Option<String>,
     app_data: AppDataState<'_>,
 ) -> Result<String, String> {
-    log::trace!("get_diff_commit:: commit_id: {}, path: {}", commit_id, path);
+    log::trace!("get_diff_commit:: commit_id: {}", &commit_id[0..7]);
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
@@ -192,7 +217,7 @@ pub fn get_diff_commit(
     let cid = CommitId::from_str(commit_id.as_str()).unwrap();
     // TODO error check
     let diff_opt = None;
-    let diff = commit_files::get_commit_diff(repo_path, &repo, cid, Some(path), diff_opt).unwrap();
+    let diff = commit_files::get_commit_diff(repo_path, &repo, cid, path, diff_opt).unwrap();
     match utils::diff_to_string(&diff) {
         Ok(v) => Ok(v),
         Err(e) => Err(e.to_string()),
@@ -200,7 +225,10 @@ pub fn get_diff_commit(
 }
 
 #[tauri::command]
-pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+pub fn add(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<bool, String> {
     log::trace!("add() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -215,7 +243,10 @@ pub fn add(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+pub fn remove(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<bool, String> {
     log::trace!("remove() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -230,7 +261,10 @@ pub fn remove(args: String, app_data: AppDataState<'_>) -> Result<bool, String> 
 }
 
 #[tauri::command]
-pub fn reset_stage(args: String, app_data: AppDataState<'_>) -> Result<bool, String> {
+pub fn reset_stage(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<bool, String> {
     log::trace!("reset_stage() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -257,7 +291,10 @@ pub fn get_branch_name(app_data: AppDataState<'_>) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn create_branch(args: String, app_data: AppDataState<'_>) -> Result<String, String> {
+pub fn create_branch(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<String, String> {
     log::trace!("create_branch() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -270,7 +307,10 @@ pub fn create_branch(args: String, app_data: AppDataState<'_>) -> Result<String,
 }
 
 #[tauri::command]
-pub fn delete_branch(args: String, app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn delete_branch(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<(), String> {
     log::trace!("delete_branch() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -348,7 +388,10 @@ pub fn get_branches_info(
 }
 
 #[tauri::command]
-pub fn checkout_branch(branch_ref: String, app_data: AppDataState<'_>) -> Result<(), String> {
+pub fn checkout_branch(
+    branch_ref: String,
+    app_data: AppDataState<'_>,
+) -> Result<(), String> {
     log::trace!("checkout_branch() with : {:?}", branch_ref);
     let mut app_data = app_data.0.lock().unwrap();
 
@@ -401,7 +444,10 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-pub fn tag(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, String> {
+pub fn tag(
+    args: Vec<String>,
+    app_data: AppDataState<'_>,
+) -> Result<Value, String> {
     log::trace!("tag() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
     verify_repo_path(&mut app_data);
@@ -413,7 +459,10 @@ pub fn tag(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, Strin
 }
 
 #[tauri::command]
-pub fn stash(args: Vec<String>, app_data: AppDataState<'_>) -> Result<Value, String> {
+pub fn stash(
+    args: Vec<String>,
+    app_data: AppDataState<'_>,
+) -> Result<Value, String> {
     log::trace!("stash() with : {:?}", args);
     let mut app_data = app_data.0.lock().unwrap();
     verify_repo_path(&mut app_data);
