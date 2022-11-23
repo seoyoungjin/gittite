@@ -2,10 +2,10 @@
 
 #![allow(dead_code)]
 
-use super::remotes::{push::ProgressNotification, tags::PushTagsProgress};
-use std::cmp;
+use super::remotes::push::ProgressNotification;
 use git2::PackBuilderStage;
 use serde::Serialize;
+use std::cmp;
 
 ///
 #[derive(Serialize, Clone, Copy, Default, Debug, PartialEq, Eq)]
@@ -16,7 +16,10 @@ pub struct ProgressPercent {
 
 impl ProgressPercent {
     ///
-    pub fn new(current: usize, total: usize) -> Self {
+    pub fn new(
+        current: usize,
+        total: usize,
+    ) -> Self {
         let total = cmp::max(current, total);
         let progress = if total > 0 {
             100 * current / total
@@ -81,35 +84,21 @@ impl From<ProgressNotification> for RemoteProgress {
                 current,
                 total,
             } => match stage {
-                PackBuilderStage::AddingObjects => Self::new(
-                    RemoteProgressState::PackingAddingObject,
-                    current,
-                    total,
-                ),
-                PackBuilderStage::Deltafication => Self::new(
-                    RemoteProgressState::PackingDeltafiction,
-                    current,
-                    total,
-                ),
+                PackBuilderStage::AddingObjects => {
+                    Self::new(RemoteProgressState::PackingAddingObject, current, total)
+                }
+                PackBuilderStage::Deltafication => {
+                    Self::new(RemoteProgressState::PackingDeltafiction, current, total)
+                }
             },
-            ProgressNotification::PushTransfer {
-                current,
-                total,
-                ..
-            } => Self::new(
-                RemoteProgressState::Pushing,
-                current,
-                total,
-            ),
+            ProgressNotification::PushTransfer { current, total, .. } => {
+                Self::new(RemoteProgressState::Pushing, current, total)
+            }
             ProgressNotification::Transfer {
                 objects,
                 total_objects,
                 ..
-            } => Self::new(
-                RemoteProgressState::Transfer,
-                objects,
-                total_objects,
-            ),
+            } => Self::new(RemoteProgressState::Transfer, objects, total_objects),
             _ => Self::new(RemoteProgressState::Done, 1, 1),
         }
     }

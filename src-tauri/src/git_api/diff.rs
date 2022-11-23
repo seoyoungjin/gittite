@@ -3,18 +3,17 @@
 use super::error::{Error, Result};
 use super::{
     commit_files::{get_commit_diff, get_compare_commits_diff},
-    utils::{get_head_repo, work_dir, diff_to_string},
+    utils::{diff_to_string, get_head_repo, work_dir},
     CommitId, RepoPath,
 };
-use crate::git_api::{utils::hash, repository::repo_open};
-use git2::{Delta, Diff, DiffDelta, DiffFormat, DiffHunk, Patch};
+use crate::git_api::{repository::repo_open, utils::hash};
 use git2::Repository;
-use serde::{Serialize, Deserialize};
+use git2::{Delta, Diff, DiffDelta, DiffFormat, DiffHunk, Patch};
+use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, fs, path::Path, rc::Rc};
 
 /// type of diff of a single line
-#[derive(Serialize, Deserialize)]
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Serialize, Deserialize, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum DiffLineType {
     /// just surrounding line, no change
     None,
@@ -30,10 +29,8 @@ impl From<git2::DiffLineType> for DiffLineType {
     fn from(line_type: git2::DiffLineType) -> Self {
         match line_type {
             git2::DiffLineType::HunkHeader => Self::Header,
-            git2::DiffLineType::DeleteEOFNL
-            | git2::DiffLineType::Deletion => Self::Delete,
-            git2::DiffLineType::AddEOFNL
-            | git2::DiffLineType::Addition => Self::Add,
+            git2::DiffLineType::DeleteEOFNL | git2::DiffLineType::Deletion => Self::Delete,
+            git2::DiffLineType::AddEOFNL | git2::DiffLineType::Addition => Self::Add,
             _ => Self::None,
         }
     }
@@ -46,8 +43,7 @@ impl Default for DiffLineType {
 }
 
 ///
-#[derive(Serialize, Deserialize)]
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Serialize, Deserialize, Default, Clone, Hash, Debug)]
 pub struct DiffLine {
     ///
     pub content: Box<str>,
@@ -58,8 +54,7 @@ pub struct DiffLine {
 }
 
 ///
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Copy, Default, Hash, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Default, Hash, Debug, PartialEq, Eq)]
 pub struct DiffLinePosition {
     ///
     pub old_lineno: Option<u32>,
@@ -68,9 +63,11 @@ pub struct DiffLinePosition {
 }
 
 impl PartialEq<&git2::DiffLine<'_>> for DiffLinePosition {
-    fn eq(&self, other: &&git2::DiffLine) -> bool {
-        other.new_lineno() == self.new_lineno
-            && other.old_lineno() == self.old_lineno
+    fn eq(
+        &self,
+        other: &&git2::DiffLine,
+    ) -> bool {
+        other.new_lineno() == self.new_lineno && other.old_lineno() == self.old_lineno
     }
 }
 
@@ -103,8 +100,7 @@ impl From<DiffHunk<'_>> for HunkHeader {
 }
 
 /// single diff hunk
-#[derive(Serialize, Deserialize)]
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Serialize, Deserialize, Default, Clone, Hash, Debug)]
 pub struct Hunk {
     /// hash of the hunk header
     pub header_hash: u64,
@@ -113,8 +109,7 @@ pub struct Hunk {
 }
 
 /// collection of hunks, sum of all diff lines
-#[derive(Serialize, Deserialize)]
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Serialize, Deserialize, Default, Clone, Hash, Debug)]
 pub struct FileDiff {
     /// list of hunks
     pub hunks: Vec<Hunk>,
@@ -129,8 +124,7 @@ pub struct FileDiff {
 }
 
 /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
-#[derive(Serialize, Deserialize)]
-#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Hash, Clone, Copy, PartialEq, Eq)]
 pub struct DiffOptions {
     /// see <https://libgit2.org/libgit2/#HEAD/type/git_diff_options>
     pub ignore_whitespace: bool,
@@ -172,17 +166,9 @@ pub(crate) fn get_diff_raw<'a>(
             let parent = repo.find_commit(id.into())?;
 
             let tree = parent.tree()?;
-            repo.diff_tree_to_index(
-                Some(&tree),
-                Some(&repo.index()?),
-                Some(&mut opt),
-            )?
+            repo.diff_tree_to_index(Some(&tree), Some(&repo.index()?), Some(&mut opt))?
         } else {
-            repo.diff_tree_to_index(
-                None,
-                Some(&repo.index()?),
-                Some(&mut opt),
-            )?
+            repo.diff_tree_to_index(None, Some(&repo.index()?), Some(&mut opt))?
         }
     } else {
         opt.include_untracked(true);
@@ -231,12 +217,7 @@ pub fn get_diff_commits(
 ) -> Result<FileDiff> {
     let repo = repo_open(repo_path)?;
     let work_dir = work_dir(&repo)?;
-    let diff = get_compare_commits_diff(
-        &repo,
-        (ids.0, ids.1),
-        Some(p),
-        options,
-    )?;
+    let diff = get_compare_commits_diff(&repo, (ids.0, ids.1), Some(p), options)?;
 
     raw_diff_to_file_diff(&diff, work_dir)
 }
@@ -254,8 +235,7 @@ fn raw_diff_to_file_diff<'a>(
         let mut current_hunk: Option<HunkHeader> = None;
 
         let res_cell = Rc::clone(&res);
-        let adder = move |header: &HunkHeader,
-                          lines: &Vec<DiffLine>| {
+        let adder = move |header: &HunkHeader, lines: &Vec<DiffLine>| {
             let mut res = res_cell.borrow_mut();
             res.hunks.push(Hunk {
                 header_hash: hash(header),
@@ -265,18 +245,12 @@ fn raw_diff_to_file_diff<'a>(
         };
 
         let res_cell = Rc::clone(&res);
-        let mut put = |delta: DiffDelta,
-                       hunk: Option<DiffHunk>,
-                       line: git2::DiffLine| {
+        let mut put = |delta: DiffDelta, hunk: Option<DiffHunk>, line: git2::DiffLine| {
             {
                 let mut res = res_cell.borrow_mut();
-                res.sizes = (
-                    delta.old_file().size(),
-                    delta.new_file().size(),
-                );
+                res.sizes = (delta.old_file().size(), delta.new_file().size());
                 //TODO: use try_conv
-                res.size_delta = (res.sizes.1 as i64)
-                    .saturating_sub(res.sizes.0 as i64);
+                res.size_delta = (res.sizes.1 as i64).saturating_sub(res.sizes.0 as i64);
             }
             if let Some(hunk) = hunk {
                 let hunk_header = HunkHeader::from(hunk);
@@ -308,18 +282,13 @@ fn raw_diff_to_file_diff<'a>(
         let new_file_diff = if diff.deltas().len() == 1 {
             if let Some(delta) = diff.deltas().next() {
                 if delta.status() == Delta::Untracked {
-                    let relative_path =
-                        delta.new_file().path().ok_or_else(|| {
-                            Error::Generic(
-                                "new file path is unspecified.".to_string(),
-                            )
-                        })?;
+                    let relative_path = delta.new_file().path().ok_or_else(|| {
+                        Error::Generic("new file path is unspecified.".to_string())
+                    })?;
 
                     let newfile_path = work_dir.join(relative_path);
 
-                    if let Some(newfile_content) =
-                        new_file_content(&newfile_path)
-                    {
+                    if let Some(newfile_content) = new_file_content(&newfile_path) {
                         let mut patch = Patch::from_buffers(
                             &[],
                             None,
@@ -329,9 +298,7 @@ fn raw_diff_to_file_diff<'a>(
                         )?;
 
                         patch.print(
-                            &mut |delta,
-                                  hunk: Option<DiffHunk>,
-                                  line: git2::DiffLine| {
+                            &mut |delta, hunk: Option<DiffHunk>, line: git2::DiffLine| {
                                 put(delta, hunk, line);
                                 true
                             },
@@ -363,10 +330,7 @@ fn raw_diff_to_file_diff<'a>(
 
         if !current_lines.is_empty() {
             adder(
-                &current_hunk.map_or_else(
-                    || Err(Error::Generic("invalid hunk".to_owned())),
-                    Ok,
-                )?,
+                &current_hunk.map_or_else(|| Err(Error::Generic("invalid hunk".to_owned())), Ok)?,
                 &current_lines,
             );
         }
@@ -375,8 +339,7 @@ fn raw_diff_to_file_diff<'a>(
             res.borrow_mut().untracked = true;
         }
     }
-    let res = Rc::try_unwrap(res)
-        .map_err(|_| Error::Generic("rc unwrap error".to_owned()))?;
+    let res = Rc::try_unwrap(res).map_err(|_| Error::Generic("rc unwrap error".to_owned()))?;
     Ok(res.into_inner())
 }
 
@@ -388,9 +351,7 @@ fn new_file_content(path: &Path) -> Option<Vec<u8>> {
     if let Ok(meta) = fs::symlink_metadata(path) {
         if meta.file_type().is_symlink() {
             if let Ok(path) = fs::read_link(path) {
-                return Some(
-                    path.to_str()?.to_string().as_bytes().into(),
-                );
+                return Some(path.to_str()?.to_string().as_bytes().into());
             }
         } else if !meta.file_type().is_dir() {
             if let Ok(content) = fs::read(path) {
@@ -416,23 +377,22 @@ pub fn get_diff_string(
 
 #[cfg(test)]
 mod tests {
-    use crate::git_api::error::Result;
-    use git2::StatusShow;
     use super::{get_diff, get_diff_commit};
-    use crate::git_api::{
-        commit::commit, addremove::stage_add_file,
-        status::get_status,
-        RepoPath,
-    };
+    use crate::git_api::error::Result;
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
-    use std::{fs::{self, File}, io::Write, path::Path};
+    use crate::git_api::{addremove::stage_add_file, commit::commit, status::get_status, RepoPath};
+    use git2::StatusShow;
+    use std::{
+        fs::{self, File},
+        io::Write,
+        path::Path,
+    };
 
     #[test]
     fn test_untracked_subfolder() {
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         assert_eq!(get_statuses(repo_path), (0, 0));
 
@@ -444,8 +404,7 @@ mod tests {
 
         assert_eq!(get_statuses(repo_path), (1, 0));
 
-        let diff =
-            get_diff(repo_path, "foo/bar.txt", false, None).unwrap();
+        let diff = get_diff(repo_path, "foo/bar.txt", false, None).unwrap();
 
         assert_eq!(diff.hunks.len(), 1);
         assert_eq!(&*diff.hunks[0].lines[1].content, "test");
@@ -456,8 +415,7 @@ mod tests {
         let file_path = Path::new("foo.txt");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         assert_eq!(get_statuses(repo_path), (0, 0));
 
@@ -472,13 +430,7 @@ mod tests {
 
         assert_eq!(get_statuses(repo_path), (0, 1));
 
-        let diff = get_diff(
-            repo_path,
-            file_path.to_str().unwrap(),
-            true,
-            None,
-        )
-        .unwrap();
+        let diff = get_diff(repo_path, file_path.to_str().unwrap(), true, None).unwrap();
 
         assert_eq!(diff.hunks.len(), 1);
     }
@@ -513,8 +465,7 @@ mod tests {
     fn test_hunks() {
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         assert_eq!(get_statuses(repo_path), (0, 0));
 
@@ -544,8 +495,7 @@ mod tests {
 
         assert_eq!(get_statuses(repo_path), (1, 1));
 
-        let res =
-            get_diff(repo_path, "bar.txt", false, None).unwrap();
+        let res = get_diff(repo_path, "bar.txt", false, None).unwrap();
 
         assert_eq!(res.hunks.len(), 2)
     }
@@ -580,8 +530,7 @@ mod tests {
         let file_path = Path::new("bar");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))?.write_all(b"\x00")?;
 
@@ -589,16 +538,9 @@ mod tests {
 
         commit(repo_path, "commit").unwrap();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"\x00\x02")?;
+        File::create(&root.join(file_path))?.write_all(b"\x00\x02")?;
 
-        let diff = get_diff(
-            repo_path,
-            file_path.to_str().unwrap(),
-            false,
-            None,
-        )
-        .unwrap();
+        let diff = get_diff(repo_path, file_path.to_str().unwrap(), false, None).unwrap();
 
         dbg!(&diff);
         assert_eq!(diff.sizes, (1, 2));
@@ -616,13 +558,7 @@ mod tests {
 
         File::create(&root.join(file_path))?.write_all(b"\x00\xc7")?;
 
-        let diff = get_diff(
-            repo_path,
-            file_path.to_str().unwrap(),
-            false,
-            None,
-        )
-        .unwrap();
+        let diff = get_diff(repo_path, file_path.to_str().unwrap(), false, None).unwrap();
 
         dbg!(&diff);
         assert_eq!(diff.sizes, (0, 2));
@@ -636,15 +572,13 @@ mod tests {
         let file_path = Path::new("bar");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))?.write_all(b"\x00")?;
         stage_add_file(repo_path, file_path).unwrap();
         commit(repo_path, "").unwrap();
 
-        File::create(&root.join(file_path))?
-            .write_all(b"\x00\x02")?;
+        File::create(&root.join(file_path))?.write_all(b"\x00\x02")?;
         stage_add_file(repo_path, file_path).unwrap();
         let id = commit(repo_path, "").unwrap();
         let diff = get_diff_commit(repo_path, id, String::new(), None).unwrap();

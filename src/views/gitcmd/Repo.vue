@@ -55,7 +55,7 @@ export default {
       if (Array.isArray(selected) || selected === null) {
         return;
       }
-      invoke("set_repo", { args: selected })
+      invoke("set_repository", { args: selected })
         .then((message) => {
           this.response = { "Current repository": selected };
         })

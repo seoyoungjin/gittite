@@ -1,23 +1,20 @@
-use super::{CommitId, RepoPath};
 use super::{
     error::{Error, Result},
     repository::repo_open,
 };
-use std::ffi::OsString;
-use git2::{
-    build::CheckoutBuilder, Oid, Repository, StashApplyOptions,
-    StashFlags,
-};
+use super::{CommitId, RepoPath};
+use git2::{build::CheckoutBuilder, Oid, Repository, StashApplyOptions, StashFlags};
 use serde_json::Value;
-use structopt::StructOpt;
+use std::ffi::OsString;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 ///
 #[derive(StructOpt, Debug)]
 #[structopt(setting(AppSettings::NoBinaryName))]
 struct Stash {
     #[structopt(subcommand)]
-    cmd: SubCommand
+    cmd: SubCommand,
 }
 
 #[derive(structopt::StructOpt, Debug, PartialEq)]
@@ -40,14 +37,18 @@ enum SubCommand {
         stash: String,
     },
     #[structopt(name = "drop")]
-    Drop { stash: String },
+    Drop {
+        stash: String,
+    },
     #[structopt(name = "pop")]
-    Pop { stash: String },
+    Pop {
+        stash: String,
+    },
     #[structopt(name = "apply")]
     Apply {
         stash: String,
         #[structopt(long)]
-        index: bool
+        index: bool,
     },
     // #[structopt(name = "branch")]
     // Branch {
@@ -59,43 +60,48 @@ enum SubCommand {
 }
 
 ///
-pub fn stash<I>(repo_path: &RepoPath, args: I) -> Result<Value>
+pub fn stash<I>(
+    repo_path: &RepoPath,
+    args: I,
+) -> Result<Value>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let opt = Stash::from_iter_safe(args)?;
     log::trace!("stash: {:?}", opt);
 
     let res = match opt.cmd {
-        SubCommand::Save { message, untracked, keep_index }  =>  {
+        SubCommand::Save {
+            message,
+            untracked,
+            keep_index,
+        } => {
             let msg = message.as_ref().map(String::as_str);
             let res = stash_save(repo_path, msg, untracked, keep_index)?;
             serde_json::to_value(res)
-        },
-        SubCommand::List  => {
+        }
+        SubCommand::List => {
             let res = get_stashes(repo_path)?;
             serde_json::to_value(res)
-        },
+        }
         SubCommand::Drop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_drop(repo_path, stash)?;
             serde_json::to_value(res)
-        },
+        }
         SubCommand::Pop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_pop(repo_path, stash)?;
             serde_json::to_value(res)
-        },
+        }
         SubCommand::Apply { stash, index } => {
             // if allow_conflicts then keep-index can fail
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_apply(repo_path, stash, index)?;
             serde_json::to_value(res)
-        },
-        _ => {
-            return Err(Error::Generic("stash command not found".to_string()))
-        },
+        }
+        _ => return Err(Error::Generic("stash command not found".to_string())),
     };
 
     match res {
@@ -103,7 +109,6 @@ where
         Err(e) => Err(Error::SerdeError(e)),
     }
 }
-
 
 ///
 pub fn get_stashes(repo_path: &RepoPath) -> Result<Vec<CommitId>> {
@@ -187,9 +192,7 @@ fn get_stash_index(
         }
     })?;
 
-    idx.ok_or_else(|| {
-        Error::Generic("stash commit not found".to_string())
-    })
+    idx.ok_or_else(|| Error::Generic("stash commit not found".to_string()))
 }
 
 ///
@@ -217,17 +220,12 @@ pub fn stash_save(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::{
-        debug_cmd_print,
-        get_statuses,
-        repo_init,
-        write_commit_file,
-    };
+    use crate::git_api::tests::{debug_cmd_print, get_statuses, repo_init, write_commit_file};
     use crate::git_api::{
-        commit::commit,
-        commit_info::get_commits_info,
-        commit_files::get_commit_files,
         addremove::stage_add_file,
+        commit::commit,
+        commit_files::get_commit_files,
+        commit_info::get_commits_info,
         utils::{repo_read_file, repo_write_file},
     };
     use std::{fs::File, io::Write, path::Path};
@@ -406,13 +404,14 @@ mod tests {
         let res = stash_pop(repo_path, id);
 
         assert!(res.is_err());
-        assert_eq!( repo_read_file(&repo, "test.txt").unwrap(), "test3");
+        assert_eq!(repo_read_file(&repo, "test.txt").unwrap(), "test3");
     }
 
     #[test]
     fn test_stash_subcommand() {
         let opt = Stash::from_iter(["save"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Save {
                 message: None,
                 untracked: false,
@@ -420,7 +419,8 @@ mod tests {
             }
         );
         let opt = Stash::from_iter(["save", "message", "-u", "-k"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Save {
                 message: Some("message".to_string()),
                 untracked: true,
@@ -434,19 +434,26 @@ mod tests {
         let opt = Stash::from_iter_safe(["drop"]);
         assert_eq!(opt.is_err(), true);
         let opt = Stash::from_iter(["drop", "stash"]);
-        assert_eq!(opt.cmd, SubCommand::Drop { stash : "stash".to_string() });
+        assert_eq!(
+            opt.cmd,
+            SubCommand::Drop {
+                stash: "stash".to_string()
+            }
+        );
 
         let opt = Stash::from_iter(["apply", "stash"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Apply {
-                stash : "stash".to_string(),
+                stash: "stash".to_string(),
                 index: false
             }
         );
         let opt = Stash::from_iter(["apply", "stash", "--index"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Apply {
-                stash : "stash".to_string(),
+                stash: "stash".to_string(),
                 index: true
             }
         );

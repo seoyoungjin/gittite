@@ -1,11 +1,11 @@
 // #![deny(warnings)]
 
-use super::repository::{repo_open, RepoPath};
 use super::error::{Error, Result};
+use super::repository::{repo_open, RepoPath};
 use git2::{Delta, Status, StatusOptions, StatusShow};
-use std::path::Path;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::path::Path;
 
 // https://git-scm.com/docs/git-status
 
@@ -21,8 +21,7 @@ use serde_with::skip_serializing_none;
 //   traditional, no, matching
 
 /// StatusItemType
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
 pub enum StatusItemType {
     Added,
     Modified,
@@ -32,7 +31,7 @@ pub enum StatusItemType {
     Conflicted,
     Unchanged,
     Untracked,
-    UpdatedButUnmerged
+    UpdatedButUnmerged,
 }
 
 impl From<Status> for StatusItemType {
@@ -72,8 +71,7 @@ impl From<Delta> for StatusItemType {
 }
 
 /// WStatusItemType
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
 pub enum WStatusItemType {
     New,
     Modified,
@@ -103,8 +101,7 @@ impl From<Status> for WStatusItemType {
 
 /// StatusItem
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct StatusItem {
     pub path: String,
     pub stage: Option<StatusItemType>,
@@ -114,7 +111,7 @@ pub struct StatusItem {
 /// gurantees sorting
 pub fn get_status(
     repo_path: &RepoPath,
-    status_show: StatusShow
+    status_show: StatusShow,
 ) -> Result<Vec<StatusItem>> {
     let repo = repo_open(repo_path)?;
     if repo.is_bare() && !repo.is_worktree() {
@@ -143,14 +140,10 @@ pub fn get_status(
                 .and_then(Path::to_str)
                 .map(String::from)
                 .ok_or_else(|| {
-                    Error::Generic(
-                        "failed to get path to diff's new file.".to_string()
-                    )
+                    Error::Generic("failed to get path to diff's new file.".to_string())
                 })?,
             None => e.path().map(String::from).ok_or_else(|| {
-                Error::Generic(
-                    "failed to get the path to indexed file.".to_string()
-                )
+                Error::Generic("failed to get the path to indexed file.".to_string())
             })?,
         };
 
@@ -159,29 +152,27 @@ pub fn get_status(
                 res.push(StatusItem {
                     path,
                     stage: Some(StatusItemType::from(st)),
-                    wtree: None
+                    wtree: None,
                 });
-            },
+            }
             StatusShow::Workdir => {
                 res.push(StatusItem {
                     path,
                     stage: None,
-                    wtree: Some(WStatusItemType::from(st))
+                    wtree: Some(WStatusItemType::from(st)),
                 });
-            },
+            }
             _ => {
                 res.push(StatusItem {
                     path,
                     stage: Some(StatusItemType::from(st)),
-                    wtree: Some(WStatusItemType::from(st))
+                    wtree: Some(WStatusItemType::from(st)),
                 });
             }
         }
     }
 
-    res.sort_by(|a, b| {
-        Path::new(a.path.as_str()).cmp(Path::new(b.path.as_str()))
-    });
+    res.sort_by(|a, b| Path::new(a.path.as_str()).cmp(Path::new(b.path.as_str())));
 
     Ok(res)
 }

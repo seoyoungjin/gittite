@@ -1,12 +1,13 @@
 // TODO
 // #![deny(warnings)]
 
+use super::error::{Error, Result};
+use super::repository::repo_open;
 use super::{CommitId, RepoPath};
-use super::repository::{repo_open};
+use git2::Pathspec;
 use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
-use git2::{Error, Pathspec};
-use std::ffi::OsString;
 use serde::Serialize;
+use std::ffi::OsString;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -77,10 +78,13 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn get_commits<I>(repo: &RepoPath, args: I) -> Result<Vec<CommitData>, Error>
+pub fn get_commits<I>(
+    repo: &RepoPath,
+    args: I,
+) -> Result<Vec<CommitData>>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let repo = repo_open(repo)?;
     let opts = Args::from_iter(args);
@@ -194,7 +198,7 @@ where
     let mut cv: Vec<CommitData> = Vec::new();
     for commit in revwalk {
         let commit = commit?;
-        let mut cd = CommitData {
+        let cd = CommitData {
             commit_id: commit.id().into(),
             summary: commit.summary().unwrap().to_string(),
             // body: match commit.body() {
@@ -219,7 +223,10 @@ where
     Ok(cv)
 }
 
-fn sig_matches(sig: &Signature, arg: &Option<String>) -> bool {
+fn sig_matches(
+    sig: &Signature,
+    arg: &Option<String>,
+) -> bool {
     match *arg {
         Some(ref s) => {
             sig.name().map(|n| n.contains(s)).unwrap_or(false)
@@ -229,7 +236,10 @@ fn sig_matches(sig: &Signature, arg: &Option<String>) -> bool {
     }
 }
 
-fn log_message_matches(msg: Option<&str>, grep: &Option<String>) -> bool {
+fn log_message_matches(
+    msg: Option<&str>,
+    grep: &Option<String>,
+) -> bool {
     match (grep, msg) {
         (&None, _) => true,
         (&Some(_), None) => false,

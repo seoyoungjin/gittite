@@ -1,13 +1,13 @@
+use super::callbacks::{Callbacks, Sender};
 use crate::git_api::{
-    error::{Error, Result},
     branch::branch_set_upstream,
     cred::BasicAuthCredential,
-    remotes::proxy_auto,
+    error::{Error, Result},
     progress::RemoteProgress,
+    remotes::proxy_auto,
     repository::repo_open,
     CommitId, RepoPath,
 };
-use super::callbacks::{Callbacks, Sender};
 use git2::{PackBuilderStage, PushOptions};
 
 ///
@@ -121,13 +121,10 @@ pub fn push_raw(
         PushType::Tag => "tags",
     };
 
-    let branch_name =
-        format!("{branch_modifier}refs/{ref_type}/{branch}");
+    let branch_name = format!("{branch_modifier}refs/{ref_type}/{branch}");
     remote.push(&[branch_name.as_str()], Some(&mut options))?;
 
-    if let Some((reference, msg)) =
-        callbacks.get_stats()?.push_rejected_msg
-    {
+    if let Some((reference, msg)) = callbacks.get_stats()?.push_rejected_msg {
         return Err(Error::Generic(format!(
             "push to '{}' rejected: {}",
             reference, msg
@@ -146,10 +143,7 @@ mod tests {
     use super::*;
     use crate::git_api::{
         addremove, branch, commit, commit_files,
-        tests::{
-            get_commit_ids, repo_clone, repo_init, repo_init_bare,
-            write_commit_file,
-        },
+        tests::{get_commit_ids, repo_clone, repo_init, repo_init_bare, write_commit_file},
     };
     use git2::Repository;
     use std::{fs::File, io::Write, path::Path};
@@ -163,23 +157,15 @@ mod tests {
         let (tmp_other_repo_dir, other_repo) = repo_init().unwrap();
         let (tmp_upstream_dir, _) = repo_init_bare().unwrap();
 
-        repo.remote(
-            "origin",
-            tmp_upstream_dir.path().to_str().unwrap(),
-        )
-        .unwrap();
-
-        other_repo
-            .remote(
-                "origin",
-                tmp_upstream_dir.path().to_str().unwrap(),
-            )
+        repo.remote("origin", tmp_upstream_dir.path().to_str().unwrap())
             .unwrap();
 
-        let tmp_repo_file_path =
-            tmp_repo_dir.path().join("temp_file.txt");
-        let mut tmp_repo_file =
-            File::create(tmp_repo_file_path).unwrap();
+        other_repo
+            .remote("origin", tmp_upstream_dir.path().to_str().unwrap())
+            .unwrap();
+
+        let tmp_repo_file_path = tmp_repo_dir.path().join("temp_file.txt");
+        let mut tmp_repo_file = File::create(tmp_repo_file_path).unwrap();
         writeln!(tmp_repo_file, "TempSomething").unwrap();
 
         commit::commit(
@@ -199,10 +185,8 @@ mod tests {
         )
         .unwrap();
 
-        let tmp_other_repo_file_path =
-            tmp_other_repo_dir.path().join("temp_file.txt");
-        let mut tmp_other_repo_file =
-            File::create(tmp_other_repo_file_path).unwrap();
+        let tmp_other_repo_file_path = tmp_other_repo_dir.path().join("temp_file.txt");
+        let mut tmp_other_repo_file = File::create(tmp_other_repo_file_path).unwrap();
         writeln!(tmp_other_repo_file, "TempElse").unwrap();
 
         commit::commit(
@@ -254,23 +238,15 @@ mod tests {
         let (tmp_other_repo_dir, other_repo) = repo_init().unwrap();
         let (tmp_upstream_dir, upstream) = repo_init_bare().unwrap();
 
-        repo.remote(
-            "origin",
-            tmp_upstream_dir.path().to_str().unwrap(),
-        )
-        .unwrap();
-
-        other_repo
-            .remote(
-                "origin",
-                tmp_upstream_dir.path().to_str().unwrap(),
-            )
+        repo.remote("origin", tmp_upstream_dir.path().to_str().unwrap())
             .unwrap();
 
-        let tmp_repo_file_path =
-            tmp_repo_dir.path().join("temp_file.txt");
-        let mut tmp_repo_file =
-            File::create(tmp_repo_file_path).unwrap();
+        other_repo
+            .remote("origin", tmp_upstream_dir.path().to_str().unwrap())
+            .unwrap();
+
+        let tmp_repo_file_path = tmp_repo_dir.path().join("temp_file.txt");
+        let mut tmp_repo_file = File::create(tmp_repo_file_path).unwrap();
         writeln!(tmp_repo_file, "TempSomething").unwrap();
 
         addremove::stage_add_file(
@@ -297,9 +273,7 @@ mod tests {
             String::from("temp_file.txt")
         );
 
-        let commits = get_commit_ids(
-            &tmp_repo_dir.path().to_str().unwrap().into(), 1
-        );
+        let commits = get_commit_ids(&tmp_repo_dir.path().to_str().unwrap().into(), 1);
         // let commits = get_commit_ids(&repo, 1);
         assert!(commits.contains(&repo_1_commit));
 
@@ -314,10 +288,8 @@ mod tests {
         )
         .unwrap();
 
-        let tmp_other_repo_file_path =
-            tmp_other_repo_dir.path().join("temp_file.txt");
-        let mut tmp_other_repo_file =
-            File::create(tmp_other_repo_file_path).unwrap();
+        let tmp_other_repo_file_path = tmp_other_repo_dir.path().join("temp_file.txt");
+        let mut tmp_other_repo_file = File::create(tmp_other_repo_file_path).unwrap();
         writeln!(tmp_other_repo_file, "TempElse").unwrap();
 
         addremove::stage_add_file(
@@ -341,9 +313,7 @@ mod tests {
             .id();
 
         //let commits = get_commit_ids(&other_repo, 1);
-        let commits = get_commit_ids(
-            &tmp_other_repo_dir.path().to_str().unwrap().into(), 1
-        );
+        let commits = get_commit_ids(&tmp_other_repo_dir.path().to_str().unwrap().into(), 1);
         assert!(commits.contains(&repo_2_commit));
 
         // Attempt a normal push,
@@ -365,9 +335,7 @@ mod tests {
         // Check that the other commit is not in upstream,
         // a normal push would not rewrite history
         // let commits = get_commit_ids(&upstream, 1);
-        let commits = get_commit_ids(
-            &tmp_upstream_dir.path().to_str().unwrap().into(), 1
-        );
+        let commits = get_commit_ids(&tmp_upstream_dir.path().to_str().unwrap().into(), 1);
         assert!(!commits.contains(&repo_2_commit));
 
         // Attempt force push,
@@ -385,20 +353,17 @@ mod tests {
         .unwrap();
 
         //let commits = get_commit_ids(&upstream, 1);
-        let commits = get_commit_ids(
-            &tmp_upstream_dir.path().to_str().unwrap().into(), 1
-        );
+        let commits = get_commit_ids(&tmp_upstream_dir.path().to_str().unwrap().into(), 1);
         assert!(commits.contains(&repo_2_commit));
 
-        let new_upstream_parent =
-            Repository::init_bare(tmp_upstream_dir.path())
-                .unwrap()
-                .find_commit(repo_2_commit.into())
-                .unwrap()
-                .parents()
-                .next()
-                .unwrap()
-                .id();
+        let new_upstream_parent = Repository::init_bare(tmp_upstream_dir.path())
+            .unwrap()
+            .find_commit(repo_2_commit.into())
+            .unwrap()
+            .parents()
+            .next()
+            .unwrap()
+            .id();
         assert_eq!(new_upstream_parent, repo_2_parent,);
     }
 
@@ -408,17 +373,10 @@ mod tests {
 
         let (upstream_dir, upstream_repo) = repo_init_bare().unwrap();
 
-        let (tmp_repo_dir, repo) =
-            repo_clone(upstream_dir.path().to_str().unwrap())
-                .unwrap();
+        let (tmp_repo_dir, repo) = repo_clone(upstream_dir.path().to_str().unwrap()).unwrap();
 
         // You need a commit before being able to branch !
-        let commit_1 = write_commit_file(
-            &repo,
-            "temp_file.txt",
-            "SomeContent",
-            "Initial commit",
-        );
+        let commit_1 = write_commit_file(&repo, "temp_file.txt", "SomeContent", "Initial commit");
 
         // let commits = get_commit_ids(&repo, 1);
         let td_path = tmp_repo_dir.path().as_os_str().to_str().unwrap();
@@ -438,11 +396,8 @@ mod tests {
         .unwrap();
 
         // Create the local branch
-        branch::create_branch(
-            &tmp_repo_dir.path().to_str().unwrap().into(),
-            "test_branch",
-        )
-        .unwrap();
+        branch::create_branch(&tmp_repo_dir.path().to_str().unwrap().into(), "test_branch")
+            .unwrap();
 
         // Push the local branch
         push_branch(

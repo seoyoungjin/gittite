@@ -17,8 +17,8 @@
 use git2::{Error, Repository, RepositoryInitMode, RepositoryInitOptions};
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -42,7 +42,7 @@ struct Args {
 pub fn init<I>(args: I) -> Result<Repository, Error>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let args = Args::from_iter(args);
     let mut path = PathBuf::from(&args.arg_directory);

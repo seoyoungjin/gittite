@@ -17,14 +17,7 @@ pub fn amend(
     let tree_id = index.write_tree()?;
     let tree = repo.find_tree(tree_id)?;
 
-    let new_id = commit.amend(
-        Some("HEAD"),
-        None,
-        None,
-        None,
-        Some(msg),
-        Some(&tree),
-    )?;
+    let new_id = commit.amend(Some("HEAD"), None, None, None, Some(msg), Some(&tree))?;
 
     Ok(CommitId::new(new_id))
 }
@@ -33,7 +26,7 @@ pub fn amend(
 /// See <https://github.com/extrawurst/gitui/issues/79>.
 #[allow(clippy::redundant_pub_crate)]
 pub(crate) fn signature_allow_undefined_name(
-    repo: &Repository,
+    repo: &Repository
 ) -> std::result::Result<Signature<'_>, git2::Error> {
     let signature = repo.signature();
 
@@ -57,7 +50,10 @@ pub(crate) fn signature_allow_undefined_name(
 
 /// this does not run any git hooks,git-hooks have to be executed manually,
 /// 1checkout `hooks_commit_msg` for example
-pub fn commit(repo_path: &RepoPath, msg: &str) -> Result<CommitId> {
+pub fn commit(
+    repo_path: &RepoPath,
+    msg: &str,
+) -> Result<CommitId> {
     let repo = repo_open(repo_path)?;
 
     let signature = signature_allow_undefined_name(&repo)?;
@@ -112,22 +108,21 @@ pub fn tag_commit(
 
 #[cfg(test)]
 mod tests {
-    use super::{commit, amend, tag_commit};
+    use super::{amend, commit, tag_commit};
     use crate::git_api::error::Result;
-    use crate::git_api::RepoPath;
     use crate::git_api::tag::Tag;
-    use crate::git_api::{
-        revlog::get_commits,
-        addremove::stage_add_file,
-        commit_info::get_commit_info,
-        commit_files::get_commit_files,
-        tag::get_tags,
-        utils::get_head,
-    };
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
+    use crate::git_api::RepoPath;
+    use crate::git_api::{
+        addremove::stage_add_file, commit_files::get_commit_files, commit_info::get_commit_info,
+        revlog::get_commits, tag::get_tags, utils::get_head,
+    };
     use std::{fs::File, io::Write, path::Path};
 
-    fn count_commits(repo_path: &RepoPath, max: usize) -> usize {
+    fn count_commits(
+        repo_path: &RepoPath,
+        max: usize,
+    ) -> usize {
         let args = ["-n".to_string(), max.to_string()];
         let items = get_commits(repo_path, &args).unwrap();
         items.len()
@@ -138,8 +133,7 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))
             .unwrap()
@@ -249,7 +243,7 @@ mod tests {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        File::create(&root.join(file_path))?  .write_all(b"test\nfoo")?;
+        File::create(&root.join(file_path))?.write_all(b"test\nfoo")?;
         stage_add_file(repo_path, file_path)?;
         repo.config()?.remove("user.name")?;
         let mut success = commit(repo_path, "commit msg");

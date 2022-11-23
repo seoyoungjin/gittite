@@ -1,13 +1,17 @@
 //! git_api various methods
 
 use super::error::{Error, Result};
-use super::CommitId;
 use super::repository::{repo_open, RepoPath};
+use super::CommitId;
 use git2::{Diff, DiffFormat, Repository};
-use std::{fs::File, io::{BufWriter, Write}, path::Path};
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
+};
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+    path::Path,
 };
 
 /// helper function to calculate the hash of an arbitrary type
@@ -31,7 +35,7 @@ pub fn get_head_repo(repo: &Repository) -> Result<CommitId> {
         Err(Error::Git(git2::Error::new(
             git2::ErrorCode::NotFound,
             git2::ErrorClass::Reference,
-            "head not found".to_string()
+            "head not found".to_string(),
         ))),
         |head_id| Ok(head_id.into()),
     )
@@ -39,7 +43,8 @@ pub fn get_head_repo(repo: &Repository) -> Result<CommitId> {
 
 //
 pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
-    repo.workdir().ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
+    repo.workdir()
+        .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
 }
 
 pub(crate) fn bytes2string(bytes: &[u8]) -> Result<String> {
@@ -53,33 +58,28 @@ pub(crate) fn repo_write_file(
     content: &str,
 ) -> Result<()> {
     let dir = work_dir(repo)?.join(file);
-    let file_path = dir.to_str().ok_or_else(|| {
-        Error::Generic(String::from("invalid file path"))
-    })?;
+    let file_path = dir
+        .to_str()
+        .ok_or_else(|| Error::Generic(String::from("invalid file path")))?;
     let mut file = File::create(file_path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
 }
 
 /// diff to string
-pub fn diff_to_string<'a>(
-    diff: &'a Diff
-) -> Result<String> {
+pub fn diff_to_string<'a>(diff: &'a Diff) -> Result<String> {
     let mut buf = BufWriter::new(Vec::new());
-    diff.print(
-        DiffFormat::Patch,
-        |delta, hunk, line: git2::DiffLine| {
-            match line.origin() {
-                '+' | '-' | ' ' => write!(buf, "{}", line.origin()).unwrap(),
-                _ => {}
-            }
-            if buf.write_all(line.content()).is_err() {
-                false
-            } else {
-                true
-            }
+    diff.print(DiffFormat::Patch, |_delta, _hunk, line: git2::DiffLine| {
+        match line.origin() {
+            '+' | '-' | ' ' => write!(buf, "{}", line.origin()).unwrap(),
+            _ => {}
         }
-    )?;
+        if buf.write_all(line.content()).is_err() {
+            false
+        } else {
+            true
+        }
+    })?;
     let bytes = buf.into_inner().unwrap();
     Ok(String::from_utf8(bytes).unwrap())
 }
@@ -92,9 +92,9 @@ pub(crate) fn repo_read_file(
     use std::io::Read;
 
     let dir = work_dir(repo)?.join(file);
-    let file_path = dir.to_str().ok_or_else(|| {
-        Error::Generic(String::from("invalid file path"))
-    })?;
+    let file_path = dir
+        .to_str()
+        .ok_or_else(|| Error::Generic(String::from("invalid file path")))?;
 
     let mut file = File::open(file_path)?;
     let mut buffer = Vec::new();
@@ -124,4 +124,3 @@ mod tests {
         Ok(())
     }
 }
-

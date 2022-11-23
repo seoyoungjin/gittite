@@ -3,23 +3,21 @@
 
 use super::error::{Error, Result};
 use super::{CommitId, RepoPath};
+use crate::git_api::commit_info::{get_commit_info, CommitMessage, CommitSignature};
 use crate::git_api::repository::repo_open;
-use crate::git_api::commit_info::{
-    get_commit_info, CommitSignature, CommitMessage
-};
 use crate::git_api::utils::bytes2string;
-use std::{ffi::OsString, ops::Not};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use structopt::StructOpt;
+use std::{ffi::OsString, ops::Not};
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 ///
 #[derive(StructOpt, Debug)]
 #[structopt(setting(AppSettings::NoBinaryName))]
 struct TagCommand {
     #[structopt(subcommand)]
-    cmd: SubCommand
+    cmd: SubCommand,
 }
 
 #[derive(structopt::StructOpt, Debug, PartialEq)]
@@ -43,42 +41,46 @@ enum SubCommand {
         // flag_n: Option<u32>,
     },
     #[structopt(name = "delete")]
-    Delete {
-        tagname: String,
-    },
+    Delete { tagname: String },
 }
 
 ///
-pub fn tag<I>(repo_path: &RepoPath, args: I) -> Result<Value>
+pub fn tag<I>(
+    repo_path: &RepoPath,
+    args: I,
+) -> Result<Value>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let opt = TagCommand::from_iter_safe(args)?;
     log::trace!("tag command: {:?}", opt);
 
     let res = match opt.cmd {
-        SubCommand::Add { tagname, force, message, object }  =>  {
+        SubCommand::Add {
+            tagname,
+            force,
+            message,
+            object,
+        } => {
             let msg = message.as_ref().map(String::as_str);
             let res = tag_add(repo_path, tagname, object, message, force)?;
             serde_json::to_value(res)
-        },
+        }
         SubCommand::List { pattern } => {
             let res = get_tags(repo_path, pattern)?;
             serde_json::to_value(res)
-        },
+        }
         SubCommand::Delete { tagname } => {
             let res = tag_delete(repo_path, tagname.as_str())?;
             serde_json::to_value(res)
-        },
-        _ => {
-            return Err(Error::Generic("invalid tag command".to_string()))
-        },
+        }
+        _ => return Err(Error::Generic("invalid tag command".to_string())),
     };
 
     match res {
         Ok(v) => Ok(v),
-        Err(e) => Err(Error::Generic(e.to_string()))
+        Err(e) => Err(Error::Generic(e.to_string())),
     }
 }
 
@@ -88,8 +90,8 @@ pub fn tag_add(
     tagname: String,
     object: Option<String>,
     message: Option<String>,
-    force: bool
- ) -> Result<()> {
+    force: bool,
+) -> Result<()> {
     let repo = repo_open(&repo_path)?;
     let target = object.as_ref().map(|s| &s[..]).unwrap_or("HEAD");
     let obj = repo.revparse_single(target)?;
@@ -105,29 +107,28 @@ pub fn tag_add(
 }
 
 ///
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct Tag {
-	/// tag name
-	pub name: String,
-	/// tag annotation
-	pub annotation: Option<String>,
+    /// tag name
+    pub name: String,
+    /// tag annotation
+    pub annotation: Option<String>,
 }
 
 impl Tag {
-	///
-	pub fn new(name: &str) -> Self {
-		Self {
-			name: name.into(),
-			annotation: None,
-		}
-	}
+    ///
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.into(),
+            annotation: None,
+        }
+    }
 }
 
 /// returns `Tags` type filled with all tags found in repo
 pub fn get_tags(
     repo_path: &RepoPath,
-    pattern: Option<String>
+    pattern: Option<String>,
 ) -> Result<Vec<Tag>> {
     let repo = repo_open(&repo_path)?;
     let pattern = pattern.as_ref().map(|s| &s[..]).unwrap_or("*");
@@ -139,16 +140,18 @@ pub fn get_tags(
         if let Some(tag) = obj.as_tag() {
             res.push(Tag {
                 name: tag.name().unwrap().to_owned(),
-                annotation: tag.message().as_deref().map(String::from)
-                // annotation: Some(tag.message().unwrap().to_owned())
+                annotation: tag.message().as_deref().map(String::from), // annotation: Some(tag.message().unwrap().to_owned())
             });
         } else if let Some(commit) = obj.as_commit() {
             res.push(Tag {
                 name: name.to_string(),
-                annotation: commit.message().as_deref().map(String::from)
+                annotation: commit.message().as_deref().map(String::from),
             });
         } else {
-            res.push(Tag { name: name.to_string(), annotation: None });
+            res.push(Tag {
+                name: name.to_string(),
+                annotation: None,
+            });
         }
     }
 
@@ -157,18 +160,18 @@ pub fn get_tags(
 
 ///
 pub struct TagWithMetadata {
-	pub name: String,
-	pub author: CommitSignature,
-	pub time: i64,
-	pub message: CommitMessage,
-	pub commit_id: CommitId,
-	pub annotation: Option<String>,
+    pub name: String,
+    pub author: CommitSignature,
+    pub time: i64,
+    pub message: CommitMessage,
+    pub commit_id: CommitId,
+    pub annotation: Option<String>,
 }
 
 ///
 pub fn get_tag_metadata(
     repo_path: &RepoPath,
-    tag_name: &str
+    tag_name: &str,
 ) -> Result<TagWithMetadata> {
     let repo = repo_open(&repo_path)?;
     let obj = repo.revparse_single(tag_name)?;
@@ -203,12 +206,12 @@ pub fn get_tag_metadata(
         log::trace!("commit_id {:?}", commit);
         let commit_info = get_commit_info(repo_path, commit_id)?;
         let tag_meta = TagWithMetadata {
-	        name: String::from(tag_name),
-	        author: commit_info.author.clone(),
-	        time: commit_info.time,
-	        message: commit_info.message.clone(),
-	        commit_id: commit_id,
-	        annotation: annotation.map(String::from),
+            name: String::from(tag_name),
+            author: commit_info.author.clone(),
+            time: commit_info.time,
+            message: commit_info.message.clone(),
+            commit_id: commit_id,
+            annotation: annotation.map(String::from),
         };
         return Ok(tag_meta);
     }
@@ -219,12 +222,12 @@ pub fn get_tag_metadata(
 ///
 pub fn tag_delete(
     repo_path: &RepoPath,
-    tag_name: &str
+    tag_name: &str,
 ) -> Result<()> {
-	let repo = repo_open(repo_path)?;
-	repo.tag_delete(tag_name)?;
+    let repo = repo_open(repo_path)?;
+    repo.tag_delete(tag_name)?;
 
-	Ok(())
+    Ok(())
 }
 
 #[cfg(test)]
@@ -248,7 +251,7 @@ mod tests {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
         // let repo_path = &RepoPath::from("...");
-	    // let repo = repo_open(repo_path).unwrap();
+        // let repo = repo_open(repo_path).unwrap();
 
         let sig = repo.signature().unwrap();
         let head_id = repo.head().unwrap().target().unwrap();
@@ -264,7 +267,8 @@ mod tests {
 
         let tags = get_tags(repo_path, None).unwrap();
         log::trace!("get_tage() {:?}", tags);
-        assert_eq!(tags.iter().map(|t| &t.name).collect::<Vec<_>>(),
+        assert_eq!(
+            tags.iter().map(|t| &t.name).collect::<Vec<_>>(),
             vec!["a", "b"]
         );
 
@@ -288,7 +292,8 @@ mod tests {
     #[test]
     fn test_tag_subcommand() {
         let opt = TagCommand::from_iter(["add", "tagname"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Add {
                 force: false,
                 message: None,
@@ -297,7 +302,8 @@ mod tests {
             }
         );
         let opt = TagCommand::from_iter(["add", "-m", "message", "tagname"]);
-        assert_eq!(opt.cmd,
+        assert_eq!(
+            opt.cmd,
             SubCommand::Add {
                 force: false,
                 message: Some("message".to_string()),
@@ -309,13 +315,19 @@ mod tests {
         let opt = TagCommand::from_iter(["list"]);
         assert_eq!(opt.cmd, SubCommand::List { pattern: None });
         let opt = TagCommand::from_iter(["list", "pattern"]);
-        assert_eq!(opt.cmd,
-            SubCommand::List { pattern: Some("pattern".to_string()) }
+        assert_eq!(
+            opt.cmd,
+            SubCommand::List {
+                pattern: Some("pattern".to_string())
+            }
         );
 
         let opt = TagCommand::from_iter(["delete", "tagname"]);
-        assert_eq!(opt.cmd,
-            SubCommand::Delete { tagname: "tagname".to_string() }
+        assert_eq!(
+            opt.cmd,
+            SubCommand::Delete {
+                tagname: "tagname".to_string()
+            }
         );
     }
 }

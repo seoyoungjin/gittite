@@ -1,18 +1,14 @@
 use super::error::Result;
 use super::repository::{repo_open, RepoPath};
 use git2::{Commit, Error, Oid, Signature};
-use unicode_truncate::UnicodeTruncateStr;
+use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
-use serde::{Serialize, Deserialize};
+use unicode_truncate::UnicodeTruncateStr;
 
 /// identifies a single commit
 #[serde_as]
-#[derive(Serialize, Deserialize)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct CommitId(
-    #[serde_as(as = "DisplayFromStr")]
-    Oid
-);
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct CommitId(#[serde_as(as = "DisplayFromStr")] Oid);
 
 impl Default for CommitId {
     fn default() -> Self {
@@ -62,8 +58,7 @@ impl From<Oid> for CommitId {
 }
 
 ///
-#[derive(Serialize, Deserialize)]
-#[derive(Debug, PartialEq, Eq, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct CommitSignature {
     ///
     pub name: String,
@@ -86,8 +81,7 @@ impl CommitSignature {
 }
 
 ///
-#[derive(Serialize, Deserialize)]
-#[derive(Default, Clone, Debug)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct CommitMessage {
     /// first line
     pub subject: String,
@@ -99,13 +93,11 @@ impl CommitMessage {
     ///
     pub fn from(s: &str) -> Self {
         let mut lines = s.lines();
-        let subject = lines.next().map_or_else(
-            String::new,
-            std::string::ToString::to_string,
-        );
+        let subject = lines
+            .next()
+            .map_or_else(String::new, std::string::ToString::to_string);
 
-        let body: Vec<String> =
-            lines.map(std::string::ToString::to_string).collect();
+        let body: Vec<String> = lines.map(std::string::ToString::to_string).collect();
 
         Self {
             subject,
@@ -165,9 +157,7 @@ pub fn get_commits_info(
             } else {
                 Some(committer)
             };
-            let message = CommitMessage::from(
-                get_message(&c, Some(message_length_limit)).as_str()
-            );
+            let message = CommitMessage::from(get_message(&c, Some(message_length_limit)).as_str());
             CommitInfo {
                 id: CommitId(c.id()),
                 author: author,
@@ -203,7 +193,7 @@ pub fn get_commit_info(
         author: author,
         committer: committer,
         time: commit.time().seconds(),
-        message: message
+        message: message,
     })
 }
 
@@ -228,12 +218,12 @@ pub fn get_message(
 #[cfg(test)]
 mod tests {
     use super::{get_commits_info, CommitId};
-    use crate::git_api::error::Result;
-    use crate::git_api::{commit::commit, RepoPath};
-    use crate::git_api::tests::{init_log, repo_init_empty};
     use crate::git_api::addremove::stage_add_file;
-    use std::{fs::File, io::Write, path::Path};
+    use crate::git_api::error::Result;
+    use crate::git_api::tests::{init_log, repo_init_empty};
+    use crate::git_api::{commit::commit, RepoPath};
     use serde_json;
+    use std::{fs::File, io::Write, path::Path};
 
     #[test]
     fn test_commit_id_serde() {
@@ -256,8 +246,7 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))?.write_all(b"a")?;
         stage_add_file(repo_path, file_path).unwrap();

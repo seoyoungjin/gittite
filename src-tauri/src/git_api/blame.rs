@@ -2,18 +2,15 @@
 
 use super::error::{Error, Result};
 use super::{utils, CommitId, RepoPath};
-use crate::git_api::{
-    commit_info::get_commits_info, repository::repo_open
-};
+use crate::git_api::{commit_info::get_commits_info, repository::repo_open};
 use git2::BlameOptions;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use serde::{Serialize, Deserialize};
 
 /// A `BlameHunk` contains all the information that will be shown to the user.
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Hash, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Hash, Debug, PartialEq, Eq)]
 pub struct BlameHunk {
     ///
     pub commit_id: CommitId,
@@ -32,8 +29,7 @@ pub struct BlameHunk {
 /// A `BlameFile` represents a collection of lines. This is targeted at how the
 /// data will be used by the UI.
 
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileBlame {
     ///
     pub commit_id: CommitId,
@@ -79,16 +75,13 @@ pub fn blame_file(
     let blob = repo.find_blob(object.id())?;
 
     if blob.is_binary() {
-        return Err(
-            Error::Generic("No blame on binary file".to_string())
-        );
+        return Err(Error::Generic("No blame on binary file".to_string()));
     }
 
     let mut opts = BlameOptions::new();
     opts.newest_commit(commit_id.into());
 
-    let blame =
-        repo.blame_file(Path::new(file_path), Some(&mut opts))?;
+    let blame = repo.blame_file(Path::new(file_path), Some(&mut opts))?;
 
     let reader = BufReader::new(blob.content());
 
@@ -115,14 +108,10 @@ pub fn blame_file(
             if let Some(hunk) = corresponding_hunk {
                 let commit_id = CommitId::new(hunk.final_commit_id());
                 // Line indices in a `BlameHunk` are 1-based.
-                let start_line =
-                    hunk.final_start_line().saturating_sub(1);
-                let end_line =
-                    start_line.saturating_add(hunk.lines_in_hunk());
+                let start_line = hunk.final_start_line().saturating_sub(1);
+                let end_line = start_line.saturating_add(hunk.lines_in_hunk());
 
-                if let Some(commit_info) =
-                    unique_commit_infos.get(&commit_id)
-                {
+                if let Some(commit_info) = unique_commit_infos.get(&commit_id) {
                     let hunk = BlameHunk {
                         commit_id,
                         author: commit_info.author.name.clone(),
@@ -131,10 +120,7 @@ pub fn blame_file(
                         end_line,
                     };
 
-                    return (
-                        Some(hunk),
-                        line.unwrap_or_else(|_| String::new()),
-                    );
+                    return (Some(hunk), line.unwrap_or_else(|_| String::new()));
                 }
             }
 
@@ -155,28 +141,24 @@ pub fn blame_file(
 mod tests {
     use super::*;
     use crate::git_api::{
-        error::Result,
-        commit::commit,
-        addremove::stage_add_file,
-        tests::repo_init_empty
+        addremove::stage_add_file, commit::commit, error::Result, tests::repo_init_empty,
     };
-    use std::{fs::{File, OpenOptions}, io::Write, path::Path};
+    use std::{
+        fs::{File, OpenOptions},
+        io::Write,
+        path::Path,
+    };
 
     #[test]
     fn test_blame() -> Result<()> {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init_empty()?;
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        assert!(matches!(
-            blame_file(&repo_path, "foo", None),
-            Err(_)
-        ));
+        assert!(matches!(blame_file(&repo_path, "foo", None), Err(_)));
 
-        File::create(&root.join(file_path))?
-            .write_all(b"line 1\n")?;
+        File::create(&root.join(file_path))?.write_all(b"line 1\n")?;
 
         stage_add_file(repo_path, file_path)?;
         commit(repo_path, "first commit")?;
@@ -251,8 +233,7 @@ mod tests {
         let file_path = Path::new("bar\\foo");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         std::fs::create_dir(&root.join("bar")).unwrap();
 

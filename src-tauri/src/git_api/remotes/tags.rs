@@ -1,11 +1,7 @@
 //!
 
 use crate::git_api::{
-    error::Result,
-    cred::BasicAuthCredential,
-    remotes::proxy_auto,
-    repository::repo_open,
-    RepoPath,
+    cred::BasicAuthCredential, error::Result, remotes::proxy_auto, repository::repo_open, RepoPath,
 };
 // use crossbeam_channel::Sender;
 use super::callbacks::{Callbacks, Sender};
@@ -47,9 +43,7 @@ fn remote_tag_refs(
     let remote_tags = remote_heads
         .iter()
         .map(|s| s.name().to_string())
-        .filter(|name| {
-            name.starts_with("refs/tags/") && !name.ends_with("^{}")
-        })
+        .filter(|name| name.starts_with("refs/tags/") && !name.ends_with("^{}"))
         .collect::<Vec<_>>();
 
     Ok(remote_tags)
@@ -68,8 +62,7 @@ pub fn tags_missing_remote(
         .iter()
         .filter_map(|tag| tag.map(|tag| format!("refs/tags/{tag}")))
         .collect::<HashSet<_>>();
-    let remote_tags =
-        remote_tag_refs(repo_path, remote, basic_credential)?;
+    let remote_tags = remote_tag_refs(repo_path, remote, basic_credential)?;
 
     for t in remote_tags {
         local_tags.remove(&t);
@@ -89,20 +82,16 @@ pub fn push_tags(
         .as_ref()
         .map(|sender| sender.send(PushTagsProgress::CheckRemote));
 
-    let tags_missing = tags_missing_remote(
-        repo_path,
-        remote,
-        basic_credential.clone(),
-    )?;
+    let tags_missing = tags_missing_remote(repo_path, remote, basic_credential.clone())?;
 
     let repo = repo_open(repo_path)?;
     let mut remote = repo.find_remote(remote)?;
 
     let total = tags_missing.len();
 
-    progress_sender.as_ref().map(|sender| {
-        sender.send(PushTagsProgress::Push { pushed: 0, total })
-    });
+    progress_sender
+        .as_ref()
+        .map(|sender| sender.send(PushTagsProgress::Push { pushed: 0, total }));
 
     for (idx, tag) in tags_missing.into_iter().enumerate() {
         let mut options = PushOptions::new();
@@ -122,9 +111,7 @@ pub fn push_tags(
 
     drop(basic_credential);
 
-    progress_sender.map(|sender| {
-        sender.send(PushTagsProgress::Done)
-    });
+    progress_sender.map(|sender| sender.send(PushTagsProgress::Done));
 
     Ok(())
 }
@@ -132,16 +119,15 @@ pub fn push_tags(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        git_api::{
-            self, tag, commit,
-            remotes::{
-                fetch::{fetch, fetch_all},
-                push::{push_branch, push_raw},
-            },
-            tests::{repo_clone, repo_init_bare},
-            remotes::push::PushType,
+    use crate::git_api::{
+        self, commit,
+        remotes::push::PushType,
+        remotes::{
+            fetch::{fetch, fetch_all},
+            push::{push_branch, push_raw},
         },
+        tag,
+        tests::{repo_clone, repo_init_bare},
     };
     // use pretty_assertions::assert_eq;
     use git_api::tests::write_commit_file;
@@ -161,19 +147,11 @@ mod tests {
         let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
 
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
         push_tags(clone1_dir, "origin", None, None).unwrap();
 
         // clone2
-        let _commit2 = write_commit_file(
-            &clone2,
-            "test2.txt",
-            "test",
-            "commit2",
-        );
+        let _commit2 = write_commit_file(&clone2, "test2.txt", "test", "commit2");
 
         assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 0);
 
@@ -194,32 +172,23 @@ mod tests {
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
 
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
         let (clone2_dir, _clone2) = repo_clone(r1_dir).unwrap();
 
-        let clone2_dir: &RepoPath =
-            &clone2_dir.path().to_str().unwrap().into();
+        let clone2_dir: &RepoPath = &clone2_dir.path().to_str().unwrap().into();
 
         // clone1
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
 
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
         push_tags(clone1_dir, "origin", None, None).unwrap();
 
         // clone2
         let tags = remote_tag_refs(clone2_dir, "origin", None).unwrap();
 
-        assert_eq!(
-            tags.as_slice(),
-            &[String::from("refs/tags/tag1")]
-        );
+        assert_eq!(tags.as_slice(), &[String::from("refs/tags/tag1")]);
     }
 
     #[test]
@@ -229,29 +198,19 @@ mod tests {
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
 
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
         // clone1
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
 
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
 
-        let tags_missing =
-            tags_missing_remote(clone1_dir, "origin", None).unwrap();
+        let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
 
-        assert_eq!(
-            tags_missing.as_slice(),
-            &[String::from("refs/tags/tag1")]
-        );
+        assert_eq!(tags_missing.as_slice(), &[String::from("refs/tags/tag1")]);
         push_tags(clone1_dir, "origin", None, None).unwrap();
-        let tags_missing =
-            tags_missing_remote(clone1_dir, "origin", None).unwrap();
+        let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
         assert!(tags_missing.is_empty());
     }
 
@@ -261,27 +220,20 @@ mod tests {
         let r1_dir = r1_dir.path().to_str().unwrap();
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
 
         let (clone2_dir, _clone2) = repo_clone(r1_dir).unwrap();
-        let clone2_dir: &RepoPath =
-            &clone2_dir.path().to_str().unwrap().into();
+        let clone2_dir: &RepoPath = &clone2_dir.path().to_str().unwrap().into();
 
         // clone1 - creates tag
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
         let tags1 = tag::get_tags(clone1_dir, None).unwrap();
 
         push_tags(clone1_dir, "origin", None, None).unwrap();
-        let tags_missing =
-            tags_missing_remote(clone1_dir, "origin", None).unwrap();
+        let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
         assert!(tags_missing.is_empty());
 
         // clone 2 - pull
@@ -298,27 +250,20 @@ mod tests {
         let r1_dir = r1_dir.path().to_str().unwrap();
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
 
         let (clone2_dir, _clone2) = repo_clone(r1_dir).unwrap();
-        let clone2_dir: &RepoPath =
-            &clone2_dir.path().to_str().unwrap().into();
+        let clone2_dir: &RepoPath = &clone2_dir.path().to_str().unwrap().into();
 
         // clone1 - creates tag
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
         let tags1 = tag::get_tags(clone1_dir, None).unwrap();
 
         push_tags(clone1_dir, "origin", None, None).unwrap();
-        let tags_missing =
-            tags_missing_remote(clone1_dir, "origin", None).unwrap();
+        let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
         assert!(tags_missing.is_empty());
 
         // clone 2 - pull
@@ -333,19 +278,13 @@ mod tests {
         let r1_dir = r1_dir.path().to_str().unwrap();
 
         let (clone1_dir, clone1) = repo_clone(r1_dir).unwrap();
-        let clone1_dir: &RepoPath =
-            &clone1_dir.path().to_str().unwrap().into();
+        let clone1_dir: &RepoPath = &clone1_dir.path().to_str().unwrap().into();
 
-        let commit1 =
-            write_commit_file(&clone1, "test.txt", "test", "commit1");
-        push_branch(
-            clone1_dir, "origin", "master", false, false, None, None,
-        )
-        .unwrap();
+        let commit1 = write_commit_file(&clone1, "test.txt", "test", "commit1");
+        push_branch(clone1_dir, "origin", "master", false, false, None, None).unwrap();
 
         let (clone2_dir, _clone2) = repo_clone(r1_dir).unwrap();
-        let clone2_dir: &RepoPath =
-            &clone2_dir.path().to_str().unwrap().into();
+        let clone2_dir: &RepoPath = &clone2_dir.path().to_str().unwrap().into();
 
         // clone1 - creates tag
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();

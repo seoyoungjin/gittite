@@ -14,16 +14,16 @@
 
 //#![deny(warnings)]
 
-use super::{ProgressPercent, RemoteProgress};
 use super::remotes::push::ProgressNotification;
+use super::{ProgressPercent, RemoteProgress};
 use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
-use structopt::StructOpt;
-use structopt::clap::AppSettings;
 use std::sync::mpsc::Sender;
+use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -40,16 +40,17 @@ struct State {
     current: usize,
 }
 
-fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>) {
+fn transfer_progress(
+    state: &mut State,
+    sender: &Option<Sender<RemoteProgress>>,
+) {
     if let Some(sender) = sender {
         let stats = state.progress.as_ref().unwrap();
 
         // prevent too many progress
         static mut PERCENT: u8 = 0;
-        let progress = ProgressPercent::new(
-            stats.received_objects(),
-            stats.total_objects()
-        ).progress;
+        let progress =
+            ProgressPercent::new(stats.received_objects(), stats.total_objects()).progress;
         // TODO
         unsafe {
             if progress == PERCENT {
@@ -63,21 +64,25 @@ fn transfer_progress(state: &mut State, sender: &Option<Sender<RemoteProgress>>)
             stats.received_objects(),
             stats.total_objects()
         );
-        sender.send(ProgressNotification::Transfer {
-            objects: stats.received_objects(),
-            total_objects: stats.total_objects(),
-        }.into())
+        sender
+            .send(
+                ProgressNotification::Transfer {
+                    objects: stats.received_objects(),
+                    total_objects: stats.total_objects(),
+                }
+                .into(),
+            )
             .expect("send progress error");
     }
 }
 
 pub fn clone<I>(
     args: I,
-    sender: Option<Sender<RemoteProgress>>
+    sender: Option<Sender<RemoteProgress>>,
 ) -> Result<(), git2::Error>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let args = Args::from_iter(args);
     let state = RefCell::new(State {

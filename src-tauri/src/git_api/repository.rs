@@ -1,13 +1,13 @@
 //#![deny(warnings)]
 
-use std::path::{Path, PathBuf};
 use git2::{Repository, RepositoryOpenFlags};
+use std::path::{Path, PathBuf};
 
 ///
 #[derive(Clone, Debug)]
 pub struct RepoPath {
     gitdir: PathBuf,
-    workdir: Option<PathBuf>
+    workdir: Option<PathBuf>,
 }
 
 impl RepoPath {
@@ -28,8 +28,8 @@ impl RepoPath {
 impl From<&str> for RepoPath {
     fn from(p: &str) -> Self {
         Self {
-            gitdir : PathBuf::from(p),
-            workdir : None
+            gitdir: PathBuf::from(p),
+            workdir: None,
         }
     }
 }

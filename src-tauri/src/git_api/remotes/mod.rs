@@ -4,16 +4,16 @@
 #![allow(dead_code)]
 
 pub mod callbacks;
+pub(crate) mod fetch;
 pub(crate) mod push;
 pub(crate) mod tags;
-pub(crate) mod fetch;
 
 use crate::git_api::{
     error::{Error, Result},
     repository::{repo_open, RepoPath},
 };
-use git2::{ProxyOptions, Repository};
 pub use callbacks::Callbacks;
+use git2::{ProxyOptions, Repository};
 
 /// origin
 pub const DEFAULT_REMOTE_NAME: &str = "origin";
@@ -29,8 +29,7 @@ pub fn proxy_auto<'a>() -> ProxyOptions<'a> {
 pub fn get_remotes(repo_path: &RepoPath) -> Result<Vec<String>> {
     let repo = repo_open(repo_path)?;
     let remotes = repo.remotes()?;
-    let remotes: Vec<String> =
-        remotes.iter().flatten().map(String::from).collect();
+    let remotes: Vec<String> = remotes.iter().flatten().map(String::from).collect();
 
     Ok(remotes)
 }
@@ -43,13 +42,13 @@ pub fn get_default_remote(repo_path: &RepoPath) -> Result<String> {
 }
 
 /// see `get_default_remote`
-pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
+pub(crate) fn get_default_remote_in_repo(repo: &Repository) -> Result<String> {
     let remotes = repo.remotes()?;
 
     // if `origin` exists return that
-    let found_origin = remotes.iter().any(|r| {
-        r.map(|r| r == DEFAULT_REMOTE_NAME).unwrap_or_default()
-    });
+    let found_origin = remotes
+        .iter()
+        .any(|r| r.map(|r| r == DEFAULT_REMOTE_NAME).unwrap_or_default());
     if found_origin {
         return Ok(DEFAULT_REMOTE_NAME.into());
     }
@@ -61,9 +60,7 @@ pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
             .next()
             .flatten()
             .map(String::from)
-            .ok_or_else(|| {
-                Error::Generic("no remote found".into())
-            })?;
+            .ok_or_else(|| Error::Generic("no remote found".into()))?;
 
         return Ok(first_remote);
     }
@@ -75,21 +72,14 @@ pub(crate) fn get_default_remote_in_repo(repo: &Repository,) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::{
-        debug_cmd_print, repo_clone, repo_init,
-    };
+    use crate::git_api::tests::{debug_cmd_print, repo_clone, repo_init};
 
     #[test]
     fn test_smoke() {
         let (remote_dir, _remote) = repo_init().unwrap();
         let remote_path = remote_dir.path().to_str().unwrap();
         let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
-        let repo_path: &RepoPath = &repo_dir
-            .into_path()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .into();
+        let repo_path: &RepoPath = &repo_dir.into_path().as_os_str().to_str().unwrap().into();
 
         let remotes = get_remotes(repo_path).unwrap();
         assert_eq!(remotes, vec![String::from("origin")]);
@@ -100,12 +90,7 @@ mod tests {
         let (remote_dir, _remote) = repo_init().unwrap();
         let remote_path = remote_dir.path().to_str().unwrap();
         let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
-        let repo_path: &RepoPath = &repo_dir
-            .into_path()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .into();
+        let repo_path: &RepoPath = &repo_dir.into_path().as_os_str().to_str().unwrap().into();
 
         debug_cmd_print(
             repo_path,
@@ -128,12 +113,7 @@ mod tests {
         let (remote_dir, _remote) = repo_init().unwrap();
         let remote_path = remote_dir.path().to_str().unwrap();
         let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
-        let repo_path: &RepoPath = &repo_dir
-            .into_path()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .into();
+        let repo_path: &RepoPath = &repo_dir.into_path().as_os_str().to_str().unwrap().into();
 
         debug_cmd_print(repo_path, "git remote rename origin alternate");
         debug_cmd_print(
@@ -158,12 +138,7 @@ mod tests {
         let (remote_dir, _remote) = repo_init().unwrap();
         let remote_path = remote_dir.path().to_str().unwrap();
         let (repo_dir, _repo) = repo_clone(remote_path).unwrap();
-        let repo_path: &RepoPath = &repo_dir
-            .into_path()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .into();
+        let repo_path: &RepoPath = &repo_dir.into_path().as_os_str().to_str().unwrap().into();
 
         debug_cmd_print(repo_path, "git remote rename origin alternate");
         debug_cmd_print(
@@ -174,10 +149,7 @@ mod tests {
         let remotes = get_remotes(repo_path).unwrap();
         assert_eq!(
             remotes,
-            vec![
-                String::from("alternate"),
-                String::from("someremote")
-            ]
+            vec![String::from("alternate"), String::from("someremote")]
         );
 
         let repo = repo_open(repo_path).unwrap();

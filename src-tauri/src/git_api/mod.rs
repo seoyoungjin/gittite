@@ -1,14 +1,14 @@
 //! Git API
 
-pub mod error;
-pub mod cred;
-pub mod init;
 pub mod clone;
+pub mod cred;
+pub mod error;
+pub mod init;
 pub mod repository;
 
 pub mod commit;
-pub mod commit_info;
 pub mod commit_files;
+pub mod commit_info;
 
 // TODO mv
 pub mod addremove;
@@ -16,43 +16,44 @@ pub mod addremove;
 pub mod reset;
 
 pub mod diff;
-pub mod revlog;
 pub mod rev_list;
+pub mod revlog;
 // spec revspec
 pub mod rev_parse;
 pub mod status;
 // show grep
 
 // merge rebase reset switch
-pub mod branch;
-pub mod tag;
-pub mod stash;
 pub mod blame;
+pub mod branch;
+pub mod stash;
+pub mod tag;
 
 // TODO push
 pub mod remotes;
 
 // sig tree blob
 // pub mod cat_file;
-pub mod utils;
 pub mod progress;
+pub mod utils;
 
-pub use repository::RepoPath;
+pub use blame::FileBlame;
+pub use branch::{BranchCompare, BranchInfo};
 pub use commit_info::{CommitId, CommitInfo};
+pub use diff::FileDiff;
+pub use error::{Error, Result};
+pub use progress::{ProgressPercent, RemoteProgress};
+pub use remotes::push::ProgressNotification;
+pub use repository::RepoPath;
 pub use revlog::CommitData;
 pub use status::{StatusItem, StatusItemType};
-pub use diff::FileDiff;
-pub use blame::FileBlame;
-pub use branch::{BranchInfo, BranchCompare};
-pub use progress::{RemoteProgress, ProgressPercent};
-pub use remotes::push::ProgressNotification;
 
 #[cfg(test)]
 mod tests {
     use super::error::Result;
-    use super::{CommitId, RepoPath};
-    use super::{commit, addremove, revlog, status};
     use super::utils::repo_write_file;
+    use super::{addremove, commit, revlog, status};
+    use super::{CommitId, RepoPath};
 
     use git2::{Repository, StatusShow};
     use std::{path::Path, process::Command};
@@ -129,14 +130,7 @@ mod tests {
 
             let tree = repo.find_tree(id)?;
             let sig = repo.signature()?;
-            repo.commit(
-                Some("HEAD"),
-                &sig,
-                &sig,
-                "initial",
-                &tree,
-                &[],
-            )?;
+            repo.commit(Some("HEAD"), &sig, &sig, "initial", &tree, &[])?;
         }
         Ok((td, repo))
     }
@@ -159,8 +153,12 @@ mod tests {
     /// helper returning amount of files with changes in the (wd,stage)
     pub fn get_statuses(repo_path: &RepoPath) -> (usize, usize) {
         (
-            status::get_status(repo_path, StatusShow::Workdir).unwrap().len(),
-            status::get_status(repo_path, StatusShow::Index).unwrap().len()
+            status::get_status(repo_path, StatusShow::Workdir)
+                .unwrap()
+                .len(),
+            status::get_status(repo_path, StatusShow::Index)
+                .unwrap()
+                .len(),
         )
     }
 
@@ -175,12 +173,18 @@ mod tests {
     }
 
     ///
-    pub fn debug_cmd_print(path: &RepoPath, cmd: &str) {
+    pub fn debug_cmd_print(
+        path: &RepoPath,
+        cmd: &str,
+    ) {
         let cmd = debug_cmd(path, cmd);
         eprintln!("\n----\n{}", cmd);
     }
 
-    fn debug_cmd(path: &RepoPath, cmd: &str) -> String {
+    fn debug_cmd(
+        path: &RepoPath,
+        cmd: &str,
+    ) -> String {
         let output = if cfg!(target_os = "windows") {
             Command::new("cmd")
                 .args(&["/C", cmd])
@@ -225,11 +229,13 @@ mod tests {
         addremove::stage_add_file(
             &repo.workdir().unwrap().to_str().unwrap().into(),
             Path::new(file),
-        ).unwrap();
+        )
+        .unwrap();
 
         commit::commit(
             &repo.workdir().unwrap().to_str().unwrap().into(),
             commit_name,
-        ).unwrap()
+        )
+        .unwrap()
     }
 }

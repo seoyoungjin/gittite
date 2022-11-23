@@ -16,11 +16,12 @@
 // #![deny(warnings)]
 #![allow(trivial_casts)]
 
+use super::error::{Error, Result};
 use super::repository::{repo_open, RepoPath};
-use std::path::Path;
 use std::ffi::OsString;
-use structopt::StructOpt;
+use std::path::Path;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -32,10 +33,13 @@ struct Args {
     flag_update: bool,
 }
 
-pub fn stage_add_all<I>(repo_path: &RepoPath, args: I) -> Result<(), git2::Error>
+pub fn stage_add_all<I>(
+    repo_path: &RepoPath,
+    args: I,
+) -> Result<()>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let args = Args::from_iter(args);
     let repo = repo_open(repo_path)?;
@@ -51,7 +55,10 @@ where
 }
 
 /// add a file diff from workingdir to stage
-pub fn stage_add_file(repo_path: &RepoPath, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_add_file(
+    repo_path: &RepoPath,
+    path: &Path,
+) -> Result<()> {
     let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 
@@ -61,7 +68,10 @@ pub fn stage_add_file(repo_path: &RepoPath, path: &Path) -> Result<(), git2::Err
 }
 
 /// stage a removed file
-pub fn stage_remove_file(repo_path: &RepoPath, path: &Path) -> Result<(), git2::Error> {
+pub fn stage_remove_file(
+    repo_path: &RepoPath,
+    path: &Path,
+) -> Result<()> {
     let repo = repo_open(repo_path)?;
     let mut index = repo.index()?;
 
@@ -83,8 +93,7 @@ mod tests {
         let file_path = Path::new("foo");
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         let res = stage_add_file(repo_path, file_path);
         assert_eq!(res.is_ok(), false);
@@ -94,14 +103,17 @@ mod tests {
     fn test_stage_one_file() {
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         let file_path = Path::new("foo");
-        File::create(&root.join(file_path)).unwrap()
-            .write_all(b"test file1 content").unwrap();
-        File::create(&root.join(Path::new("file2.txt"))).unwrap()
-            .write_all(b"test file2 content").unwrap();
+        File::create(&root.join(file_path))
+            .unwrap()
+            .write_all(b"test file1 content")
+            .unwrap();
+        File::create(&root.join(Path::new("file2.txt")))
+            .unwrap()
+            .write_all(b"test file2 content")
+            .unwrap();
 
         assert_eq!(get_statuses(repo_path), (2, 0));
 

@@ -3,15 +3,15 @@
     windows_subsystem = "windows"
 )]
 
-use crate::app_data::{ArcAppData, AppData};
+use crate::app_data::{AppData, ArcAppData};
 use crate::git_api::RemoteProgress;
 use tauri::Manager;
-use tauri::{Size, PhysicalSize};
+use tauri::{PhysicalSize, Size};
 
 mod app_data;
-mod settings;
 mod cmd;
 mod git_api;
+mod settings;
 
 #[macro_export]
 macro_rules! throw {
@@ -52,7 +52,7 @@ fn main() {
             app_data::save_settings,
             cmd::clone,
             cmd::init,
-            cmd::set_repo,
+            cmd::set_repository,
             cmd::commit,
             cmd::amend,
             cmd::commit_info,
@@ -84,21 +84,21 @@ fn main() {
         .setup(|app| {
             // set window size
             let win = app.get_window("main").unwrap();
-            win.set_size(
-                Size::Physical(PhysicalSize{width: 900, height: 800})
-            ).unwrap();
+            win.set_size(Size::Physical(PhysicalSize {
+                width: 900,
+                height: 800,
+            }))
+            .unwrap();
 
             // emit received progress message to window
-            std::thread::spawn(move || {
-                loop {
-                    match rx_git.recv() {
-                        Ok(payload) => {
-                            println!("{:?}", payload);
-                            win.emit("PROGRESS", payload).unwrap();
-                        },
-                        Err(e) => {
-                            log::error!( "progress receiver error: {}", e);
-                        }
+            std::thread::spawn(move || loop {
+                match rx_git.recv() {
+                    Ok(payload) => {
+                        println!("{:?}", payload);
+                        win.emit("PROGRESS", payload).unwrap();
+                    }
+                    Err(e) => {
+                        log::error!("progress receiver error: {}", e);
                     }
                 }
             });
@@ -107,7 +107,7 @@ fn main() {
             let app_data = AppData {
                 settings: settings,
                 repo_path: None,
-                tx_git: tx_git
+                tx_git: tx_git,
             };
             app.manage(ArcAppData::new(app_data));
 

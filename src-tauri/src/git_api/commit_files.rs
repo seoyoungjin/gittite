@@ -31,7 +31,7 @@ pub fn get_commit_files(
                     .map(|p| p.to_str().unwrap_or("").to_string())
                     .unwrap_or_default(),
                 stage: Some(status),
-                wtree: None
+                wtree: None,
             }
         })
         .collect::<Vec<_>>();
@@ -52,9 +52,7 @@ pub fn get_compare_commits_diff(
         repo.find_commit(ids.1.into())?,
     );
 
-    let commits = if commits.0.time().cmp(&commits.1.time())
-        == Ordering::Greater
-    {
+    let commits = if commits.0.time().cmp(&commits.1.time()) == Ordering::Greater {
         (commits.1, commits.0)
     } else {
         commits
@@ -73,11 +71,7 @@ pub fn get_compare_commits_diff(
     }
     opts.show_binary(true);
 
-    let diff = repo.diff_tree_to_tree(
-        Some(&trees.0),
-        Some(&trees.1),
-        Some(&mut opts),
-    )?;
+    let diff = repo.diff_tree_to_tree(Some(&trees.0), Some(&trees.1), Some(&mut opts))?;
 
     Ok(diff)
 }
@@ -112,11 +106,7 @@ pub fn get_commit_diff<'a>(
     }
     opts.show_binary(true);
 
-    let mut diff = repo.diff_tree_to_tree(
-        parent.as_ref(),
-        Some(&commit_tree),
-        Some(&mut opts),
-    )?;
+    let mut diff = repo.diff_tree_to_tree(parent.as_ref(), Some(&commit_tree), Some(&mut opts))?;
 
     if is_stash_commit(repo_path, &id)? {
         if let Ok(untracked_commit) = commit.parent_id(2) {
@@ -137,14 +127,12 @@ pub fn get_commit_diff<'a>(
 
 #[cfg(test)]
 mod tests {
-    use crate::git_api::error::Result;
     use super::get_commit_files;
-    use crate::git_api::{
-        commit::commit, addremove::stage_add_file, stash::stash_save,
-        RepoPath,
-        StatusItemType,
-    };
+    use crate::git_api::error::Result;
     use crate::git_api::tests::{get_statuses, repo_init};
+    use crate::git_api::{
+        addremove::stage_add_file, commit::commit, stash::stash_save, RepoPath, StatusItemType,
+    };
     use std::{fs::File, io::Write, path::Path};
 
     #[test]

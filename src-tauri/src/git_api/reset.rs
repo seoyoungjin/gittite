@@ -3,7 +3,10 @@ use super::repository::{repo_open, RepoPath};
 use git2::{build::CheckoutBuilder, ObjectType};
 
 ///
-pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {
+pub fn reset_stage(
+    repo_path: &RepoPath,
+    path: &str,
+) -> Result<()> {
     let repo = repo_open(repo_path)?;
     if repo.head().is_ok() {
         let head = repo.head()?.target();
@@ -21,7 +24,10 @@ pub fn reset_stage(repo_path: &RepoPath, path: &str) -> Result<()> {
 }
 
 ///
-pub fn reset_workdir(repo_path: &RepoPath, path: &str) -> Result<()> {
+pub fn reset_workdir(
+    repo_path: &RepoPath,
+    path: &str,
+) -> Result<()> {
     let repo = repo_open(repo_path)?;
 
     let mut checkout_opts = CheckoutBuilder::new();
@@ -38,18 +44,17 @@ pub fn reset_workdir(repo_path: &RepoPath, path: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::tests::{get_statuses, repo_init_empty};
     use crate::git_api::addremove::stage_add_file;
-    use std::{fs::File, io::Write, path::Path};
     use crate::git_api::repository::RepoPath;
+    use crate::git_api::tests::{get_statuses, repo_init_empty};
+    use std::{fs::File, io::Write, path::Path};
 
     #[test]
     fn test_unstage_in_empty_repo() {
         let file_path = Path::new("foo.txt");
         let (_td, repo) = repo_init_empty().unwrap();
         let root = repo.path().parent().unwrap();
-        let repo_path: &RepoPath =
-            &root.as_os_str().to_str().unwrap().into();
+        let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         File::create(&root.join(file_path))
             .unwrap()

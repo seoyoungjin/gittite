@@ -18,8 +18,8 @@
 use crate::git_api::repository::{repo_open, RepoPath};
 use git2::{Error, Oid, Revwalk};
 use std::ffi::OsString;
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
@@ -40,10 +40,13 @@ struct Args {
     arg_spec: Vec<String>,
 }
 
-pub fn rev_list<I>(repo: &RepoPath, args: I) -> Result<(), git2::Error>
+pub fn rev_list<I>(
+    repo: &RepoPath,
+    args: I,
+) -> Result<(), git2::Error>
 where
     I: IntoIterator,
-    I::Item: Into<OsString> + Clone
+    I::Item: Into<OsString> + Clone,
 {
     let args = Args::from_iter(args);
     let repo = repo_open(repo)?;
@@ -97,7 +100,11 @@ where
     Ok(())
 }
 
-fn push(revwalk: &mut Revwalk, id: Oid, hide: bool) -> Result<(), Error> {
+fn push(
+    revwalk: &mut Revwalk,
+    id: Oid,
+    hide: bool,
+) -> Result<(), Error> {
     if hide {
         revwalk.hide(id)
     } else {

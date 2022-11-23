@@ -15,8 +15,8 @@
 // #![deny(warnings)]
 
 use git2::Repository;
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(setting(AppSettings::NoBinaryName))]
