@@ -37,11 +37,11 @@ export default {
     setLayout(layout) {
       if (layout === "app-layout") {
         this.$router.push("/");
-      } else if (this.$route.path === "/") {
+      } else if (this.$route.path === "/" || this.$route.path === "/gitcmd") {
         this.$router.push("/gitcmd");
       }
       this.store.setLayout(layout);
     },
-  }
+  },
 };
 </script>

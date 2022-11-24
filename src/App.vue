@@ -1,26 +1,19 @@
 <template>
-  <v-app>
-    <component v-bind:is="layout"></component>
-  </v-app>
+  <q-layout view="hHh lpR fFf" class="bg-grey-1">
+    <tool-bar />
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
 </template>
 
-<script>
-import { computed } from "vue";
-import { useLayoutStore } from "./stores/layout.js";
-import AppLayout from "./layouts/AppLayout.vue";
-import DevLayout from "./layouts/DevLayout.vue";
+<script lang="ts">
+import ToolBar from "@/layouts/ToolBar.vue";
 
 export default {
-  setup() {
-    const store = useLayoutStore();
-    const layout = computed(() => store.layout);
-    return {
-      layout,
-    };
-  },
+  name: "App",
   components: {
-    "app-layout": AppLayout,
-    "dev-layout": DevLayout,
+    ToolBar,
   },
 };
 </script>

@@ -1,105 +1,79 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          @click="toggleLeftDrawer"
-          aria-label="Menu"
-          icon="menu"
-        />
+  <q-drawer
+    v-model="leftDrawerOpen"
+    show-if-above
+    bordered
+    class="bg-grey-2"
+    breakpoint="600"
+    :width="180"
+  >
+    <q-scroll-area class="fit">
+      <q-list padding>
+        <q-item
+          v-for="link in links1"
+          :key="link.text"
+          @click="$router.push(link.link)"
+          v-ripple
+          clickable
+        >
+          <q-item-section avatar>
+            <q-icon color="grey" :name="link.icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ link.text }}</q-item-label>
+          </q-item-section>
+        </q-item>
 
-        <q-btn flat no-caps no-wrap class="q-ml-xs" v-if="$q.screen.gt.xs">
-          <q-icon :name="Gittite" color="red" size="28px" />
-          <q-toolbar-title shrink class="text-weight-bold">
-            Gittite
-          </q-toolbar-title>
-        </q-btn>
+        <q-separator class="q-my-md" />
 
-        <q-space />
+        <q-item
+          v-for="link in links2"
+          :key="link.text"
+          @click="$router.push(link.link)"
+          v-ripple
+          clickable
+        >
+          <q-item-section avatar>
+            <q-icon color="grey" :name="link.icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ link.text }}</q-item-label>
+          </q-item-section>
+        </q-item>
 
-        <div class="q-gutter-sm row items-center no-wrap">
-          <set-layout />
+        <q-separator class="q-mt-md q-mb-lg" />
+
+        <div class="q-px-md text-grey-9">
+          <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
+            <a
+              v-for="button in buttons1"
+              :key="button.text"
+              class="YL__drawer-footer-link"
+              href="javascript:void(0)"
+              @click="$router.push(button.link)"
+            >
+              {{ button.text }}
+            </a>
+          </div>
         </div>
-      </q-toolbar>
-    </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-2"
-      breakpoint="600"
-      :width="180"
-    >
-      <q-scroll-area class="fit">
-        <q-list padding>
-          <q-item
-            v-for="link in links1"
-            :key="link.text"
-            @click="$router.push(link.link)"
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-my-md" />
-
-          <q-item
-            v-for="link in links2"
-            :key="link.text"
-            @click="$router.push(link.link)"
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-mt-md q-mb-lg" />
-
-          <div class="q-px-md text-grey-9">
-            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
-              <a
-                v-for="button in buttons1"
-                :key="button.text"
-                class="YL__drawer-footer-link"
-                href="javascript:void(0)"
-                @click="$router.push(button.link)"
-              >
-                {{ button.text }}
-              </a>
-            </div>
+        <div class="q-py-md q-px-md text-grey-9">
+          <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
+            <a
+              v-for="button in buttons2"
+              :key="button.text"
+              class="YL__drawer-footer-link"
+              href="javascript:void(0)"
+              @click="$router.push(button.link)"
+            >
+              {{ button.text }}
+            </a>
           </div>
-          <div class="q-py-md q-px-md text-grey-9">
-            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
-              <a
-                v-for="button in buttons2"
-                :key="button.text"
-                class="YL__drawer-footer-link"
-                href="javascript:void(0)"
-                @click="$router.push(button.link)"
-              >
-                {{ button.text }}
-              </a>
-            </div>
-          </div>
-        </q-list>
-      </q-scroll-area>
-    </q-drawer>
+        </div>
+      </q-list>
+    </q-scroll-area>
+  </q-drawer>
 
+  <q-layout view="hHh lpR fFf" class="bg-grey-1">
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -107,29 +81,24 @@
 </template>
 
 <script lang="ts">
-import SetLayout from "@/components/SetLayout.vue";
 import { ref } from "vue";
 
 export default {
   name: "DevLayout",
 
-  components: {
-    "set-layout": SetLayout,
-  },
-
   setup() {
     const leftDrawerOpen = ref(false);
 
-    function toggleLeftDrawer() {
-      leftDrawerOpen.value = !leftDrawerOpen.value;
+    function showLeftDrawer(value: boolean) {
+      leftDrawerOpen.value = value;
     }
 
     return {
       leftDrawerOpen,
-      toggleLeftDrawer,
+      showLeftDrawer,
 
       links1: [
-        { icon: "home", text: "Home", link: "/gitcmd" },
+        { icon: "home", text: "Home", link: "/gitcmd/home" },
         { icon: "subscriptions", text: "Repository", link: "/gitcmd/repo" },
         { icon: "list", text: "Init", link: "/gitcmd/init" },
         { icon: "file_copy", text: "Clone", link: "/gitcmd/clone" },
