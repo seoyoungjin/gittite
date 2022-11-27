@@ -2,7 +2,7 @@
   <div>
     <q-splitter v-model="splitterModel" unit="px">
       <template v-slot:before>
-        <q-tabs v-model="tab" no-caps class="bg-orange text-black shadow-2">
+        <q-tabs v-model="tab" dense no-caps class="bg-orange text-black shadow-2">
           <q-tab name="changes" label="Changes" />
           <q-tab name="history" label="History" />
         </q-tabs>
@@ -10,11 +10,11 @@
         <q-separator />
 
         <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="changes">
+          <q-tab-panel name="changes" class="q-pa-sm">
             <changes-list v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
 
-          <q-tab-panel name="history">
+          <q-tab-panel name="history" class="q-pa-sm">
             <history-list v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
         </q-tab-panels>

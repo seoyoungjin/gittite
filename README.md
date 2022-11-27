@@ -21,11 +21,17 @@ This is a toy project to study tauri and rust.
 - [x] js framework i.e. vue, svelte, ...
 - [x] git
 
-## Commands
+## Compile
+
+### Prerequisites
+
+- https://tauri.app/v1/guides/getting-started/prerequisites
+
+### Compile
 
 - `cargo tauri dev` : Start app in dev mode
 - `cargo tauri build`: Build
-- `cargo install --list`
+- `yarn tauri dev`
 
 ## Log trace
 
