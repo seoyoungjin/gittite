@@ -4,6 +4,12 @@ use serde::{Deserialize, Serialize};
 use std::io::{Read, Write};
 use std::{fs::File, path::PathBuf};
 
+// configDir
+//
+// Linux : $HOME/.config/
+// maxOS : $HOME/Library/Application Support/
+// Windows: {FOLDERID_RoamingAppData}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Settings {
     pub repo: String,
@@ -19,17 +25,17 @@ impl Default for Settings {
 
 impl Settings {
     fn settings_file() -> PathBuf {
-        let conf_dir = tauri::api::path::config_dir().expect("No data dir");
+        let conf_dir = tauri::api::path::config_dir().unwrap();
         return conf_dir.join("gittite").join("settings.json");
     }
 
     pub fn load() -> Result<Self, String> {
-        let mut settings_file = match File::open(Self::settings_file()) {
+        let mut file = match File::open(Self::settings_file()) {
             Ok(file) => file,
             Err(e) => throw!("Error opening file: {}", e.to_string()),
         };
         let mut json_str = String::new();
-        match settings_file.read_to_string(&mut json_str) {
+        match file.read_to_string(&mut json_str) {
             Ok(_) => (),
             Err(e) => throw!("Error reading file: {}", e),
         };

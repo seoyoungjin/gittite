@@ -37,7 +37,6 @@ fn main() {
     let settings = match settings::Settings::load() {
         Ok(v) => v,
         Err(e) => {
-            error_popup_main_thread(e.to_string());
             settings::Settings::default()
         }
     };
@@ -94,11 +93,12 @@ fn main() {
             std::thread::spawn(move || loop {
                 match rx_git.recv() {
                     Ok(payload) => {
-                        println!("{:?}", payload);
+                        log::trace!("{:?}", payload);
                         win.emit("PROGRESS", payload).unwrap();
                     }
                     Err(e) => {
                         log::error!("progress receiver error: {}", e);
+                        error_popup_main_thread(e.to_string());
                     }
                 }
             });
