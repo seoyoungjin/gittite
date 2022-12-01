@@ -111,16 +111,16 @@ export default {
     ...mapActions(useCommitStageStore, ["updateStagedFiles"]),
 
     getBranchName() {
-      git2rs.getBranchName()
-        .then(res => {
+      git2rs
+        .getBranchName()
+        .then((res) => {
           this.branchName = res;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           this.branchName = "master";
         });
     },
-
 
     getStatus() {
       (async () => {

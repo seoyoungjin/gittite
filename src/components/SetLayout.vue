@@ -1,24 +1,10 @@
 <template>
   <v-container fluid fill-height>
     <v-layout align-center justify-center>
-      <q-btn
-        round
-        dense
-        flat
-        color="grey-8"
-        icon="apps"
-        @click="setLayout('app-layout')"
-      >
+      <q-btn round dense flat icon="apps" @click="setLayout('app-layout')">
         <q-tooltip>App</q-tooltip>
       </q-btn>
-      <q-btn
-        round
-        dense
-        flat
-        color="grey-8"
-        icon="message"
-        @click="setLayout('dev-layout')"
-      >
+      <q-btn round dense flat icon="message" @click="setLayout('dev-layout')">
         <q-tooltip>Dev</q-tooltip>
       </q-btn>
     </v-layout>

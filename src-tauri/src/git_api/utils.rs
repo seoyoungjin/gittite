@@ -51,21 +51,6 @@ pub(crate) fn bytes2string(bytes: &[u8]) -> Result<String> {
     Ok(String::from_utf8(bytes.to_vec())?)
 }
 
-/// write a file in repo
-pub(crate) fn repo_write_file(
-    repo: &Repository,
-    file: &str,
-    content: &str,
-) -> Result<()> {
-    let dir = work_dir(repo)?.join(file);
-    let file_path = dir
-        .to_str()
-        .ok_or_else(|| Error::Generic(String::from("invalid file path")))?;
-    let mut file = File::create(file_path)?;
-    file.write_all(content.as_bytes())?;
-    Ok(())
-}
-
 /// diff to string
 pub fn diff_to_string<'a>(diff: &'a Diff) -> Result<String> {
     let mut buf = BufWriter::new(Vec::new());
@@ -101,6 +86,22 @@ pub(crate) fn repo_read_file(
     file.read_to_end(&mut buffer)?;
 
     Ok(String::from_utf8(buffer)?)
+}
+
+/// write a file in repo
+#[cfg(test)]
+pub(crate) fn repo_write_file(
+    repo: &Repository,
+    file: &str,
+    content: &str,
+) -> Result<()> {
+    let dir = work_dir(repo)?.join(file);
+    let file_path = dir
+        .to_str()
+        .ok_or_else(|| Error::Generic(String::from("invalid file path")))?;
+    let mut file = File::create(file_path)?;
+    file.write_all(content.as_bytes())?;
+    Ok(())
 }
 
 #[cfg(test)]

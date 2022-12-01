@@ -16,7 +16,7 @@
 // #![deny(warnings)]
 #![allow(trivial_casts)]
 
-use super::error::{Error, Result};
+use super::error::Result;
 use super::repository::{repo_open, RepoPath};
 use std::ffi::OsString;
 use std::path::Path;

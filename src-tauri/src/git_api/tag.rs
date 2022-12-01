@@ -66,16 +66,16 @@ where
             let msg = message.as_ref().map(String::as_str);
             let res = tag_add(repo_path, tagname, object, message, force)?;
             serde_json::to_value(res)
-        }
+        },
         SubCommand::List { pattern } => {
             let res = get_tags(repo_path, pattern)?;
             serde_json::to_value(res)
-        }
+        },
         SubCommand::Delete { tagname } => {
             let res = tag_delete(repo_path, tagname.as_str())?;
             serde_json::to_value(res)
-        }
-        _ => return Err(Error::Generic("invalid tag command".to_string())),
+        },
+        // _ => return Err(Error::Generic("invalid tag command".to_string())),
     };
 
     match res {
