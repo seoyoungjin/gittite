@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "gittite",
+    "productName": "Gittite",
     "version": "0.1.0"
   },
   "tauri": {

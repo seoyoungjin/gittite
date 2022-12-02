@@ -11,6 +11,7 @@ use tauri::{PhysicalSize, Size};
 mod app_data;
 mod cmd;
 mod git_api;
+mod menu;
 mod settings;
 
 #[macro_export]
@@ -46,7 +47,8 @@ fn main() {
 
     let context = tauri::generate_context!();
     tauri::Builder::default()
-        .menu(tauri::Menu::os_default(&context.package_info().name))
+        .menu(menu::create_menu("Gittite"))
+        .on_menu_event(menu::event_handler)
         .invoke_handler(tauri::generate_handler![
             app_data::get_settings,
             app_data::save_settings,

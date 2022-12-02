@@ -9,7 +9,6 @@ use std::{
     hash::{Hash, Hasher},
 };
 use std::{
-    fs::File,
     io::{BufWriter, Write},
     path::Path,
 };
@@ -68,6 +67,9 @@ pub fn diff_to_string<'a>(diff: &'a Diff) -> Result<String> {
     let bytes = buf.into_inner().unwrap();
     Ok(String::from_utf8(bytes).unwrap())
 }
+
+#[cfg(test)]
+use std::fs::File;
 
 #[cfg(test)]
 pub(crate) fn repo_read_file(

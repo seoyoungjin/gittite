@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import { ref } from "vue";
+import { listen } from "@tauri-apps/api/event";
 import ToolBar from "@/layouts/ToolBar.vue";
 import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
@@ -59,6 +60,13 @@ export default {
       splitterModel: ref(250),
       tab: ref("changes"),
     };
+  },
+
+  mounted() {
+    listen("menu-event", (e) => {
+      // alert(e);
+      console.log(e.payload);
+    });
   },
 
   data() {
