@@ -1,45 +1,51 @@
 <template>
   <q-dialog ref="dialog" @hide="onDialogHide">
     <q-card class="q-dialog-plugin">
-      <q-card-section>
+      <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create a New Repository</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
 
-      <q-card-actions vertical>
-        <q-form id="git-init">
-          <q-input
-            v-model="form.name"
-            label="Name"
-            placeholder="repository name"
-          />
-          <q-input
-            v-model="form.directory"
-            label="Local directory"
-            placeholder="Local directory"
-          />
-          <q-checkbox v-model="form.bareCheck" label="Bare" />
-          <q-input
-            v-model="form.templateDir"
-            label="Template directory"
-            :disable="!form.templateCheck"
-          >
-            <template v-slot:before>
-              <q-checkbox v-model="form.templateCheck" />
-            </template>
-          </q-input>
-          <q-input
-            v-model="form.separateGitDir"
-            label="Separate Git directory"
-            :disable="!form.separateGitCheck"
-          >
-            <template v-slot:before>
-              <q-checkbox v-model="form.separateGitCheck" />
-            </template>
-          </q-input>
-        </q-form> 
-      </q-card-actions>
+      <q-card-section class="q-pt-none">
+        <q-card-actions vertical>
+          <q-form id="git-init">
+            <q-input
+              v-model="form.name"
+              label="Name"
+              placeholder="repository name"
+            />
+            <q-input v-model="form.directory" label="Local Path">
+              <template v-slot:after>
+                <q-btn no-caps @click="selectDirectory"> Choose... </q-btn>
+              </template>
+            </q-input>
+            <!--
+            <q-checkbox v-model="form.bareCheck" label="Bare" />
+            <q-input
+              v-model="form.templateDir"
+              label="Template directory"
+              :disable="!form.templateCheck"
+            >
+              <template v-slot:before>
+                <q-checkbox v-model="form.templateCheck" />
+              </template>
+            </q-input>
+            <q-input
+              v-model="form.separateGitDir"
+              label="Separate Git directory"
+              :disable="!form.separateGitCheck"
+            >
+              <template v-slot:before>
+                <q-checkbox v-model="form.separateGitCheck" />
+              </template>
+            </q-input>
+            -->
+          </q-form>
+        </q-card-actions>
+      </q-card-section>
 
       <q-card-actions align="right">
         <q-btn color="primary" label="OK" @click="onOKClick" />
@@ -50,6 +56,9 @@
 </template>
 
 <script lang="ts">
+import * as git2rs from "@/api/git2rs";
+import { open } from "@tauri-apps/api/dialog";
+
 export default {
   data() {
     return {
@@ -67,41 +76,78 @@ export default {
 
   emits: [
     // REQUIRED
-    'ok', 'hide'
+    "ok",
+    "hide",
   ],
 
   methods: {
     // following method is REQUIRED
-    show () {
-      this.$refs.dialog.show()
+    show() {
+      this.$refs.dialog.show();
     },
 
     // following method is REQUIRED
-    hide () {
-      this.$refs.dialog.hide()
+    hide() {
+      this.$refs.dialog.hide();
     },
 
-    onDialogHide () {
+    onDialogHide() {
       // required to be emitted
       // when QDialog emits "hide" event
-      this.$emit('hide')
+      this.$emit("hide");
     },
 
-    onOKClick () {
+    onOKClick() {
+      this.gitInit();
       // on OK, it is REQUIRED to
       // emit "ok" event (with optional payload)
       // before hiding the QDialog
-      this.$emit('ok')
+      this.$emit("ok");
       // or with payload: this.$emit('ok', { ... })
 
       // then hiding dialog
-      this.hide()
+      this.hide();
     },
 
-    onCancelClick () {
+    onCancelClick() {
       // we just need to hide the dialog
-      this.hide()
-    }
-  }
-}
+      this.hide();
+    },
+
+    async selectDirectory() {
+      const selected = await open({
+        directory: true,
+      });
+      if (Array.isArray(selected) || selected === null) {
+        return;
+      }
+      this.form.directory = selected;
+    },
+
+    gitInit: function () {
+      // alert(JSON.stringify(this.form, null, 4));
+      var dirname = this.form.directory + this.form.name;
+      //invoke("init", { args: [dirname] })
+      git2rs
+        .init(dirname)
+        .then((message) => {
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
+    },
+  },
+};
 </script>
