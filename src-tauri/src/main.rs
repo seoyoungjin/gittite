@@ -52,6 +52,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             app_data::get_settings,
             app_data::save_settings,
+            app_data::get_param,
+            app_data::set_param,
             cmd::clone,
             cmd::init,
             cmd::set_repository,
@@ -111,6 +113,7 @@ fn main() {
                 settings: settings,
                 repo_path: None,
                 tx_git: tx_git,
+                modal: false,
             };
             app.manage(ArcAppData::new(app_data));
 

@@ -1,5 +1,5 @@
 use tauri::{WindowMenuEvent, Wry};
-use tauri::{AboutMetadata, Menu, MenuItem, Submenu, CustomMenuItem, MenuEntry};
+use tauri::{AboutMetadata, Menu, MenuItem, Submenu, CustomMenuItem};
 
 pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
   let mut menu = Menu::new();

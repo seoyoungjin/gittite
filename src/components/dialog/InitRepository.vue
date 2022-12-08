@@ -74,6 +74,13 @@ export default {
     };
   },
 
+  setup () {
+    (async () => {
+      let directory = await git2rs.get_param("cwd");
+      alert(JSON.stringify(directory));
+    })();
+  },
+
   emits: [
     // REQUIRED
     "ok",
@@ -92,20 +99,13 @@ export default {
     },
 
     onDialogHide() {
-      // required to be emitted
-      // when QDialog emits "hide" event
       this.$emit("hide");
     },
 
     onOKClick() {
       this.gitInit();
-      // on OK, it is REQUIRED to
-      // emit "ok" event (with optional payload)
-      // before hiding the QDialog
-      this.$emit("ok");
-      // or with payload: this.$emit('ok', { ... })
 
-      // then hiding dialog
+      this.$emit("ok");
       this.hide();
     },
 
@@ -127,7 +127,6 @@ export default {
     gitInit: function () {
       // alert(JSON.stringify(this.form, null, 4));
       var dirname = this.form.directory + this.form.name;
-      //invoke("init", { args: [dirname] })
       git2rs
         .init(dirname)
         .then((message) => {

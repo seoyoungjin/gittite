@@ -17,11 +17,17 @@ export async function loadSettings() {
   });
 }
 
+export async function get_param(name: string) {
+  return await invoke("get_param", { name });
+}
+
+export async function set_param(dirname: string) {
+  return await invoke("set_param", { args: [dirname] });
+}
+
 /// git
 export async function init(dirname: string) {
-  return await runCmd("init", { args: [dirnamej] }).then((res) => {
-    return res;
-  });
+  return await invoke("init", { args: [dirname] });
 }
 
 export async function clone(gitUrl: string, localDir: string) {
