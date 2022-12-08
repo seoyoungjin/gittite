@@ -56,15 +56,19 @@
 </template>
 
 <script lang="ts">
+import { usePropsStore } from '@/stores/props'
 import * as git2rs from "@/api/git2rs";
+import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
 
 export default {
   data() {
+    const store = usePropsStore();
+
     return {
       form: {
         name: "",
-        directory: "",
+        directory: store.cwd,
         bareCheck: false,
         templateCheck: false,
         templateDir: "",
@@ -72,13 +76,6 @@ export default {
         separateGitDir: "",
       },
     };
-  },
-
-  setup () {
-    (async () => {
-      let directory = await git2rs.get_param("cwd");
-      alert(JSON.stringify(directory));
-    })();
   },
 
   emits: [
@@ -126,7 +123,7 @@ export default {
 
     gitInit: function () {
       // alert(JSON.stringify(this.form, null, 4));
-      var dirname = this.form.directory + this.form.name;
+      var dirname = this.form.directory + sep + this.form.name;
       git2rs
         .init(dirname)
         .then((message) => {
@@ -136,6 +133,7 @@ export default {
             icon: "cloud",
             message: message,
           });
+          // TODO add to repos
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);
