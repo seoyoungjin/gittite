@@ -28,10 +28,8 @@ export default {
   },
 
   data() {
-    // dialogs
-    const showInitReposityDialog = false;
     return {
-      showInitReposityDialog,
+      showInitReposityDialog: false,
     };
   },
 

@@ -37,7 +37,7 @@ export default {
 </script>
 
 <template>
-  <q-page class="q-ma-lg">
+  <div class="q-ma-lg">
     <h5>Welcome</h5>
     <p>
       This is a demo of Tauri's API capabilities using the
@@ -53,5 +53,5 @@ export default {
     <div class="flex flex-wrap gap-1 shadow-">
       <button v-on:click="closeApp">Close application</button>
     </div>
-  </q-page>
+  </div>
 </template>

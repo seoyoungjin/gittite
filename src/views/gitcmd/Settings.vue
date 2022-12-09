@@ -24,7 +24,9 @@ export default {
   },
   async mounted() {
     this.jsonData = await git2rs.loadSettings();
-    this.jsonData2 = await this.readSettings();
+    this.jsonData2 = await this.readSettings().catch((e) => {
+      return e;
+    });
   },
 };
 </script>

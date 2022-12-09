@@ -43,6 +43,8 @@
       </template>
     </q-splitter>
   </q-layout>
+
+  <InitRepository v-model="showInitReposityDialog" />
 </template>
 
 <script lang="ts">
@@ -53,6 +55,7 @@ import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
 import HistoryList from "@/components/HistoryList.vue";
 import DiffView from "@/components/DiffView.vue";
+import InitRepository from "../components/dialog/InitRepository.vue";
 
 export default {
   setup() {
@@ -63,8 +66,11 @@ export default {
   },
 
   mounted() {
-    listen("menu-event", (e) => {
-      // alert(e);
+    listen("menu-event", (ev) => {
+      // alert(JSON.stringify(e));
+      if (ev["payload"] == "init") {
+        this.showInitReposityDialog = true;
+      }
       console.log(e.payload);
     });
   },
@@ -72,6 +78,8 @@ export default {
   data() {
     return {
       curSelected: Object,
+      // dialog
+      showInitReposityDialog: false
     };
   },
 
@@ -81,6 +89,8 @@ export default {
     ChangesList,
     HistoryList,
     DiffView,
+    // dialog
+    InitRepository,
   },
 
   methods: {

@@ -119,8 +119,8 @@ export default {
       links2: [
         { icon: "settings", text: "Settings", link: "/gitcmd/settings" },
       ],
-      buttons1: [{ text: "About", link: "/about" }],
-      buttons2: [{ text: "Test features", link: "/test" }],
+      buttons1: [{ text: "About", link: "/gitcmd/about" }],
+      buttons2: [{ text: "Test features", link: "/gitcmd/test" }],
     };
   },
 

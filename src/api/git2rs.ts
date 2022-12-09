@@ -17,12 +17,12 @@ export async function loadSettings() {
   });
 }
 
-export async function get_param(name: string) {
-  return await invoke("get_param", { name });
+export async function get_prop(key: string) {
+  return await invoke("get_prop", { key });
 }
 
-export async function set_param(dirname: string) {
-  return await invoke("set_param", { args: [dirname] });
+export async function set_prop(key: string, value: string) {
+  return await invoke("set_prop", { key, value });
 }
 
 /// git

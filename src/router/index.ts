@@ -10,16 +10,6 @@ const router = createRouter({
       component: WorkSpace,
     },
     {
-      path: "/about",
-      name: "about",
-      component: () => import("../views/AboutView.vue"),
-    },
-    {
-      path: "/test",
-      name: "test",
-      component: () => import("../views/Test.vue"),
-    },
-    {
       path: "/gitcmd",
       name: "gitcmd",
       component: () => import("../layouts/DevLayout.vue"),
@@ -103,6 +93,16 @@ const router = createRouter({
           path: "settings",
           name: "git-settings",
           component: () => import("../views/gitcmd/Settings.vue"),
+        },
+        {
+          path: "about",
+          name: "tite-about",
+          component: () => import("../views/AboutView.vue"),
+        },
+        {
+          path: "test",
+          name: "test",
+          component: () => import("../views/Test.vue"),
         },
       ],
     },

@@ -1,21 +1,21 @@
 import { defineStore } from "pinia";
 import * as git2rs from "@/api/git2rs";
 
-const directory = (await git2rs.get_param("cwd"))["Str"];
+const directory = await git2rs.get_prop("CWD");
 
 export const usePropsStore = defineStore("props", {
   state: () => ({
     props: {
-      _cwd: directory
+      cwd: directory
     }
   }),
   getters: {
-    cwd: (state) => state.props._cwd,
+    CWD: (state) => state.props.cwd,
   },
   actions: {
     setCwd(value: string) {
       // TODO - tauri
-      this.props._cwd = value;
+      this.props.cwd = value;
     },
   },
 });

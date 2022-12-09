@@ -68,7 +68,7 @@ export default {
     return {
       form: {
         name: "",
-        directory: store.cwd,
+        directory: store.CWD,
         bareCheck: false,
         templateCheck: false,
         templateDir: "",

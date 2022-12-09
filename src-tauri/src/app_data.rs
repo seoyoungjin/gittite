@@ -60,34 +60,39 @@ pub fn save_settings(
     app_data.save_settings()
 }
 
-// get/set value
-#[derive(Serialize)]
-pub enum Message {
-    Bool(bool),
-    Integer(i32),
-    Str(String),
-}
-
 #[tauri::command]
-pub fn get_param(
-    name: String,
+pub fn get_prop(
+    key: &str,
     app_data: AppDataState<'_>
-) -> Result<Message, String> {
+) -> Result<String, String> {
+    log::trace!("get_prop({})", key);
     let app_data = app_data.0.lock().unwrap();
-    if name == "cwd" {
-       return Ok(Message::Str(std::env::current_dir().unwrap().as_os_str().to_str().unwrap().to_string()));
-    }
 
-    Ok(Message::Str("".to_string()))
+    let res = match key {
+        "CWD" => {
+            let cwd = std::env::current_dir().unwrap();
+            String::from(cwd.to_string_lossy())
+        },
+        _ => return Err("invalid prop".into()),
+    };
+    Ok(res)
 }
 
 #[tauri::command]
-pub fn set_param(
-    value: Value,
+pub fn set_prop(
+    key: &str,
+    val: &str,
     app_data: AppDataState<'_>,
 ) -> Result<(), String> {
+    log::trace!("set_prop({}, {})", key, val);
     let mut app_data = app_data.0.lock().unwrap();
-    log::trace!("{:?}", value);
 
+    match key {
+        "modal" => {
+            let value = if val == "true" { true } else { false }; 
+            app_data.modal = value;
+        },
+        _ => (),
+    };
     Ok(())
 }

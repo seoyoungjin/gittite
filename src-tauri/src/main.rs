@@ -52,8 +52,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             app_data::get_settings,
             app_data::save_settings,
-            app_data::get_param,
-            app_data::set_param,
+            app_data::get_prop,
+            app_data::set_prop,
             cmd::clone,
             cmd::init,
             cmd::set_repository,
