@@ -1,15 +1,12 @@
-var DialogMixin = {
-  data() {
-    return {
-      dialog: false
-    }
-  },
+import * as git2rs from "@/api/git2rs";
+
+export default {
   methods: {
-    showDialog() {
-      this.dialog = true;
+    onDialogShow() {
+      git2rs.set_prop("modal", "true");
     },
-    closeDialog() {
-      this.dialog = false;
-    }
-  }
+    onDialogHide() {
+      git2rs.set_prop("modal", "false");
+    },
+  },
 };

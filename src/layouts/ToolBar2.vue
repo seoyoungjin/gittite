@@ -11,31 +11,21 @@
       <SetLayout />
     </div>
   </q-toolbar>
-
-  <InitRepository v-model="showInitReposityDialog" />
 </template>
 
 <script lang="ts">
 import SetLayout from "../components/SetLayout.vue";
-import InitRepository from "../components/dialog/InitRepository.vue";
 
 export default {
   name: "ToolBar2",
 
   components: {
     SetLayout,
-    InitRepository,
-  },
-
-  data() {
-    return {
-      showInitReposityDialog: false,
-    };
   },
 
   methods: {
     onInitRepository() {
-      this.showInitReposityDialog = true;
+      this.$emit("initRepository");
     },
   },
 };

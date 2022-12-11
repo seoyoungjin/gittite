@@ -34,7 +34,7 @@
       </template>
 
       <template v-slot:after>
-        <ToolBar2 />
+        <ToolBar2 @initRepository="showInitReposityDialog=true"/>
         <q-scroll-area class="fit">
           <div class="q-pa-md">
             <diff-view :curSelected="curSelected" />

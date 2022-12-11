@@ -21,8 +21,8 @@ export async function get_prop(key: string) {
   return await invoke("get_prop", { key });
 }
 
-export async function set_prop(key: string, value: string) {
-  return await invoke("set_prop", { key, value });
+export async function set_prop(key: string, val: string) {
+  return await invoke("set_prop", { key, val });
 }
 
 /// git

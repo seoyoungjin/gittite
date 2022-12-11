@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create a New Repository</div>
@@ -48,7 +48,12 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn color="primary" label="OK" @click="onOKClick" />
+        <q-btn
+          color="primary"
+          label="OK"
+          @click="onOKClick"
+          :disable="!form.name"
+        />
         <q-btn color="primary" label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
@@ -56,12 +61,16 @@
 </template>
 
 <script lang="ts">
-import { usePropsStore } from '@/stores/props'
+import { usePropsStore } from "@/stores/props";
 import * as git2rs from "@/api/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
+import DialogMixin from "@/mixins/dialog";
 
 export default {
+  name: "InitGitRepository",
+  mixins: [DialogMixin],
+
   data() {
     const store = usePropsStore();
 
@@ -81,7 +90,6 @@ export default {
   emits: [
     // REQUIRED
     "ok",
-    "hide",
   ],
 
   methods: {
@@ -95,10 +103,6 @@ export default {
       this.$refs.dialog.hide();
     },
 
-    onDialogHide() {
-      this.$emit("hide");
-    },
-
     onOKClick() {
       this.gitInit();
 
@@ -107,7 +111,6 @@ export default {
     },
 
     onCancelClick() {
-      // we just need to hide the dialog
       this.hide();
     },
 

@@ -26,13 +26,20 @@ export default {
       progress1.value = input.progress.progress / 100.0;
     });
 
+    const onProgressReset = () => {
+      inputs.value = [];
+      progress1.value = 0.0;
+    }
+
     return {
       inputs,
 
       progress1,
       progressLabel1: computed(() => (progress1.value * 100).toFixed(2) + "%"),
       showProgress: false,
+      onProgressReset,
 
+      // get/set prop
       propOptions: [
         'CWD', 'modal', 'Invalid'
       ]
@@ -57,7 +64,9 @@ export default {
     },
 
     async setProp(key: string, value: string) {
-      this.propRes = key;
+      this.propRes = await git2rs.set_prop(key, value).catch((e) => {
+        return e;
+      });
     },
 
     testProgress() {
@@ -70,11 +79,6 @@ export default {
             this.progressRes = { error: JSON.stringify(e) };
           }
         });
-    },
-
-    onReset() {
-      this.inputs = [];
-      this.progress1.value = 0.0;
     },
   },
 };
@@ -113,7 +117,7 @@ export default {
     <h6>Progress</h6>
     <div>
       <q-btn label="Progress" @click="testProgress" color="primary" />
-      <q-btn label="Reset" @click="onReset" color="primary" />
+      <q-btn label="Reset" @click="onProgressReset" color="primary" />
     </div>
     <div class="q-pa-md">
       <q-linear-progress size="25px" :value="progress1" color="accent">
@@ -124,12 +128,11 @@ export default {
     </div>
     <br />
 
-    <br />
     <div>
-      {{ inputs }}
+      <div v-for="item in inputs">
+        {{ item.payload }}
+      </div>
     </div>
-    <br />
-
     <br />
 
     <h6>Progress Dialog</h6>

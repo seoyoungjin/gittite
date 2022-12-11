@@ -82,6 +82,7 @@ pub fn get_prop(
 pub fn set_prop(
     key: &str,
     val: &str,
+    win: tauri::Window,
     app_data: AppDataState<'_>,
 ) -> Result<(), String> {
     log::trace!("set_prop({}, {})", key, val);
@@ -89,8 +90,9 @@ pub fn set_prop(
 
     match key {
         "modal" => {
-            let value = if val == "true" { true } else { false }; 
-            app_data.modal = value;
+            let menu_handle = win.menu_handle();
+            app_data.modal = if val == "true" { true } else { false }; 
+            menu_handle.get_item("init").set_enabled(!app_data.modal);
         },
         _ => (),
     };
