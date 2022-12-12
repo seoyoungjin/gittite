@@ -36,6 +36,13 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     file_menu = file_menu.add_item(
         CustomMenuItem::new("clone", "Close Repository...")
     );
+    #[cfg(not(target_os = "macos"))]
+    {
+        file_menu = file_menu.add_native_item(MenuItem::Separator);
+        file_menu = file_menu.add_item(
+            CustomMenuItem::new("preference", "Preference...")
+        );
+    }
     menu = menu.add_submenu(Submenu::new("File", file_menu));
 
     #[cfg(target_os = "macos")]

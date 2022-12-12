@@ -34,7 +34,12 @@
       </template>
 
       <template v-slot:after>
-        <ToolBar2 @initRepository="showInitReposityDialog=true"/>
+        <ToolBar2
+          @initRepository="showInitReposity=true"
+          @addLocalRepository="showAddLocalReposity=true"
+          @cloneRepository="showCloneReposity=true"
+          @preference="showPreference=true"
+        />
         <q-scroll-area class="fit">
           <div class="q-pa-md">
             <diff-view :curSelected="curSelected" />
@@ -44,7 +49,10 @@
     </q-splitter>
   </q-layout>
 
-  <InitRepository v-model="showInitReposityDialog" />
+  <InitRepository v-model="showInitReposity" />
+  <AddLocalRepository v-model="showAddLocalReposity" />
+  <CloneRepository v-model="showCloneReposity" />
+  <Preference v-model="showPreference" />
 </template>
 
 <script lang="ts">
@@ -55,7 +63,10 @@ import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
 import HistoryList from "@/components/HistoryList.vue";
 import DiffView from "@/components/DiffView.vue";
-import InitRepository from "../components/dialog/InitRepository.vue";
+import InitRepository from "@/components/dialog/InitRepository.vue";
+import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
+import CloneRepository from "@/components/dialog/CloneRepository.vue";
+import Preference from "@/components/dialog/Preference.vue";
 
 export default {
   setup() {
@@ -69,7 +80,16 @@ export default {
     listen("menu-event", (ev) => {
       // alert(JSON.stringify(e));
       if (ev["payload"] == "init") {
-        this.showInitReposityDialog = true;
+        this.showInitReposity = true;
+      }
+      else if (ev["payload"] == "add_local") {
+        this.showAddLocalReposity = true;
+      }
+      else if (ev["payload"] == "clone") {
+        this.showCloneReposity = true;
+      }
+      else if (ev["payload"] == "preference") {
+        this.showPreference = true;
       }
       console.log(e.payload);
     });
@@ -79,7 +99,10 @@ export default {
     return {
       curSelected: Object,
       // dialog
-      showInitReposityDialog: false
+      showInitReposity: false,
+      showAddLocalReposity: false,
+      showCloneReposity: false,
+      showPreference: false,
     };
   },
 
@@ -91,6 +114,9 @@ export default {
     DiffView,
     // dialog
     InitRepository,
+    AddLocalRepository,
+    CloneRepository,
+    Preference
   },
 
   methods: {

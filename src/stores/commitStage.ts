@@ -1,8 +1,7 @@
-import { defineStore, acceptHMRUpdate } from "pinia";
+import { defineStore } from "pinia";
 
 export const useCommitStageStore = defineStore("stage", {
   state: () => ({
-    activeBranch: "",
     staged: [],
     files: [],
   }),
@@ -14,15 +13,8 @@ export const useCommitStageStore = defineStore("stage", {
   },
 
   actions: {
-    updateActiveBranch(branch) {
-      this.activeBranch = branch;
-    },
     updateStagedFiles(staged) {
       this.staged = staged;
     },
   },
 });
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useCommitStageStore, import.meta.hot));
-}
