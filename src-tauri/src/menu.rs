@@ -13,6 +13,8 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
                     AboutMetadata::default(),
                 ))
                 .add_native_item(MenuItem::Separator)
+                .add_item(CustomMenuItem::new("preference", "Preference..."))
+                .add_native_item(MenuItem::Separator)
                 .add_native_item(MenuItem::Services)
                 .add_native_item(MenuItem::Separator)
                 .add_native_item(MenuItem::Hide)
@@ -25,11 +27,15 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
 
     let mut file_menu = Menu::new();
     file_menu = file_menu.add_item(
-        CustomMenuItem::new("init", "Initialize Repository")
+        CustomMenuItem::new("init", "Initialize Repository...")
     );
     file_menu = file_menu.add_native_item(MenuItem::Separator);
-    file_menu = file_menu.add_native_item(MenuItem::CloseWindow);
-    file_menu = file_menu.add_native_item(MenuItem::Quit);
+    file_menu = file_menu.add_item(
+        CustomMenuItem::new("add_local", "Add Local Repository...")
+    );
+    file_menu = file_menu.add_item(
+        CustomMenuItem::new("clone", "Close Repository...")
+    );
     menu = menu.add_submenu(Submenu::new("File", file_menu));
 
     #[cfg(target_os = "macos")]

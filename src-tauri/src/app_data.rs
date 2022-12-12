@@ -92,7 +92,10 @@ pub fn set_prop(
         "modal" => {
             let menu_handle = win.menu_handle();
             app_data.modal = if val == "true" { true } else { false }; 
-            menu_handle.get_item("init").set_enabled(!app_data.modal);
+            menu_handle.get_item("preference").set_enabled(!app_data.modal).unwrap();
+            menu_handle.get_item("init").set_enabled(!app_data.modal).unwrap();
+            menu_handle.get_item("add_local").set_enabled(!app_data.modal).unwrap();
+            menu_handle.get_item("clone").set_enabled(!app_data.modal).unwrap();
         },
         _ => (),
     };

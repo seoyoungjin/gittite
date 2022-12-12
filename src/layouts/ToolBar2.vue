@@ -1,10 +1,26 @@
 <template>
   <q-toolbar class="bg-grey-10 text-grey-2">
-    <q-btn flat dense icon="subscriptions" @click="onSetRepository" />
-    <q-btn flat dense icon="list" @click="onInitRepository" />
-    <q-btn flat dense icon="file_copy" @click="onClone" />
+    <q-btn flat dense icon="list" @click="onSetRepository">
+      <q-tooltip>
+        New Repository
+      </q-tooltip>
+    </q-btn>
+    <q-btn flat dense icon="subscriptions" @click="onInitRepository">
+      <q-tooltip>
+        Add Local Repository
+      </q-tooltip>
+    </q-btn>
+    <q-btn flat dense icon="file_copy" @click="onClone">
+      <q-tooltip>
+        Clone Repository
+      </q-tooltip>
+    </q-btn>
     <q-separator vertical />
-    <q-btn flat dense icon="settings" @click="onSettings" />
+    <q-btn flat dense icon="settings" @click="onSettings">
+      <q-tooltip>
+        Settings
+      </q-tooltip>
+    </q-btn>
     <q-space />
 
     <div class="q-gutter-sm row items-center no-wrap">
