@@ -34,6 +34,7 @@ pub mod remotes;
 
 // sig tree blob
 // pub mod cat_file;
+mod ignore;
 pub mod progress;
 pub mod utils;
 

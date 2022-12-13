@@ -6,8 +6,8 @@ const directory = await git2rs.get_prop("CWD");
 export const usePropsStore = defineStore("props", {
   state: () => ({
     props: {
-      cwd: directory
-    }
+      cwd: directory,
+    },
   }),
   getters: {
     CWD: (state) => state.props.cwd,

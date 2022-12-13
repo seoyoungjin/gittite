@@ -58,10 +58,10 @@ export default {
         alert("Enter commit message");
         return;
       }
-      if (this.commitMessageBody)
-        msg = msg + "\n\n" + this.commitMessageBody;
+      if (this.commitMessageBody) msg = msg + "\n\n" + this.commitMessageBody;
 
-      git2rs.commit(msg)
+      git2rs
+        .commit(msg)
         .then((message) => {
           this.$emit("commit");
           this.$q.notify({

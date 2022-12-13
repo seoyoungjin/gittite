@@ -35,10 +35,10 @@
 
       <template v-slot:after>
         <ToolBar2
-          @initRepository="showInitReposity=true"
-          @addLocalRepository="showAddLocalReposity=true"
-          @cloneRepository="showCloneReposity=true"
-          @preference="showPreference=true"
+          @initRepository="showInitReposity = true"
+          @addLocalRepository="showAddLocalReposity = true"
+          @cloneRepository="showCloneReposity = true"
+          @preference="showPreference = true"
         />
         <q-scroll-area class="fit">
           <div class="q-pa-md">
@@ -81,14 +81,11 @@ export default {
       // alert(JSON.stringify(e));
       if (ev["payload"] == "init") {
         this.showInitReposity = true;
-      }
-      else if (ev["payload"] == "add_local") {
+      } else if (ev["payload"] == "add_local") {
         this.showAddLocalReposity = true;
-      }
-      else if (ev["payload"] == "clone") {
+      } else if (ev["payload"] == "clone") {
         this.showCloneReposity = true;
-      }
-      else if (ev["payload"] == "preference") {
+      } else if (ev["payload"] == "preference") {
         this.showPreference = true;
       }
       console.log(e.payload);
@@ -116,7 +113,7 @@ export default {
     InitRepository,
     AddLocalRepository,
     CloneRepository,
-    Preference
+    Preference,
   },
 
   methods: {

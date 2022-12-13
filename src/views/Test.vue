@@ -29,7 +29,7 @@ export default {
     const onProgressReset = () => {
       inputs.value = [];
       progress1.value = 0.0;
-    }
+    };
 
     return {
       inputs,
@@ -40,9 +40,7 @@ export default {
       onProgressReset,
 
       // get/set prop
-      propOptions: [
-        'CWD', 'modal', 'Invalid'
-      ]
+      propOptions: ["CWD", "modal", "Invalid"],
     };
   },
 

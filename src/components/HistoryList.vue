@@ -1,6 +1,12 @@
 <template>
   <div class="q-pa-none" style="max-width: 80vh">
-    <q-list dense bordered separator style="max-height: 80vh" class="rounded-borders">
+    <q-list
+      dense
+      bordered
+      separator
+      style="max-height: 80vh"
+      class="rounded-borders"
+    >
       <history-list-row
         v-for="item in logList"
         :item="item"

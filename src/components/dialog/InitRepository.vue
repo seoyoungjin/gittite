@@ -61,11 +61,11 @@
 </template>
 
 <script lang="ts">
+import DialogMixin from "@/mixins/dialog";
 import { usePropsStore } from "@/stores/props";
 import * as git2rs from "@/api/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
-import DialogMixin from "@/mixins/dialog";
 
 export default {
   name: "InitGitRepository",

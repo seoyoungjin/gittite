@@ -30,7 +30,7 @@ export default {
       resBranchesInfo: null,
       resBranchRemote: null,
       resCheckoutBranch: null,
-      resCheckoutRemoteBranch : null,
+      resCheckoutRemoteBranch: null,
     };
   },
   components: {
@@ -219,7 +219,9 @@ export default {
     <q-form id="checkout-remote-branch">
       <q-input v-model="checkoutRemoteBranchForm.name" label="Branch name" />
     </q-form>
-    <q-btn color="primary" no-caps @click="checkoutRemoteBranch">Checkout</q-btn>
+    <q-btn color="primary" no-caps @click="checkoutRemoteBranch"
+      >Checkout</q-btn
+    >
     <br /><br />
     <div v-if="resCheckoutRemoteBranch">
       <vue-json-pretty :data="resCheckoutRemoteBranch" />

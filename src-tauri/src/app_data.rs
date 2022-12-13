@@ -1,7 +1,6 @@
 use crate::git_api::{RemoteProgress, RepoPath};
 use crate::settings::Settings;
 
-use serde::Serialize;
 use serde_json::Value;
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -31,7 +30,7 @@ impl AppData {
     }
 }
 
-///  application data for tauri manage
+/// application data for tauri manage
 pub type AppDataState<'a> = State<'a, ArcAppData>;
 pub struct ArcAppData(pub Arc<Mutex<AppData>>);
 

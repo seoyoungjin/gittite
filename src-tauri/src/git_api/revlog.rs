@@ -21,7 +21,7 @@ pub struct CommitData {
     pub commit_id: CommitId,
     summary: String,
     // body: String,
-    date: String,
+    time: i64,
     author: String,
     // committer: String,
     // parents: Vec<String>,
@@ -205,7 +205,7 @@ where
             //     Some(s) => s.to_string(),
             //     None => "".to_string(),
             // },
-            date: format_time(&commit.author().when()),
+            time: commit.author().when().seconds(),
             author: commit.author().name().unwrap().to_string(),
             // committer: commit.committer().to_string(),
             // parents: vec![],
@@ -245,25 +245,6 @@ fn log_message_matches(
         (&Some(_), None) => false,
         (&Some(ref s), Some(msg)) => msg.contains(s),
     }
-}
-
-// TODO
-fn format_time(time: &Time) -> String {
-    let (offset, sign) = match time.offset_minutes() {
-        n if n < 0 => (-n, '-'),
-        n => (n, '+'),
-    };
-    let (hours, minutes) = (offset / 60, offset % 60);
-    let ts = time::Timespec::new(time.seconds() + (time.offset_minutes() as i64) * 60, 0);
-    let time = time::at(ts);
-
-    return format!(
-        "{} {}{:02}{:02}",
-        time.strftime("%a %b %e %T %Y").unwrap(),
-        sign,
-        hours,
-        minutes
-    );
 }
 
 fn match_with_parent(

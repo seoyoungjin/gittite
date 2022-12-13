@@ -41,8 +41,8 @@ import SupportIcon from "@/components/icons/IconSupport.vue";
           >
         </li>
       </ul>
-      User interface is written with <code>Vue.js</code>, <code>Quasar</code>
-      and <code>Diff2Html</code>.
+      User interface is written with <code>Vue.js</code>,
+      <code>Quasar</code> and <code>Diff2Html</code>.
       <ul>
         <li>
           <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue</a>,
@@ -52,7 +52,12 @@ import SupportIcon from "@/components/icons/IconSupport.vue";
           >,
         </li>
         <li>
-          <a href="https://www.npmjs.com/package/diff2html" target="_blank" rel="noopener">Diff2Html</a>,
+          <a
+            href="https://www.npmjs.com/package/diff2html"
+            target="_blank"
+            rel="noopener"
+            >Diff2Html</a
+          >,
         </li>
       </ul>
     </WelcomeItem>

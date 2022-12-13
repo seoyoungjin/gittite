@@ -22,7 +22,7 @@ export default {
   computed: {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
-        drawFileList: ("commit_id" in this.curSelected),
+        drawFileList: "commit_id" in this.curSelected,
         matching: "none",
         outputFormat: "line-by-line",
         highlight: true,
