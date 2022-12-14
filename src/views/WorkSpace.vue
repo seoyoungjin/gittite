@@ -67,9 +67,13 @@ import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
 import CloneRepository from "@/components/dialog/CloneRepository.vue";
 import Preference from "@/components/dialog/Preference.vue";
+import { useRepositoryStore } from "@/stores/repository";
 
 export default {
   setup() {
+    const store = useRepositoryStore();
+    // TODO
+    store.setRepository("gittite");
     return {
       splitterModel: ref(250),
       tab: ref("changes"),
@@ -78,7 +82,6 @@ export default {
 
   mounted() {
     listen("menu-event", (ev) => {
-      // alert(JSON.stringify(e));
       if (ev["payload"] == "init") {
         this.showInitReposity = true;
       } else if (ev["payload"] == "add_local") {
@@ -88,7 +91,7 @@ export default {
       } else if (ev["payload"] == "preference") {
         this.showPreference = true;
       }
-      console.log(e.payload);
+      console.log(ev.payload);
     });
   },
 

@@ -19,20 +19,21 @@
         <q-item-label>
           <small>Current Repository</small>
         </q-item-label>
-        <q-item-label>gittite</q-item-label>
+        <q-item-label>{{ repositoryPath }}</q-item-label>
       </q-item-section>
     </q-btn>
   </q-toolbar>
 </template>
 
 <script lang="ts">
+import { mapState } from "pinia";
+import { useRepositoryStore } from "@/stores/repository";
+
 export default {
   name: "ToolBar",
 
-  data() {
-    return {};
+  computed: {
+    ...mapState(useRepositoryStore, ["repositoryPath"]),
   },
-
-  methods: {},
 };
 </script>

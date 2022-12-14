@@ -16,7 +16,6 @@
 </template>
 
 <script lang="ts">
-import { mapActions, mapState } from "pinia";
 import { date } from "quasar";
 
 export default {
@@ -31,7 +30,8 @@ export default {
   },
   computed: {
     formattedString() {
-      return date.formatDate(this.item.time * 1000, "YYYY-MM-DDTHH:mm:ss Z");
+      // "YYYY-MM-DDTHH:mm:ss Z"
+      return date.formatDate(this.item.time * 1000, "MMM D, YYYY");
     },
   },
   methods: {},

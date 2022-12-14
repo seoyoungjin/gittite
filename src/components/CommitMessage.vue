@@ -24,26 +24,22 @@
       no-caps
       @click="commitMessageButton()"
     >
-      Commit to&nbsp;<strong>{{ branchName }}</strong>
+      Commit to&nbsp;<strong>{{ currentBranch }}</strong>
     </q-btn>
   </div>
 </template>
 
 <script lang="ts">
 import { mapState } from "pinia";
-import { useCommitStageStore } from "@/stores/commitStage";
 import * as git2rs from "@/api/git2rs";
+import { useCommitStageStore } from "@/stores/commitStage";
+import { useRepositoryStore } from "@/stores/repository";
 
 export default {
   name: "CommitMessage",
-  props: {
-    branchName: {
-      type: String,
-      default: "",
-    },
-  },
   computed: {
     ...mapState(useCommitStageStore, ["stagedFileLength"]),
+    ...mapState(useRepositoryStore, ["currentBranch"]),
   },
   data() {
     return {
@@ -58,7 +54,9 @@ export default {
         alert("Enter commit message");
         return;
       }
-      if (this.commitMessageBody) msg = msg + "\n\n" + this.commitMessageBody;
+      if (this.commitMessageBody) {
+        msg = msg + "\n\n" + this.commitMessageBody;
+      }
 
       git2rs
         .commit(msg)

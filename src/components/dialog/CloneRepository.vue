@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import DialogMixin from "@/mixins/dialog";
-import { usePropsStore } from "@/stores/props";
+import { usePropStore } from "@/stores/props";
 import * as git2rs from "@/api/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
@@ -47,7 +47,7 @@ export default {
   mixins: [DialogMixin],
 
   data() {
-    const store = usePropsStore();
+    const store = usePropStore();
     return {
       gitURL: "",
       localPath: store.CWD,
