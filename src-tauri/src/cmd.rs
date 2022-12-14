@@ -35,13 +35,13 @@ pub async fn clone(
 
 #[tauri::command]
 pub fn set_repository(
-    args: String,
+    path: String,
     app_data: AppDataState<'_>,
 ) -> Result<()> {
-    log::trace!("set_reposiroty args {:?}", args);
+    log::trace!("set_reposiroty path {:?}", path);
     let mut app_data = app_data.0.lock().unwrap();
 
-    let repo_path: RepoPath = args.as_str().into();
+    let repo_path: RepoPath = path.as_str().into();
     repository::repo_open(&repo_path)?;
     app_data.repo_path = Some(repo_path);
     Ok(())
@@ -52,7 +52,7 @@ pub fn get_status(
     status_type: String,
     app_data: AppDataState<'_>,
 ) -> Result<Vec<StatusItem>> {
-    log::trace!("get_status args {:?}", status_type);
+    log::trace!("get_status status_type {:?}", status_type);
     let mut app_data = app_data.0.lock().unwrap();
 
     verify_repo_path(&mut app_data);
@@ -74,21 +74,6 @@ pub fn get_commits(
 
     verify_repo_path(&mut app_data);
     revlog::get_commits(app_data.repo_path_ref(), &args)
-}
-
-#[tauri::command]
-pub fn rev_list(
-    args: Vec<String>,
-    app_data: AppDataState<'_>,
-) -> Result<(), String> {
-    log::trace!("rev_list:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
-    match rev_list::rev_list(app_data.repo_path_ref(), &args) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(e.to_string()),
-    }
 }
 
 #[tauri::command]

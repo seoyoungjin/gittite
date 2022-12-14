@@ -65,7 +65,6 @@ fn main() {
             cmd::remove,
             cmd::reset_stage,
             cmd::get_commits,
-            cmd::rev_list,
             cmd::get_status,
             cmd::get_remotes,
             cmd::get_diff,

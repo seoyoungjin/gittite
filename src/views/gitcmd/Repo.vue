@@ -21,7 +21,6 @@
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
-import { invoke } from "@tauri-apps/api/tauri";
 import * as git2rs from "../../api/git2rs";
 
 export default {
@@ -44,6 +43,7 @@ export default {
     refreshData() {
       (async () => {
         var settings = await git2rs.loadSettings();
+        // TODO
         this.gitdir = settings.repo;
       })();
     },
@@ -55,7 +55,7 @@ export default {
       if (Array.isArray(selected) || selected === null) {
         return;
       }
-      invoke("set_repository", { args: selected })
+      git2rs.set_repository(selected)
         .then((message) => {
           this.response = { "Current repository": selected };
         })

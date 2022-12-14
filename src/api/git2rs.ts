@@ -25,6 +25,10 @@ export async function set_prop(key: string, val: string) {
   return await invoke("set_prop", { key, val });
 }
 
+export async function set_repository(path: string) {
+  return await invoke("set_repository", { path });
+}
+
 /// git
 export async function init(dirname: string) {
   return await invoke("init", { args: [dirname] });

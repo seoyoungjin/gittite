@@ -16,7 +16,6 @@ pub mod addremove;
 pub mod reset;
 
 pub mod diff;
-pub mod rev_list;
 pub mod revlog;
 // spec revspec
 pub mod rev_parse;
