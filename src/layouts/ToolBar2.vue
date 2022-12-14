@@ -1,5 +1,17 @@
 <template>
   <q-toolbar class="bg-grey-10 text-grey-2">
+    <q-btn flat no-caps class="q-pl-none">
+      <!--
+      <q-icon name="star" />
+      -->
+      <q-item-section align="left">
+        <q-item-label>
+          <small>Current Branch</small>
+        </q-item-label>
+        <q-item-label>{{ currentBranch }}</q-item-label>
+      </q-item-section>
+    </q-btn>
+
     <q-btn flat dense icon="subscriptions" @click="onInitRepository">
       <q-tooltip> New Repository </q-tooltip>
     </q-btn>
@@ -22,6 +34,8 @@
 </template>
 
 <script lang="ts">
+import { mapState } from "pinia";
+import { useRepositoryStore } from "@/stores/repository";
 import SetLayout from "../components/SetLayout.vue";
 
 export default {
@@ -29,6 +43,10 @@ export default {
 
   components: {
     SetLayout,
+  },
+
+  computed: {
+    ...mapState(useRepositoryStore, ["currentBranch"]),
   },
 
   methods: {

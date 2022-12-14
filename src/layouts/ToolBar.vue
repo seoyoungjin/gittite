@@ -15,7 +15,7 @@
       <!--
       <q-icon name="star" />
       -->
-      <q-item-section align="right">
+      <q-item-section align="left">
         <q-item-label>
           <small>Current Repository</small>
         </q-item-label>
