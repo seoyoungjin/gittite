@@ -9,13 +9,28 @@
 
       <q-separator />
 
-      <q-card-section class="q-pt-none">
-        <q-card-actions vertical> </q-card-actions>
+      <q-card-section class="q-pa-sm">
+        <q-card-actions vertical>
+          Local Path
+          <q-input v-model="localPath" dense placeholder="repository path">
+            <template v-slot:after>
+              <q-btn no-caps @click="selectDirectory"> Choose... </q-btn>
+            </template>
+          </q-input>
+        </q-card-actions>
       </q-card-section>
 
+      <!-- TODO v-if -->
+      <q-card-section class="row" v-if="Error">
+        <q-icon :name="octAlert16" size="16pt" color="yellow-7" />
+        This directory does not appear to be a Git repository.
+      </q-card-section>
+
+      <q-separator />
+
       <q-card-actions align="right">
-        <q-btn color="primary" label="OK" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onCancelClick" />
+        <q-btn no-caps color="primary" label="OK" @click="onOKClick" />
+        <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -23,14 +38,20 @@
 
 <script lang="ts">
 import DialogMixin from "@/mixins/dialog";
-import * as git2rs from "@/api/git2rs";
+import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
+import { useSettingsStore } from "@/stores/settings";
 
 export default {
   name: "AddLocalRepository",
   mixins: [DialogMixin],
 
   data() {
-    return {};
+    const store = useSettingsStore();
+    return {
+      octAlert16,
+      localPath: "",
+      store,
+    };
   },
 
   emits: [
@@ -39,24 +60,29 @@ export default {
   ],
 
   methods: {
-    // following method is REQUIRED
     show() {
       this.$refs.dialog.show();
     },
-
-    // following method is REQUIRED
     hide() {
       this.$refs.dialog.hide();
     },
-
     onOKClick() {
+      this.addLocalRepository(this.localPath);
       this.$emit("ok");
       this.hide();
     },
-
     onCancelClick() {
       this.hide();
     },
+
+    // user method
+    addLocalRepository(path: string) {
+      // alert(path);
+      if (path !== "") {
+        this.store.addRepository(path);
+      }
+    },
+    // TODO watch: {path: isGit},
   },
 };
 </script>

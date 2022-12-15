@@ -49,12 +49,13 @@
 
       <q-card-actions align="right">
         <q-btn
+          no-caps
           color="primary"
           label="OK"
           @click="onOKClick"
           :disable="!form.name"
         />
-        <q-btn color="primary" label="Cancel" @click="onCancelClick" />
+        <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>

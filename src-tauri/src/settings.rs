@@ -13,12 +13,14 @@ use std::{fs::File, path::PathBuf};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Settings {
     pub repo: String,
+    pub all_repository: Vec<String>,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Settings {
             repo: ".".to_string(),
+            all_repository: vec![]
         }
     }
 }

@@ -1,8 +1,8 @@
 <template>
   <q-item
     class="item-row"
-    @mouseover.native="showOptions = true"
-    @mouseout.native="showOptions = false"
+    @mouseover="showOptions = true"
+    @mouseout="showOptions = false"
   >
     <!--Main Part-->
     <q-item-section>

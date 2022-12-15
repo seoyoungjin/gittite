@@ -17,6 +17,12 @@ export async function loadSettings() {
   });
 }
 
+export async function saveSettings(value: any) {
+  return await runCmd("save_settings", { value }).then((res) => {
+    return res;
+  });
+}
+
 export async function get_prop(key: string) {
   return await invoke("get_prop", { key });
 }

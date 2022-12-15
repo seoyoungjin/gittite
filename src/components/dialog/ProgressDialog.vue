@@ -1,100 +1,86 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
+  <q-dialog ref="dialog" @hide="onDialogHide">
     <q-card class="q-dialog-plugin">
-      <!--
-        ...content
-        ... use q-card-section for it?
-      -->
+      <!-- progress -->
+      <q-card-actions>
+        <q-linear-progress size="25px" :value="progress" color="accent">
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="accent" :label="progressLabel" />
+          </div>
+        </q-linear-progress>
+      </q-card-actions>
+
+      <q-card-actions>
+        <div>
+          <h6>PROGRESS events</h6>
+          <ol>
+            <li v-for="item in inputs" :key="item">
+              {{ item }}
+            </li>
+          </ol>
+        </div>
+      </q-card-actions>
 
       <!-- buttons example -->
       <q-card-actions align="right">
         <q-btn color="primary" label="OK" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn color="primary" label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
-
-    <div>
-      <h6>PROGRESS events</h6>
-      <ol>
-        <li v-for="input in inputs">
-          {{ input }}
-        </li>
-      </ol>
-    </div>
   </q-dialog>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script lang="ts">
 import { listen } from "@tauri-apps/api/event";
-import { useQuasar } from "quasar";
-import { useDialogPluginComponent } from "quasar";
+import { ref, computed } from "vue";
 
-const inputs = ref([]);
-const $q = useQuasar();
+export default {
+  setup() {
+    const inputs = ref([]);
+    const progress = ref(0.2);
 
-listen("PROGRESS", (event) => {
-  console.log("js: rs2js: " + event);
-  let input = event.payload;
-  inputs.value.push({ timestamp: Date.now(), payload: input });
-  if (input.message == "start") {
-    showProgress();
-  }
-});
-
-function showProgress() {
-  const dialog = $q.dialog({
-    message: "Uploading... 0%",
-    progress: true, // we enable default settings
-    persistent: true, // we want the user to not be able to close it
-    ok: false, // we want the user to not be able to close it
-  });
-
-  // we simulate some progress here...
-  let percentage = 0;
-  const interval = setInterval(() => {
-    percentage = Math.min(100, percentage + Math.floor(Math.random() * 22));
-
-    // we update the dialog
-    dialog.update({
-      message: `Uploading... ${percentage}%`,
+    const unlisten = listen("PROGRESS", (event) => {
+      console.log("progress: " + JSON.stringify(event));
+      let input = event.payload;
+      inputs.value.push({ timestamp: Date.now(), payload: input });
+      if (input.progress.progress == 0) {
+        inputs.value = [];
+        this.show();
+      }
+      progress.value = input.progress.progress / 100.0;
     });
 
-    // if we are done, we're gonna close it
-    if (percentage === 100) {
-      clearInterval(interval);
-      setTimeout(() => {
-        dialog.hide();
-      }, 350);
-    }
-  }, 500);
-}
+    const onProgressReset = () => {
+      inputs.value = [];
+      progress.value = 0.0;
+    };
 
-const props = defineProps({
-  // ...your custom props
-});
+    return {
+      inputs,
+      progress,
+      progressLabel: computed(() => (progress.value * 100).toFixed(2) + "%"),
 
-defineEmits([
-  // REQUIRED; need to specify some events that your
-  // component will emit through useDialogPluginComponent()
-  ...useDialogPluginComponent.emits,
-]);
+      onProgressReset,
+    };
+  },
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
-// dialogRef      - Vue ref to be applied to QDialog
-// onDialogHide   - Function to be used as handler for @hide on QDialog
-// onDialogOK     - Function to call to settle dialog with "ok" outcome
-//                    example: onDialogOK() - no payload
-//                    example: onDialogOK({ /*...*/ }) - with payload
-// onDialogCancel - Function to call to settle dialog with "cancel" outcome
+  data() {
+    return {};
+  },
 
-// this is part of our example (so not required)
-function onOKClick() {
-  // on OK, it is REQUIRED to
-  // call onDialogOK (with optional payload)
-  onDialogOK();
-  // or with payload: onDialogOK({ ... })
-  // ...and it will also hide the dialog automatically
-}
+  methods: {
+    show() {
+      this.$refs.dialog.show();
+    },
+    hide() {
+      this.$refs.dialog.hide();
+    },
+    onOKClick() {
+      this.hide();
+    },
+    onCancelClick() {
+      this.hide();
+    },
+  },
+};
 </script>

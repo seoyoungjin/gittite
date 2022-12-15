@@ -36,7 +36,6 @@ export default {
 
       progress1,
       progressLabel1: computed(() => (progress1.value * 100).toFixed(2) + "%"),
-      showProgress: false,
       onProgressReset,
 
       // get/set prop
@@ -51,6 +50,7 @@ export default {
       propRes: null,
 
       progressRes: null,
+      showProgress: false,
     };
   },
 
@@ -127,7 +127,7 @@ export default {
     <br />
 
     <div>
-      <div v-for="item in inputs">
+      <div v-for="item in inputs" :key="item">
         {{ item.payload }}
       </div>
     </div>

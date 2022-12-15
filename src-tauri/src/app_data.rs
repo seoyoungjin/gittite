@@ -42,6 +42,7 @@ impl ArcAppData {
 
 #[tauri::command]
 pub fn get_settings(app_data: AppDataState<'_>) -> Result<Value, String> {
+    log::trace!("get_settings()");
     let app_data = app_data.0.lock().unwrap();
     match serde_json::to_value(app_data.settings_ref()) {
         Ok(v) => Ok(v),
@@ -54,6 +55,7 @@ pub fn save_settings(
     value: Settings,
     app_data: AppDataState<'_>,
 ) -> Result<(), String> {
+    log::trace!("save_settings()");
     let mut app_data = app_data.0.lock().unwrap();
     app_data.settings = value;
     app_data.save_settings()

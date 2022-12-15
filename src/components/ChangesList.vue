@@ -15,7 +15,7 @@
               :name="octIconForStatus(item.wtree)"
               color="blue"
               size="14px"
-              @click.stock="stageFile(item)"
+              @click="stageFile(item)"
             />
           </q-item-section>
           <q-item-section>
@@ -40,7 +40,7 @@
               :name="octIconForStatus(item.stage)"
               color="amber"
               size="14px"
-              @click.stock="unstageFile(item)"
+              @click="unstageFile(item)"
             />
           </q-item-section>
           <q-item-section>
@@ -59,7 +59,7 @@
 <script lang="ts">
 import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commitStage";
-import ChangesOption from "@/components/ChangesOption.vue";
+// import ChangesOption from "@/components/ChangesOption.vue";
 import CommitMessage from "@/components/CommitMessage.vue";
 import {
   octDiff16,
@@ -86,7 +86,7 @@ export default {
   },
 
   components: {
-    ChangesOption,
+    // ChangesOption,
     CommitMessage,
   },
 
@@ -125,7 +125,7 @@ export default {
     stageFile(item) {
       git2rs
         .add(item.path)
-        .then((message) => {
+        .then(() => {
           this.getStatus();
         })
         .catch((e) => {
@@ -142,7 +142,7 @@ export default {
     unstageFile(item) {
       git2rs
         .resetStage(item.path)
-        .then((message) => {
+        .then(() => {
           this.getStatus();
         })
         .catch((e) => {

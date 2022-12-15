@@ -55,8 +55,9 @@ export default {
       if (Array.isArray(selected) || selected === null) {
         return;
       }
-      git2rs.set_repository(selected)
-        .then((message) => {
+      git2rs
+        .set_repository(selected)
+        .then(() => {
           this.response = { "Current repository": selected };
         })
         .catch((e) => {

@@ -24,12 +24,13 @@
 
       <q-card-actions align="right">
         <q-btn
+          no-caps
           color="primary"
           label="OK"
           @click="onOKClick"
           :disable="!gitURL"
         />
-        <q-btn color="primary" label="Cancel" @click="onCancelClick" />
+        <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -39,7 +40,6 @@
 import DialogMixin from "@/mixins/dialog";
 import { usePropStore } from "@/stores/props";
 import * as git2rs from "@/api/git2rs";
-import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
 
 export default {
