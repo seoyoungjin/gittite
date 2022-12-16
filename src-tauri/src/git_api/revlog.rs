@@ -5,7 +5,7 @@ use super::error::{Error, Result};
 use super::repository::repo_open;
 use super::{CommitId, RepoPath};
 use git2::Pathspec;
-use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
+use git2::{Commit, DiffOptions, ObjectType, Repository, Signature};
 use serde::Serialize;
 use std::ffi::OsString;
 use structopt::clap::AppSettings;

@@ -56,7 +56,7 @@ export default {
         return;
       }
       git2rs
-        .set_repository(selected)
+        .setRepository(selected)
         .then(() => {
           this.response = { "Current repository": selected };
         })

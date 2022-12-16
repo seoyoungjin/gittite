@@ -68,13 +68,15 @@ import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
 import CloneRepository from "@/components/dialog/CloneRepository.vue";
 import Preference from "@/components/dialog/Preference.vue";
 import { useRepositoryStore } from "@/stores/repository";
+import { useSettingsStore } from "@/stores/settings";
 
 export default {
   setup() {
-    const store = useRepositoryStore();
-    // TODO
-    store.setRepository("gittite");
+    const repoStore = useRepositoryStore();
+    const settingsStore = useSettingsStore();
+    settingsStore.loadSettings();
     return {
+      repoStore,
       splitterModel: ref(250),
       tab: ref("changes"),
     };
@@ -93,6 +95,8 @@ export default {
       }
       console.log(ev.payload);
     });
+    // set current repository
+    this.setRepository("gittite");
   },
 
   data() {
@@ -122,6 +126,12 @@ export default {
   methods: {
     handleSelectItem(item: any) {
       this.curSelected = item;
+    },
+    setRepository(path: string) {
+      // TODO
+      // this.repoStore.setRepository("/Users/yjseo/work/tite");
+      // this.repoStore.setRepository("/Users/yjseo/work/tite/src");
+      this.repoStore.setRepository(".");
     },
   },
 };

@@ -1,6 +1,6 @@
 //#![deny(warnings)]
 
-use git2::{Repository, RepositoryOpenFlags};
+use git2::Repository;
 use std::path::{Path, PathBuf};
 
 ///
@@ -35,11 +35,7 @@ impl From<&str> for RepoPath {
 }
 
 pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
-    let repo = Repository::open_ext(
-        repo_path.gitpath(),
-        RepositoryOpenFlags::empty(),
-        Vec::<&Path>::new(),
-    )?;
+    let repo = Repository::discover(repo_path.gitpath())?;
 
     if let Some(workdir) = repo_path.workdir() {
         repo.set_workdir(workdir, false)?;
@@ -47,6 +43,14 @@ pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
 
     Ok(repo)
 }
+
+/* TODO
+pub fn is_git_repo(path: &str) -> Result<String, git2::Error> {
+    let repo = Repository::discover(Path.new(path))?;
+
+    Ok(repo.workdir().)
+}
+*/
 
 #[cfg(test)]
 mod tests {

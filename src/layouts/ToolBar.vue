@@ -11,29 +11,57 @@
 
     <q-space />
 
-    <q-btn flat no-caps class="q-pa-none">
-      <!--
-      <q-icon name="star" />
-      -->
-      <q-item-section align="left">
-        <q-item-label>
-          <small>Current Repository</small>
-        </q-item-label>
-        <q-item-label>{{ repositoryPath }}</q-item-label>
-      </q-item-section>
-    </q-btn>
+    <q-btn-dropdown flat no-caps class="q-pa-none">
+      <template v-slot:label>
+        <div class="row items-center no-wrap">
+          <q-icon :name="octRepo16" size="16pt" class="q-pa-sm" />
+          <q-item-section align="left">
+            <q-item-label>
+              <small>Current Repository</small>
+            </q-item-label>
+            <q-item-label>{{ repositoryPath }}</q-item-label>
+          </q-item-section>
+        </div>
+      </template>
+      <q-list dense>
+        <q-item
+          v-for="repo in allRepository"
+          :key="repo"
+          clickable
+          v-close-popup
+          @click="onItemClick(repo)"
+        >
+          <q-item-section>
+            <q-item-label>{{ repo }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-btn-dropdown>
   </q-toolbar>
 </template>
 
 <script lang="ts">
 import { mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
+import { useSettingsStore } from "@/stores/settings";
+import { octRepo16 } from "quasar-extras-svg-icons/oct-icons-v17";
 
 export default {
   name: "ToolBar",
 
+  setup() {
+    return {
+      octRepo16,
+    };
+  },
   computed: {
     ...mapState(useRepositoryStore, ["repositoryPath"]),
+    ...mapState(useSettingsStore, ["allRepository"]),
+  },
+  methods: {
+    onItemClick(repo: string) {
+      // alert(this.allRepository);
+    },
   },
 };
 </script>

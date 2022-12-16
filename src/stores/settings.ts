@@ -10,10 +10,12 @@ export const useSettingsStore = defineStore("settings", {
   }),
   getters: {
     getSettings: (state) => state.settings,
+    allRepository: (state) => state.settings.all_repository,
   },
   actions: {
-    setSettings(settings) {
-      this.settings = settings;
+    async loadSettings() {
+      this.settings = await git2rs.loadSettings();
+      // alert(JSON.stringify(this.settings));
     },
     addRepository(path: string) {
       this.settings.all_repository.push(path);

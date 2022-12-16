@@ -6,18 +6,24 @@ const directory = await git2rs.get_prop("CWD");
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
     return {
-      repo_path: "",
+      repo_path: directory,
       current_branch: "",
       all_branches: [],
     };
   },
   getters: {
+    // directory name
+    repositoryName: (state) => {
+      return state.repo_path.split("/").reverse()[0];
+    },
     repositoryPath: (state) => state.repo_path,
     currentBranch: (state) => state.current_branch,
   },
   actions: {
     setRepository(path: string) {
       // TODO set_repository
+      // error handle
+      git2rs.getRepository(path);
       this.repo_path = path;
       git2rs
         .getBranchName()

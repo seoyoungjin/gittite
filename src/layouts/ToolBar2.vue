@@ -4,6 +4,7 @@
       <!--
       <q-icon name="star" />
       -->
+      <q-icon :name="octGitBranch16" size="16pt" class="q-pa-sm" />
       <q-item-section align="left">
         <q-item-label>
           <small>Current Branch</small>
@@ -36,10 +37,17 @@
 <script lang="ts">
 import { mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
+import { octGitBranch16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import SetLayout from "../components/SetLayout.vue";
 
 export default {
   name: "ToolBar2",
+
+  setup() {
+    return {
+      octGitBranch16,
+    };
+  },
 
   components: {
     SetLayout,

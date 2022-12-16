@@ -31,7 +31,7 @@ export async function set_prop(key: string, val: string) {
   return await invoke("set_prop", { key, val });
 }
 
-export async function set_repository(path: string) {
+export async function setRepository(path: string) {
   return await invoke("set_repository", { path });
 }
 
