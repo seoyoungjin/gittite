@@ -31,6 +31,11 @@ export async function set_prop(key: string, val: string) {
   return await invoke("set_prop", { key, val });
 }
 
+// repository
+export async function isGitRepository(path: string) {
+  return await invoke("is_git_repository", { path });
+}
+
 export async function setRepository(path: string) {
   return await invoke("set_repository", { path });
 }

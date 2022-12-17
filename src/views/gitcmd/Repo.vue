@@ -4,9 +4,6 @@
       <h6>Select Repository</h6>
     </div>
 
-    <div class="text-h7">Settings: {{ this.gitdir }}</div>
-    <br />
-
     <q-btn color="primary" no-caps @click="selectRepo">Confirm</q-btn>
     <br />
     <br />
@@ -31,23 +28,12 @@ export default {
   data() {
     return {
       response: null,
-      gitdir: null,
     };
   },
 
-  mounted() {
-    this.refreshData();
-  },
+  mounted() {},
 
   methods: {
-    refreshData() {
-      (async () => {
-        var settings = await git2rs.loadSettings();
-        // TODO
-        this.gitdir = settings.repo;
-      })();
-    },
-
     async selectRepo() {
       const selected = await open({
         directory: true,
@@ -57,8 +43,11 @@ export default {
       }
       git2rs
         .setRepository(selected)
-        .then(() => {
-          this.response = { "Current repository": selected };
+        .then((repo) => {
+          this.response = {
+            "Selected Directory": selected,
+            "Current repository": repo,
+          };
         })
         .catch((e) => {
           if (e) {

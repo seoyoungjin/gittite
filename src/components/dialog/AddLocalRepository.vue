@@ -20,16 +20,22 @@
         </q-card-actions>
       </q-card-section>
 
-      <!-- TODO v-if -->
-      <q-card-section class="row" v-if="Error">
+      <!-- error message -->
+      <q-card-section class="row" v-if="localPath && errorCode">
         <q-icon :name="octAlert16" size="16pt" color="yellow-7" />
-        This directory does not appear to be a Git repository.
+        {{ errorMessage }}
       </q-card-section>
 
       <q-separator />
 
       <q-card-actions align="right">
-        <q-btn no-caps color="primary" label="OK" @click="onOKClick" />
+        <q-btn
+          no-caps
+          color="primary"
+          label="OK"
+          @click="onOKClick"
+          :disable="disableAddButton"
+        />
         <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
     </q-card>
@@ -40,6 +46,14 @@
 import DialogMixin from "@/mixins/dialog";
 import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import { useSettingsStore } from "@/stores/settings";
+import { open } from "@tauri-apps/api/dialog";
+import * as git2rs from "@/api/git2rs";
+
+enum Error {
+  Ok = 0,
+  NotGitRepository = 1,
+  AlreadyExist = 2,
+}
 
 export default {
   name: "AddLocalRepository",
@@ -48,9 +62,10 @@ export default {
   data() {
     const store = useSettingsStore();
     return {
+      store,
       octAlert16,
       localPath: "",
-      store,
+      errorCode: Error.Ok,
     };
   },
 
@@ -76,13 +91,56 @@ export default {
     },
 
     // user method
-    addLocalRepository(path: string) {
-      // alert(path);
-      if (path !== "") {
-        this.store.addRepository(path);
+    async selectDirectory() {
+      const selected = await open({
+        directory: true,
+      });
+      if (Array.isArray(selected) || selected === null) {
+        return;
+      }
+      this.localPath = selected;
+    },
+
+    async addLocalRepository(path: string) {
+      const is_git = await git2rs.isGitRepository(path);
+      if (!is_git) {
+        alert(path + " is not repository");
+        return;
+      }
+      this.store.addRepository(path);
+    },
+  },
+
+  computed: {
+    disableAddButton() {
+      return !(this.localPath && this.errorCode == Error.Ok);
+    },
+    errorMessage() {
+      if (this.errorCode === Error.NotGitRepository) {
+        return "This directory does not appear to be a Git repository.";
+      } else if (this.errorCode === Error.AlreadyExist) {
+        return "This directory is already in repository list.";
+      }
+      return "";
+    },
+  },
+
+  watch: {
+    localPath: async function (val: string) {
+      if (!val) {
+        return;
+      }
+      if (this.store.allRepository.includes(val)) {
+        this.errorCode = Error.AlreadyExist;
+        return;
+      }
+      let res = await git2rs.isGitRepository(val);
+      if (res) {
+        this.errorCode = Error.Ok;
+      } else {
+        this.errorCode = Error.NotGitRepository;
       }
     },
-    // TODO watch: {path: isGit},
   },
 };
 </script>

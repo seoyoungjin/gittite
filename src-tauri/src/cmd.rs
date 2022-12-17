@@ -1,6 +1,6 @@
 use crate::app_data::{AppData, AppDataState};
 use crate::git_api::*;
-use git2::StatusShow;
+use git2::{Repository, StatusShow};
 use serde_json::Value;
 use std::path::Path;
 use std::sync::MutexGuard;
@@ -34,17 +34,27 @@ pub async fn clone(
 }
 
 #[tauri::command]
+pub fn is_git_repository(path: String) -> bool {
+    log::trace!("is_git repo {:?}", path);
+    let repo = Repository::discover(Path::new(&path));
+
+    repo.is_ok()
+}
+
+#[tauri::command]
 pub fn set_repository(
     path: String,
     app_data: AppDataState<'_>,
-) -> Result<()> {
+) -> Result<String> {
     log::trace!("set_reposiroty path {:?}", path);
     let mut app_data = app_data.0.lock().unwrap();
 
     let repo_path: RepoPath = path.as_str().into();
-    repository::repo_open(&repo_path)?;
+    let repo = repository::repo_open(&repo_path)?;
     app_data.repo_path = Some(repo_path);
-    Ok(())
+
+    // TODO if is_bare(),  workdir() is none
+    Ok(repo.workdir().unwrap().to_str().unwrap().to_string())
 }
 
 #[tauri::command]

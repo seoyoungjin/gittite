@@ -20,11 +20,14 @@ export const useRepositoryStore = defineStore("repository", {
     currentBranch: (state) => state.current_branch,
   },
   actions: {
-    setRepository(path: string) {
-      // TODO set_repository
-      // error handle
-      git2rs.getRepository(path);
-      this.repo_path = path;
+    async setRepository(path: string) {
+      const repo_path = await git2rs.setRepository(path).catch((e) => {
+        console.log(e);
+      });
+      if (!repo_path) {
+        return;
+      }
+      this.repo_path = repo_path;
       git2rs
         .getBranchName()
         .then((res) => {
