@@ -63,11 +63,9 @@ pub fn save_settings(
 
 #[tauri::command]
 pub fn get_prop(
-    key: &str,
-    app_data: AppDataState<'_>
+    key: &str
 ) -> Result<String, String> {
     log::trace!("get_prop({})", key);
-    let app_data = app_data.0.lock().unwrap();
 
     let res = match key {
         "CWD" => {

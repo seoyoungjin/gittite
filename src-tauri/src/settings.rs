@@ -9,18 +9,29 @@ use std::{fs::File, path::PathBuf};
 // Linux : $HOME/.config/
 // maxOS : $HOME/Library/Application Support/
 // Windows: {FOLDERID_RoamingAppData}
+//
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Profile {
+    pub name: String,
+    pub email: String,
+    pub image_url: String,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Settings {
-    pub repo: String,
+    pub profile: Profile,
     pub all_repository: Vec<String>,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Settings {
-            repo: ".".to_string(),
-            all_repository: vec![]
+            profile: Profile {
+                name: "".to_string(),
+                email: "".to_string(),
+                image_url: "".to_string(),
+            },
+            all_repository: vec![],
         }
     }
 }

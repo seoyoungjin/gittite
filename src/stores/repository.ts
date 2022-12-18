@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
 import * as git2rs from "@/api/git2rs";
 
-const directory = await git2rs.get_prop("CWD");
-
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
     return {
-      repo_path: directory,
+      repo_path: "",
       current_branch: "",
       all_branches: [],
     };

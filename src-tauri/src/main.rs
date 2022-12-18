@@ -32,11 +32,12 @@ fn error_popup_main_thread(msg: String) {
 }
 
 fn main() {
-    let cliargs = args::process_cmdline().unwrap();
     if cfg!(debug_assertions) {
         env_logger::init();
     }
 
+    let cliargs = args::process_cmdline().unwrap();
+    log::trace!("cliargs: {:?}", cliargs.repo_path);
     let settings = match settings::Settings::load() {
         Ok(v) => v,
         Err(_e) => {

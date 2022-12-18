@@ -29,6 +29,7 @@ This is a toy project to study tauri and rust.
 
 ### Compile
 
+- `cargo install tauri-cli`
 - `cargo tauri dev` : Start app in dev mode
 - `cargo tauri build`: Build
 - `yarn tauri dev`

@@ -29,7 +29,10 @@ pub fn process_cmdline() -> Result<CliArgs> {
 
     #[allow(clippy::option_if_let_else)]
     let repo_path = if let Some(wd) = workdir {
-        RepoPath::Workdir { gitdir, workdir: wd }
+        RepoPath::Workdir {
+            gitdir,
+            workdir: wd,
+        }
     } else {
         RepoPath::Path(gitdir)
     };
@@ -42,6 +45,8 @@ fn test_args() {
     use clap::CommandFactory;
     Cli::command().debug_assert();
 
-    let cli = Cli::parse_from(vec![""]);
-    log::trace!("{:?}", cli);
+    let cli = Cli::parse_from(["tite", "--directory", "foo"]);
+    assert_eq!(cli.directory, Some("foo".to_string()));
+    let cli = Cli::parse_from(["tite", "--directory=foo", "--workdir=bar"]);
+    assert_eq!(cli.workdir, Some("bar".to_string()));
 }

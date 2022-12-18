@@ -95,8 +95,6 @@ export default {
       }
       console.log(ev.payload);
     });
-    // set current repository
-    this.setRepository("gittite");
   },
 
   data() {
@@ -128,10 +126,13 @@ export default {
       this.curSelected = item;
     },
     setRepository(path: string) {
-      // TODO
-      // this.repoStore.setRepository("/Users/yjseo/work/tite");
+      // subdirectory
       // this.repoStore.setRepository("/Users/yjseo/work/tite/src");
-      this.repoStore.setRepository(".");
+      // not existent
+      // this.repoStore.setRepository("/foo");
+      // not repository
+      // this.repoStore.setRepository("/tmp");
+      this.repoStore.setRepository(path);
     },
   },
 };

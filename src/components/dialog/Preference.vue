@@ -10,8 +10,24 @@
       <q-separator />
 
       <q-card-section class="q-pt-none">
-        <q-card-actions vertical> </q-card-actions>
+        <q-splitter v-model="splitterModel" style="height: 250px">
+          <template v-slot:before>
+            <q-tabs v-model="tab" inline-label vertical class="text-blue">
+              <q-tab no-caps name="profile" icon="mail" label="Profile" />
+            </q-tabs>
+          </template>
+
+          <template v-slot:after>
+            <q-tab-panels v-model="tab" animated swipeable vertical>
+              <q-tab-panel name="profile">
+                <PrefProfile ref="profileRef" />
+              </q-tab-panel>
+            </q-tab-panels>
+          </template>
+        </q-splitter>
       </q-card-section>
+
+      <q-separator />
 
       <q-card-actions align="right">
         <q-btn no-caps color="primary" label="OK" @click="onOKClick" />
@@ -22,34 +38,42 @@
 </template>
 
 <script lang="ts">
+import { ref } from "vue";
 import DialogMixin from "@/mixins/dialog";
-import * as git2rs from "@/api/git2rs";
+import PrefProfile from "@/components/preference/Profile.vue";
 
 export default {
   name: "Preference",
   mixins: [DialogMixin],
 
+  setup() {
+    return {
+      tab: ref("profile"),
+      splitterModel: ref(20),
+    };
+  },
+
+  components: {
+    PrefProfile,
+  },
+
   data() {
     return {};
   },
 
-  emits: [
-    // REQUIRED
-    "ok",
-  ],
+  emits: ["ok"],
 
   methods: {
-    // following method is REQUIRED
     show() {
       this.$refs.dialog.show();
     },
 
-    // following method is REQUIRED
     hide() {
       this.$refs.dialog.hide();
     },
 
     onOKClick() {
+      this.$refs.profileRef.saveProfile();
       this.$emit("ok");
       this.hide();
     },

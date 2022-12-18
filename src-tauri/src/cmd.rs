@@ -7,8 +7,7 @@ use std::sync::MutexGuard;
 
 fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
     if app_data.repo_path.is_none() {
-        let repo_path = app_data.settings.repo.as_str().into();
-        // log::trace!("repo_path: {:?}", repo_path);
+        let repo_path = ".".into();
         app_data.repo_path = Some(repo_path);
     }
 }
@@ -35,7 +34,7 @@ pub async fn clone(
 
 #[tauri::command]
 pub fn is_git_repository(path: String) -> bool {
-    log::trace!("is_git repo {:?}", path);
+    // log::trace!("is_git repo {:?}", path);
     let repo = Repository::discover(Path::new(&path));
 
     repo.is_ok()
