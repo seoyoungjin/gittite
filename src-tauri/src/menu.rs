@@ -1,5 +1,7 @@
 use tauri::{WindowMenuEvent, Wry};
-use tauri::{AboutMetadata, Menu, MenuItem, Submenu, CustomMenuItem};
+use tauri::{Menu, MenuItem, Submenu, CustomMenuItem};
+#[cfg(target_os = "macos")]
+use tauri::AboutMetadata;
 
 pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     let mut menu = Menu::new();

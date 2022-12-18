@@ -3,32 +3,37 @@ use std::path::{Path, PathBuf};
 
 ///
 #[derive(Clone, Debug)]
-pub struct RepoPath {
-    gitdir: PathBuf,
-    workdir: Option<PathBuf>,
+pub enum RepoPath {
+    ///
+    Path(PathBuf),
+    ///
+    Workdir {
+        ///
+        gitdir: PathBuf,
+        ///
+        workdir: PathBuf,
+    },
 }
 
 impl RepoPath {
-    ///
     pub fn gitpath(&self) -> &Path {
-        self.gitdir.as_path()
+        match self {
+            Self::Path(p) => p.as_path(),
+            Self::Workdir { gitdir, .. } => gitdir.as_path(),
+        }
     }
 
-    ///
     pub fn workdir(&self) -> Option<&Path> {
-        if let Some(wd) = &self.workdir {
-            return Some(wd.as_path());
+        match self {
+            Self::Path(_) => None,
+            Self::Workdir { workdir, .. } => Some(workdir.as_path()),
         }
-        return None;
     }
 }
 
 impl From<&str> for RepoPath {
     fn from(p: &str) -> Self {
-        Self {
-            gitdir: PathBuf::from(p),
-            workdir: None,
-        }
+        Self::Path(PathBuf::from(p))
     }
 }
 
@@ -52,13 +57,17 @@ mod tests {
     #[test]
     fn test_repopath() {
         let mut repo_path = RepoPath::from("./foo/bar");
-        let path = Path::new("./foo/bar");
+        let gitdir = PathBuf::from("./foo/bar");
 
-        assert_eq!(repo_path.gitpath(), path);
-        assert_eq!(repo_path.workdir.is_none(), true);
+        assert_eq!(repo_path.gitpath(), gitdir);
+        assert_eq!(repo_path.workdir().is_none(), true);
 
-        repo_path.workdir = Some(PathBuf::from("./foo/bar"));
-        assert_eq!(repo_path.workdir(), Some(path));
+        let wd = PathBuf::from("./foo/bar");
+        let repo_path = RepoPath::Workdir {
+            gitdir,
+            workdir: wd,
+        };
+        assert_eq!(repo_path.workdir(), Some(Path::new("./foo/bar")));
     }
 
     #[test]

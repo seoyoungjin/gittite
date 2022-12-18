@@ -9,10 +9,11 @@ use tauri::Manager;
 use tauri::{PhysicalSize, Size};
 
 mod app_data;
+mod args;
 mod cmd;
-mod git_api;
 mod menu;
 mod settings;
+mod git_api;
 
 #[macro_export]
 macro_rules! throw {
@@ -31,6 +32,7 @@ fn error_popup_main_thread(msg: String) {
 }
 
 fn main() {
+    let cliargs = args::process_cmdline().unwrap();
     if cfg!(debug_assertions) {
         env_logger::init();
     }
@@ -111,7 +113,7 @@ fn main() {
             // set state data
             let app_data = AppData {
                 settings: settings,
-                repo_path: None,
+                repo_path: Some(cliargs.repo_path),
                 tx_git: tx_git,
                 modal: false,
             };
