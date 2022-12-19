@@ -1,15 +1,42 @@
-export type Settings = {
-  repo: string;
-};
+// commit info
+export interface CommitSignature {
+  name: string;
+  email: string;
+  time: number;
+}
 
-export type StatusItem = {
-  path: string;
-  stage?: string;
-  wtree?: string;
-};
+export interface CommitMessage {
+  subject: string;
+  body: string | null;
+}
 
-export type DiffOptions = {
+export interface CommitInfo {
+  id: string;
+  author: CommitSignature;
+  comitter: CommitSignature | null;
+  time: number;
+  message: CommitMessage;
+}
+
+export interface DiffOptions {
   ignore_whitespace: boolean;
   ontext: number;
   interhunk_lines: number;
-};
+}
+
+// settings
+export interface Profile {
+  name: string;
+  email: string;
+  image_url: string;
+}
+
+export interface Settings {
+  profile: Profile;
+  all_repository: string[];
+}
+
+export interface StatusItem {
+  path: string;
+  stage?: string;
+}

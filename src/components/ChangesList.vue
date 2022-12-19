@@ -156,7 +156,7 @@ export default {
         });
     },
 
-    octIconForStatus(status: string): string {
+    octIconForStatus(status: string): any {
       switch (status) {
         case "New":
         case "Added":

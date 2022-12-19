@@ -98,9 +98,6 @@
                 <q-btn label="Submit" type="submit" color="primary" />
               </div>
             </q-form>
-            <pre>
-Todo: diff --name-status
-            </pre>
             <br />
             <br />
             <div v-if="response">
@@ -117,7 +114,6 @@ Todo: diff --name-status
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import * as git2rs from "../../api/git2rs";
 
 export default {
@@ -162,56 +158,40 @@ export default {
       })();
     },
 
-    onCommit() {
+    async onCommit() {
       if (Object.keys(this.stagedJson).length < 1) {
         alert("Nothing to commit");
         return;
       }
       const message = this.commitForm.message;
-      invoke("commit", { args: message })
-        .then((message) => {
-          this.response = message;
-        })
-        .catch((e) => {
-          if (e) {
-            this.response = { error: JSON.stringify(e) };
-          }
-        });
+      this.response = await git2rs.commit(message).catch((e) => {
+        if (e) {
+          this.response = { error: JSON.stringify(e) };
+        }
+      });
       this.refresh();
     },
 
-    onAmend() {
+    async onAmend() {
       const message = this.amendForm.message;
-      invoke("amend", { args: message })
-        .then((message) => {
-          this.response = message;
-        })
-        .catch((e) => {
-          this.response = { error: JSON.stringify(e) };
-        });
+      this.response = await git2rs.commitAmend(message).catch((e) => {
+        this.response = { error: JSON.stringify(e) };
+      });
       this.refresh();
     },
 
-    getCommitInfo() {
+    async getCommitInfo() {
       const commitId = this.infoForm.commitId;
-      invoke("commit_info", { args: commitId })
-        .then((message) => {
-          this.response = message;
-        })
-        .catch((e) => {
-          this.response = { error: JSON.stringify(e) };
-        });
+      this.response = await git2rs.commitInfo(commitId).catch((e) => {
+        this.response = { error: JSON.stringify(e) };
+      });
     },
 
-    getCommitFiles() {
+    async getCommitFiles() {
       const commitId = this.infoForm.commitId;
-      invoke("commit_files", { args: commitId })
-        .then((message) => {
-          this.response = message;
-        })
-        .catch((e) => {
-          this.response = { error: JSON.stringify(e) };
-        });
+      this.response = await git2rs.commitFiles(commitId).catch((e) => {
+        this.response = { error: JSON.stringify(e) };
+      });
     },
   },
 };
