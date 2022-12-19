@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+    <q-card style="width: 600px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Preference</div>
         <q-space />
@@ -13,7 +13,7 @@
         <q-splitter v-model="splitterModel" style="height: 250px">
           <template v-slot:before>
             <q-tabs v-model="tab" inline-label vertical class="text-blue">
-              <q-tab no-caps name="profile" icon="mail" label="Profile" />
+              <q-tab no-caps name="profile" icon="settings" label="Profile" />
             </q-tabs>
           </template>
 
@@ -49,7 +49,7 @@ export default {
   setup() {
     return {
       tab: ref("profile"),
-      splitterModel: ref(20),
+      splitterModel: ref(25),
     };
   },
 

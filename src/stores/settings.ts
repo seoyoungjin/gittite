@@ -7,9 +7,9 @@ export const useSettingsStore = defineStore("settings", {
       profile: {
         name: "",
         email: "",
-        imageUrl: "",
+        image_url: "",
       },
-      all_repository: [],
+      all_repository: [] as string[],
     },
   }),
   getters: {
@@ -30,10 +30,11 @@ export const useSettingsStore = defineStore("settings", {
       //alert(this.settings.all_repository);
       git2rs.saveSettings(this.settings);
     },
-    setProfile(name: string, email: string, imageUrl: string) {
+    setProfile(name: string, email: string, image: string) {
       this.settings.profile.name = name;
       this.settings.profile.email = email;
-      this.settings.profile.imageUrl = imageUrl;
-    }
+      this.settings.profile.image_url = image;
+      // alert(JSON.stringify(this.settings.profile));
+    },
   },
 });

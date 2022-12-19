@@ -6,7 +6,7 @@ export const useRepositoryStore = defineStore("repository", {
     return {
       repo_path: "",
       current_branch: "",
-      all_branches: [],
+      all_branches: [] as string[],
     };
   },
   getters: {
@@ -29,7 +29,7 @@ export const useRepositoryStore = defineStore("repository", {
       git2rs
         .getBranchName()
         .then((res) => {
-          this.current_branch = res;
+          this.current_branch = res as string;
           console.log("branch: " + res);
         })
         .catch((err) => {

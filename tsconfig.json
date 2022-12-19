@@ -3,6 +3,8 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
+    "allowJS": true,
+    "checkJs": true,
     "paths": {
       "@/*": ["./src/*"]
     }

@@ -10,7 +10,7 @@ package-lock.json
 yarn.lock
 
 node_modules
-.DS_Store
+dist
 dist-ssr
 coverage
 *.local
@@ -22,6 +22,7 @@ coverage
 .vscode/*
 !.vscode/extensions.json
 .idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj

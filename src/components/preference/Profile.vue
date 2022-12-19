@@ -1,5 +1,5 @@
 <template>
-  <div class="text-h6 q-mb-md">Profile</div>
+  <div class="text-h6 q-pa-none">Profile</div>
   <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
     <q-input
       v-model="authorName"
@@ -33,12 +33,17 @@ export default {
   name: "Profile",
 
   data() {
-    // TODO
     return {
       authorName: "",
       authorEmail: "",
       authorImage: "",
     };
+  },
+
+  mounted() {
+    this.authorName = this.getProfile.name;
+    this.authorEmail = this.getProfile.email;
+    this.authorImage = this.getProfile.image_url;
   },
 
   computed: {
@@ -50,10 +55,10 @@ export default {
     ...mapActions(useSettingsStore, ["saveSettings"]),
 
     saveProfile() {
-        // alert(JSON.stringify(this.getProfile));
-        this.setProfile(this.authorName, this.authorEmail, this.authorImage);
-        this.saveSettings();
-    }
+      // alert(JSON.stringify(this.getProfile));
+      this.setProfile(this.authorName, this.authorEmail, this.authorImage);
+      this.saveSettings();
+    },
   },
 };
 </script>

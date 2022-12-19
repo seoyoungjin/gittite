@@ -69,12 +69,17 @@ import CloneRepository from "@/components/dialog/CloneRepository.vue";
 import Preference from "@/components/dialog/Preference.vue";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
+import { usePropStore } from "@/stores/props";
 
 export default {
   setup() {
     const repoStore = useRepositoryStore();
     const settingsStore = useSettingsStore();
+    const propStore = usePropStore();
+
     settingsStore.loadSettings();
+    propStore.initStore();
+
     return {
       repoStore,
       splitterModel: ref(250),

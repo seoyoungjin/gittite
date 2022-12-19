@@ -13,7 +13,7 @@ export const useCommitStageStore = defineStore("stage", {
   },
 
   actions: {
-    updateStagedFiles(staged) {
+    updateStagedFiles(staged: []) {
       this.staged = staged;
     },
   },

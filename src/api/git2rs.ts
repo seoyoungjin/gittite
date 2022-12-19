@@ -23,7 +23,7 @@ export async function saveSettings(value: any) {
   });
 }
 
-export async function get_prop(key: string) {
+export async function get_prop(key: string): Promise<string> {
   return await invoke("get_prop", { key });
 }
 
@@ -36,7 +36,7 @@ export async function isGitRepository(path: string) {
   return await invoke("is_git_repository", { path });
 }
 
-export async function setRepository(path: string) {
+export async function setRepository(path: string): Promise<string> {
   return await invoke("set_repository", { path });
 }
 
@@ -121,7 +121,7 @@ export async function renameBranch(branch: string, name: string) {
   return await invoke("rename_branch", { branch: branch, name: name });
 }
 
-export async function branchesInfo(local: bool) {
+export async function branchesInfo(local: boolean) {
   return await invoke("get_branches_info", { local: local });
 }
 
