@@ -46,10 +46,7 @@ export async function init(dirname: string): Promise<string> {
   return await invoke("init", { args: [dirname] });
 }
 
-export async function clone(
-  gitUrl: string,
-  localDir: string
-): Promise<string> {
+export async function clone(gitUrl: string, localDir: string): Promise<string> {
   return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
     return res;
   });
@@ -86,7 +83,7 @@ export async function resetStage(name: string): Promise<boolean> {
   return invoke("reset_stage", { args: name });
 }
 
-export async function getStatus(args: string) {
+export async function getStatus(args: string): Promise<StatusItem[]> {
   return await invoke("get_status", { statusType: args });
 }
 

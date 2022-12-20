@@ -31,10 +31,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { listen } from "@tauri-apps/api/event";
 import { ref, computed } from "vue";
 
-export default {
+export default defineComponent({
   setup() {
     const inputs = ref([]);
     const progress = ref(0.2);
@@ -42,7 +43,7 @@ export default {
     const unlisten = listen("PROGRESS", (event) => {
       console.log("progress: " + JSON.stringify(event));
       let input = event.payload;
-      inputs.value.push({ timestamp: Date.now(), payload: input });
+      inputs.value.push(input);
       if (input.progress.progress == 0) {
         inputs.value = [];
         this.show();
@@ -70,10 +71,10 @@ export default {
 
   methods: {
     show() {
-      this.$refs.dialog.show();
+      (this.$refs.dialog as any).show();
     },
     hide() {
-      this.$refs.dialog.hide();
+      (this.$refs.dialog as any).hide();
     },
     onOKClick() {
       this.hide();
@@ -82,5 +83,5 @@ export default {
       this.hide();
     },
   },
-};
+});
 </script>

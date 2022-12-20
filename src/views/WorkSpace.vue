@@ -57,6 +57,7 @@
 
 <script lang="ts">
 import { ref } from "vue";
+import { defineComponent } from "vue";
 import { listen } from "@tauri-apps/api/event";
 import ToolBar from "@/layouts/ToolBar.vue";
 import ToolBar2 from "@/layouts/ToolBar2.vue";
@@ -71,7 +72,7 @@ import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { usePropStore } from "@/stores/props";
 
-export default {
+export default defineComponent({
   setup() {
     const repoStore = useRepositoryStore();
     const settingsStore = useSettingsStore();
@@ -140,5 +141,5 @@ export default {
       this.repoStore.setRepository(path);
     },
   },
-};
+});
 </script>

@@ -30,12 +30,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import * as git2rs from "@/api/git2rs";
 import { useCommitStageStore } from "@/stores/commitStage";
 import { useRepositoryStore } from "@/stores/repository";
 
-export default {
+export default defineComponent({
   name: "CommitMessage",
   computed: {
     ...mapState(useCommitStageStore, ["stagedFileLength"]),
@@ -80,5 +81,5 @@ export default {
         });
     },
   },
-};
+});
 </script>

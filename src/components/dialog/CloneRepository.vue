@@ -37,12 +37,13 @@
 </template>
 
 <script lang="ts">
-import DialogMixin from "@/mixins/dialog";
+import { defineComponent } from "vue";
 import { usePropStore } from "@/stores/props";
+import DialogMixin from "@/mixins/dialog";
 import * as git2rs from "@/api/git2rs";
 import { open } from "@tauri-apps/api/dialog";
 
-export default {
+export default defineComponent({
   name: "CloneRepository",
   mixins: [DialogMixin],
 
@@ -60,14 +61,12 @@ export default {
   ],
 
   methods: {
-    // following method is REQUIRED
     show() {
-      this.$refs.dialog.show();
+      (this.$refs.dialog as any).show();
     },
 
-    // following method is REQUIRED
     hide() {
-      this.$refs.dialog.hide();
+      (this.$refs.dialog as any).hide();
     },
 
     onOKClick() {
@@ -89,5 +88,5 @@ export default {
       this.localPath = selected;
     },
   },
-};
+});
 </script>

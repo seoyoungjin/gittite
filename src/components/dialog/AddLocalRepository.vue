@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import DialogMixin from "@/mixins/dialog";
 import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import { useSettingsStore } from "@/stores/settings";
@@ -55,7 +56,7 @@ enum Error {
   AlreadyExist = 2,
 }
 
-export default {
+export default defineComponent({
   name: "AddLocalRepository",
   mixins: [DialogMixin],
 
@@ -76,10 +77,10 @@ export default {
 
   methods: {
     show() {
-      this.$refs.dialog.show();
+      (this.$refs.dialog as any).show();
     },
     hide() {
-      this.$refs.dialog.hide();
+      (this.$refs.dialog as any).hide();
     },
     onOKClick() {
       this.addLocalRepository(this.localPath);
@@ -142,5 +143,5 @@ export default {
       }
     },
   },
-};
+});
 </script>

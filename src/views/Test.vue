@@ -1,4 +1,5 @@
 <script lang="ts">
+import { defineComponent } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import { ref, computed } from "vue";
@@ -6,7 +7,7 @@ import { useQuasar } from "quasar";
 import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
 import * as git2rs from "@/api/git2rs";
 
-export default {
+export default defineComponent({
   components: {
     ProgressDialog,
   },
@@ -79,7 +80,7 @@ export default {
         });
     },
   },
-};
+});
 </script>
 
 <template>
