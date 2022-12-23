@@ -62,17 +62,20 @@
 </template>
 
 <script lang="ts">
-import DialogMixin from "@/mixins/dialog";
+import { defineComponent } from "vue";
+import { useQuasar } from "quasar";
 import { usePropStore } from "@/stores/props";
+import DialogMixin from "@/mixins/dialog";
 import * as git2rs from "@/api/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
 
-export default {
+export default defineComponent({
   name: "InitGitRepository",
   mixins: [DialogMixin],
 
   data() {
+    const $q = useQuasar();
     const store = usePropStore();
 
     return {
@@ -94,14 +97,12 @@ export default {
   ],
 
   methods: {
-    // following method is REQUIRED
     show() {
-      this.$refs.dialog.show();
+      (this.$refs.dialog as any).show();
     },
 
-    // following method is REQUIRED
     hide() {
-      this.$refs.dialog.hide();
+      (this.$refs.dialog as any).hide();
     },
 
     onOKClick() {
@@ -150,5 +151,5 @@ export default {
         });
     },
   },
-};
+});
 </script>

@@ -1,18 +1,19 @@
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   data() {
     return {
       stashSaveForm: {
-        message: null,
+        message: "",
         includeUntracked: false,
         keepIndex: false,
       },
       stashForm: {
-        stashid: null,
+        stashid: "",
       },
       resStashSave: null,
       resStashList: null,
@@ -32,10 +33,10 @@ export default {
       git2rs
         .stashSave(message, untracked, keepIndex)
         .then((message) => {
-          this.resStashSave = message;
+          this.resStashSave = message as any;
         })
         .catch((e) => {
-          this.resStashSave = { error: JSON.stringify(e) };
+          this.resStashSave = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -43,11 +44,11 @@ export default {
       git2rs
         .stashList()
         .then((message) => {
-          this.resStashList = message;
+          this.resStashList = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resStashList = { error: JSON.stringify(e) };
+            this.resStashList = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -57,11 +58,11 @@ export default {
       git2rs
         .stashDrop(stashid)
         .then((message) => {
-          this.resStashDPA = message;
+          this.resStashDPA = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resStashDPA = { error: JSON.stringify(e) };
+            this.resStashDPA = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -71,11 +72,11 @@ export default {
       git2rs
         .stashPop(stashid)
         .then((message) => {
-          this.resStashDPA = message;
+          this.resStashDPA = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resStashDPA = { error: JSON.stringify(e) };
+            this.resStashDPA = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -85,16 +86,16 @@ export default {
       git2rs
         .stashApply(stashid)
         .then((message) => {
-          this.resStashDPA = message;
+          this.resStashDPA = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resStashDPA = { error: JSON.stringify(e) };
+            this.resStashDPA = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>
 
 <template>

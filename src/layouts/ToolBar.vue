@@ -41,12 +41,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { octRepo16 } from "quasar-extras-svg-icons/oct-icons-v17";
 
-export default {
+export default defineComponent({
   name: "ToolBar",
 
   setup() {
@@ -63,5 +64,5 @@ export default {
       // alert(this.allRepository);
     },
   },
-};
+});
 </script>

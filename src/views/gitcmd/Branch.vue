@@ -1,29 +1,30 @@
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   data() {
     return {
       branchForm: {
-        name: null,
+        name: "",
       },
       branchRenameForm: {
-        branchRef: null,
-        newName: null,
+        branchRef: "",
+        newName: "",
       },
       branchesInfoForm: {
         local: false,
       },
       branchRemoteForm: {
-        name: null,
+        name: "",
       },
       checkoutBranchForm: {
-        name: null,
+        name: "",
       },
       checkoutRemoteBranchForm: {
-        name: null,
+        name: "",
       },
       resBranch: null,
       resRenameBranch: null,
@@ -42,11 +43,11 @@ export default {
       git2rs
         .createBranch(name)
         .then((message) => {
-          this.resBranch = message;
+          this.resBranch = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resBranch = { error: JSON.stringify(e) };
+            this.resBranch = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -56,25 +57,25 @@ export default {
       git2rs
         .deleteBranch(name)
         .then((message) => {
-          this.resBranch = message;
+          this.resBranch = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resBranch = { error: JSON.stringify(e) };
+            this.resBranch = { error: JSON.stringify(e) } as any;
           }
         });
     },
 
     renameBranch() {
-      var branchRef = this.renameBranchForm.branchRef;
-      var newName = this.renameBranchForm.newName;
+      var branchRef = this.branchRenameForm.branchRef;
+      var newName = this.branchRenameForm.newName;
       git2rs
         .renameBranch(branchRef, newName)
         .then((message) => {
-          this.resRenameBranch = message;
+          this.resRenameBranch = message as any;
         })
         .catch((e) => {
-          this.resRenameBranch = { error: JSON.stringify(e) };
+          this.resRenameBranch = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -83,10 +84,10 @@ export default {
       git2rs
         .branchesInfo(local)
         .then((message) => {
-          this.resBranchesInfo = message;
+          this.resBranchesInfo = message as any;
         })
         .catch((e) => {
-          this.resBranchesInfo = { error: JSON.stringify(e) };
+          this.resBranchesInfo = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -95,10 +96,10 @@ export default {
       git2rs
         .branchRemote(name)
         .then((message) => {
-          this.resBranchRemote = message;
+          this.resBranchRemote = message as any;
         })
         .catch((e) => {
-          this.resBranchRemote = { error: JSON.stringify(e) };
+          this.resBranchRemote = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -107,10 +108,10 @@ export default {
       git2rs
         .branchCompareUpstream(name)
         .then((message) => {
-          this.resBranchRemote = message;
+          this.resBranchRemote = message as any;
         })
         .catch((e) => {
-          this.resBranchRemote = { error: JSON.stringify(e) };
+          this.resBranchRemote = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -119,10 +120,10 @@ export default {
       git2rs
         .checkoutBranch(name)
         .then((message) => {
-          this.resCheckoutBranch = message;
+          this.resCheckoutBranch = message as any;
         })
         .catch((e) => {
-          this.resCheckoutBranch = { error: JSON.stringify(e) };
+          this.resCheckoutBranch = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -131,14 +132,14 @@ export default {
       git2rs
         .checkoutRemoteBranch(name)
         .then((message) => {
-          this.resCheckoutRemoteBranch = message;
+          this.resCheckoutRemoteBranch = message as any;
         })
         .catch((e) => {
-          this.resCheckoutRemoteBranch = { error: JSON.stringify(e) };
+          this.resCheckoutRemoteBranch = { error: JSON.stringify(e) } as any;
         });
     },
   },
-};
+});
 </script>
 
 <template>

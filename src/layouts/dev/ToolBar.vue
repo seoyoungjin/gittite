@@ -26,10 +26,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import SetLayout from "@/components/SetLayout.vue";
 
-export default {
-  name: "ToolBar",
+export default defineComponent({
+  name: "DevToolBar",
 
   components: {
     SetLayout,
@@ -48,5 +49,5 @@ export default {
       this.$emit("showLeftDrawer", this.leftDrawerOpen);
     },
   },
-};
+});
 </script>

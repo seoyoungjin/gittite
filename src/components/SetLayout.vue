@@ -11,16 +11,17 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import { useLayoutStore } from "@/stores/layout.js";
 
-export default {
+export default defineComponent({
   setup() {
     const store = useLayoutStore();
     return { store };
   },
   methods: {
-    setLayout(layout) {
+    setLayout(layout: string) {
       if (layout === "app-layout") {
         this.$router.push("/");
       } else if (this.$route.path === "/" || this.$route.path === "/gitcmd") {
@@ -29,5 +30,5 @@ export default {
       this.store.setLayout(layout);
     },
   },
-};
+});
 </script>

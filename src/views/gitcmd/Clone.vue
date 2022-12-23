@@ -27,23 +27,27 @@
     </q-card>
   </q-page>
 
+  <!--
   <ProgressDialog v-model="showProgress" />
-</template>
+--></template>
 
 <script lang="ts">
-import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
+import { defineComponent } from "vue";
+// import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
 import * as git2rs from "@/api/git2rs";
 
-export default {
+export default defineComponent({
+  /*
   components: {
     ProgressDialog,
   },
+*/
 
   data() {
     return {
       form: {
-        gitURL: null,
-        directory: null,
+        gitURL: "",
+        directory: "",
       },
       showProgress: false,
     };
@@ -82,9 +86,9 @@ export default {
       this.gitClone();
     },
     onReset() {
-      this.form.gitURL = null;
-      this.form.directory = null;
+      this.form.gitURL = "";
+      this.form.directory = "";
     },
   },
-};
+});
 </script>

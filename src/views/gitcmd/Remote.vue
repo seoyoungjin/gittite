@@ -25,11 +25,12 @@ origin   https://github.com/... (push)
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
@@ -46,10 +47,10 @@ export default {
       git2rs
         .fetch()
         .then((message) => {
-          this.resFetch = message;
+          this.resFetch = message as any;
         })
         .catch((e) => {
-          this.resFetch = { error: JSON.stringify(e) };
+          this.resFetch = { error: JSON.stringify(e) } as any;
         });
     },
 
@@ -57,14 +58,14 @@ export default {
       git2rs
         .push()
         .then((message) => {
-          this.resFetch = message;
+          this.resFetch = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resFetch = { error: JSON.stringify(e) };
+            this.resFetch = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>

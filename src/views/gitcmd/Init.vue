@@ -48,11 +48,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { invoke } from "@tauri-apps/api/tauri";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
@@ -76,14 +77,14 @@ export default {
       var dirname = this.form.directory;
       invoke("init", { args: [dirname] })
         .then((message) => {
-          this.response = message;
+          this.response = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.response = { error: JSON.stringify(e) };
+            this.response = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>

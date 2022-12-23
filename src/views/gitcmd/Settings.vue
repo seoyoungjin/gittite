@@ -1,10 +1,11 @@
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   data() {
     return {
       jsonData: null,
@@ -23,12 +24,12 @@ export default {
     },
   },
   async mounted() {
-    this.jsonData = await git2rs.loadSettings();
+    this.jsonData = (await git2rs.loadSettings()) as any;
     this.jsonData2 = await this.readSettings().catch((e) => {
       return e;
     });
   },
-};
+});
 </script>
 
 <template>

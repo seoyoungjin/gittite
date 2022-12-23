@@ -1,13 +1,14 @@
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   data() {
     return {
       tagAddForm: {
-        tagname: null,
+        tagname: "",
         object: null,
         message: null,
         force: false,
@@ -16,7 +17,7 @@ export default {
         pattern: null,
       },
       tagDeleteForm: {
-        tagname: null,
+        tagname: "",
       },
       resTagAdd: null,
       resTagList: null,
@@ -35,11 +36,11 @@ export default {
       git2rs
         .tagAdd(tagname, object, message, force)
         .then((message) => {
-          this.resTagAdd = message;
+          this.resTagAdd = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resTagAdd = { error: JSON.stringify(e) };
+            this.resTagAdd = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -49,11 +50,11 @@ export default {
       git2rs
         .tagList(pattern)
         .then((message) => {
-          this.resTagList = message;
+          this.resTagList = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resTagList = { error: JSON.stringify(e) };
+            this.resTagList = { error: JSON.stringify(e) } as any;
           }
         });
     },
@@ -63,16 +64,16 @@ export default {
       git2rs
         .tagDelete(tagname)
         .then((message) => {
-          this.resTagDelete = message;
+          this.resTagDelete = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resTagDelete = { error: JSON.stringify(e) };
+            this.resTagDelete = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>
 
 <template>

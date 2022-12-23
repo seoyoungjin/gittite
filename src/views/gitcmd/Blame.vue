@@ -43,12 +43,13 @@ Todo
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
@@ -72,7 +73,7 @@ export default {
     refresh() {
       (async () => {
         // Todo - HEAD
-        this.commitFiles = await git2rs.commitFiles("HEAD");
+        this.commitFiles = (await git2rs.commitFiles("HEAD")) as any;
       })();
     },
 
@@ -83,7 +84,7 @@ export default {
       if (Array.isArray(selected) || selected === null) {
         return;
       }
-      this.filePath = selected;
+      this.blameForm.filePath = selected;
     },
 
     async blameFile() {
@@ -94,14 +95,14 @@ export default {
       git2rs
         .blameFile(path, null)
         .then((message) => {
-          this.resBlame = message;
+          this.resBlame = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.resBlame = { error: JSON.stringify(e) };
+            this.resBlame = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>

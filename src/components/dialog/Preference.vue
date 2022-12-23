@@ -38,11 +38,11 @@
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { defineComponent, ref } from "vue";
 import DialogMixin from "@/mixins/dialog";
 import PrefProfile from "@/components/preference/Profile.vue";
 
-export default {
+export default defineComponent({
   name: "Preference",
   mixins: [DialogMixin],
 
@@ -65,15 +65,15 @@ export default {
 
   methods: {
     show() {
-      this.$refs.dialog.show();
+      (this.$refs.dialog as any).show();
     },
 
     hide() {
-      this.$refs.dialog.hide();
+      (this.$refs.dialog as any).hide();
     },
 
     onOKClick() {
-      this.$refs.profileRef.saveProfile();
+      (this.$refs.profileRef as any).saveProfile();
       this.$emit("ok");
       this.hide();
     },
@@ -82,5 +82,5 @@ export default {
       this.hide();
     },
   },
-};
+});
 </script>

@@ -1,5 +1,6 @@
 // vim:ts=2:sts=2:sw=2
 
+import type { CommitData, CommitInfo, Settings, StatusItem } from "./types";
 import { invoke } from "@tauri-apps/api/tauri";
 
 export async function runCmd<T = any>(
@@ -11,7 +12,7 @@ export async function runCmd<T = any>(
   })) as T;
 }
 
-export async function loadSettings() {
+export async function loadSettings(): Promise<Settings> {
   return await runCmd("get_settings").then((res) => {
     return res;
   });
@@ -32,7 +33,7 @@ export async function set_prop(key: string, val: string) {
 }
 
 // repository
-export async function isGitRepository(path: string) {
+export async function isGitRepository(path: string): Promise<boolean> {
   return await invoke("is_git_repository", { path });
 }
 
@@ -41,29 +42,32 @@ export async function setRepository(path: string): Promise<string> {
 }
 
 /// git
-export async function init(dirname: string) {
+export async function init(dirname: string): Promise<string> {
   return await invoke("init", { args: [dirname] });
 }
 
-export async function clone(gitUrl: string, localDir: string) {
+export async function clone(gitUrl: string, localDir: string): Promise<string> {
   return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
     return res;
   });
 }
 
-export async function getCommits() {
+export async function getCommits(): Promise<CommitData[]> {
   return await runCmd("get_commits", { args: [] }).then((res) => {
     return res;
   });
 }
 
-export async function getDiff(path: string, stage: boolean) {
+export async function getDiff(path: string, stage: boolean): Promise<string> {
   return await runCmd("get_diff", { path: path, stage: stage }).then((res) => {
     return res;
   });
 }
 
-export async function getDiffCommit(commitId: string, path: string) {
+export async function getDiffCommit(
+  commitId: string,
+  path: string | null
+): Promise<string> {
   return invoke("get_diff_commit", { commitId: commitId, path: path });
 }
 
@@ -79,7 +83,7 @@ export async function resetStage(name: string): Promise<boolean> {
   return invoke("reset_stage", { args: name });
 }
 
-export async function getStatus(args: string) {
+export async function getStatus(args: string): Promise<StatusItem[]> {
   return await invoke("get_status", { statusType: args });
 }
 
@@ -88,24 +92,24 @@ export async function blameFile(path: string, commitId: string | null) {
 }
 
 // commit related
-export async function commit(message: string | null) {
+export async function commit(message: string): Promise<string> {
   return await invoke("commit", { args: message });
 }
 
-export async function commitAmend(message: string | null) {
+export async function commitAmend(message: string): Promise<string> {
   return await invoke("amend", { args: message });
 }
 
-export async function commitInfo(commitId: string) {
+export async function commitInfo(commitId: string): Promise<CommitInfo> {
   return await invoke("commit_info", { args: commitId });
 }
 
-export async function commitFiles(commitId: string) {
+export async function commitFiles(commitId: string): Promise<StatusItem[]> {
   return await invoke("commit_files", { args: commitId });
 }
 
 // branch
-export async function getBranchName() {
+export async function getBranchName(): Promise<string> {
   return await invoke("get_branch_name");
 }
 
@@ -193,4 +197,15 @@ export async function stashPop(stashid: string) {
 
 export async function stashDrop(stashid: string) {
   return await invoke("stash", { args: ["drop", stashid] });
+}
+
+// TODO
+// remote
+export async function fetch() {}
+
+export async function push() {}
+
+// test progress
+export async function testProgress() {
+  return await invoke("test_progress");
 }

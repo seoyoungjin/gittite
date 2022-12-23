@@ -19,10 +19,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import HistoryListRow from "./HistoryListRow.vue";
 import * as git2rs from "@/api/git2rs";
+import type { CommitData } from "@/api/types";
 
-export default {
+export default defineComponent({
   name: "HistoryList",
 
   components: {
@@ -35,7 +37,7 @@ export default {
 
   data() {
     return {
-      logList: [],
+      logList: [] as CommitData[],
     };
   },
 
@@ -51,5 +53,5 @@ export default {
       this.$emit("selectItem", item);
     },
   },
-};
+});
 </script>

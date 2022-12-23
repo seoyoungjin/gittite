@@ -1,8 +1,9 @@
 // import * as git2rs from "@/api/git2rs";
+import { defineComponent } from "vue";
 import { mapActions } from "pinia";
 import { usePropStore } from "@/stores/props";
 
-export default {
+export default defineComponent({
   methods: {
     ...mapActions(usePropStore, ["setModal"]),
 
@@ -15,4 +16,4 @@ export default {
       this.setModal(false);
     },
   },
-};
+});

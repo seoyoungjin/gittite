@@ -16,9 +16,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { date } from "quasar";
 
-export default {
+export default defineComponent({
   name: "HistoryListRow",
   props: ["item"],
   components: {},
@@ -35,5 +36,5 @@ export default {
     },
   },
   methods: {},
-};
+});
 </script>

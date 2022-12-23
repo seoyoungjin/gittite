@@ -24,7 +24,7 @@
 
         <q-tab-panels v-model="tab" animated class="fit">
           <q-tab-panel name="changes" class="q-pa-sm">
-            <changes-list v-on:selectItem="handleSelectItem" />
+            <ChangesList v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-sm">
@@ -57,10 +57,12 @@
 
 <script lang="ts">
 import { ref } from "vue";
+import { defineComponent } from "vue";
 import { listen } from "@tauri-apps/api/event";
 import ToolBar from "@/layouts/ToolBar.vue";
 import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
+// import ChangesOption from "@/components/ChangesOption.vue";
 import HistoryList from "@/components/HistoryList.vue";
 import DiffView from "@/components/DiffView.vue";
 import InitRepository from "@/components/dialog/InitRepository.vue";
@@ -71,7 +73,7 @@ import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { usePropStore } from "@/stores/props";
 
-export default {
+export default defineComponent({
   setup() {
     const repoStore = useRepositoryStore();
     const settingsStore = useSettingsStore();
@@ -117,6 +119,7 @@ export default {
     ToolBar,
     ToolBar2,
     ChangesList,
+    // ChangesOption,
     HistoryList,
     DiffView,
     // dialog
@@ -140,5 +143,5 @@ export default {
       this.repoStore.setRepository(path);
     },
   },
-};
+});
 </script>

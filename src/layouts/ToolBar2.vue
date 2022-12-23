@@ -35,12 +35,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { octGitBranch16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import SetLayout from "../components/SetLayout.vue";
 
-export default {
+export default defineComponent({
   name: "ToolBar2",
 
   setup() {
@@ -71,5 +72,5 @@ export default {
       this.$emit("preference");
     },
   },
-};
+});
 </script>

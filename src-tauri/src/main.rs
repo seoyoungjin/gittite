@@ -101,7 +101,7 @@ fn main() {
             std::thread::spawn(move || loop {
                 match rx_git.recv() {
                     Ok(payload) => {
-                        log::trace!("{:?}", payload);
+                        // log::trace!("rx_git {:?}", payload);
                         win.emit("PROGRESS", payload).unwrap();
                     }
                     Err(e) => {

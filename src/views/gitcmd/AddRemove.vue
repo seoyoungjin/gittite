@@ -41,13 +41,13 @@
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { defineComponent, ref } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { invoke } from "@tauri-apps/api/tauri";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
@@ -58,7 +58,7 @@ export default {
       stagedJson: null,
       unstagedJson: null,
 
-      file: null,
+      file: "",
       splitterModel: ref(50),
     };
   },
@@ -70,13 +70,13 @@ export default {
   methods: {
     refreshStatus() {
       (async () => {
-        this.stagedJson = await this.getStatus("stage");
-        this.unstagedJson = await this.getStatus("workdir");
+        this.stagedJson = (await this.getStatus("stage")) as any;
+        this.unstagedJson = (await this.getStatus("workdir")) as any;
       })();
     },
 
     onReset() {
-      this.file = null;
+      this.file = "";
       this.response = null;
       this.refreshStatus();
     },
@@ -86,11 +86,11 @@ export default {
       git2rs
         .add(name)
         .then((message) => {
-          this.response = message;
+          this.response = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.response = { error: JSON.stringify(e) };
+            this.response = { error: JSON.stringify(e) } as any;
           }
         });
       this.refreshStatus();
@@ -101,11 +101,11 @@ export default {
       git2rs
         .resetStage(name)
         .then((message) => {
-          this.response = message;
+          this.response = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.response = { error: JSON.stringify(e) };
+            this.response = { error: JSON.stringify(e) } as any;
           }
         });
       this.refreshStatus();
@@ -121,5 +121,5 @@ export default {
       }
     },
   },
-};
+});
 </script>

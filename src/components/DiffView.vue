@@ -3,14 +3,15 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import * as git2rs from "@/api/git2rs";
 import * as Diff2Html from "diff2html";
 import "diff2html/bundles/css/diff2html.min.css";
 
-export default {
+export default defineComponent({
   name: "DiffView",
   props: {
-    curSelected: Object,
+    curSelected: null,
   },
 
   data() {
@@ -25,7 +26,6 @@ export default {
         drawFileList: "commit_id" in this.curSelected,
         matching: "none",
         outputFormat: "line-by-line",
-        highlight: true,
       });
     },
   },
@@ -45,5 +45,5 @@ export default {
   watch: {
     curSelected: "getDiff",
   },
-};
+});
 </script>

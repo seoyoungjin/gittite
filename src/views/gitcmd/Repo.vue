@@ -15,12 +15,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
 import * as git2rs from "../../api/git2rs";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
@@ -47,14 +48,14 @@ export default {
           this.response = {
             "Selected Directory": selected,
             "Current repository": repo,
-          };
+          } as any;
         })
         .catch((e) => {
           if (e) {
-            this.response = { error: JSON.stringify(e) };
+            this.response = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>

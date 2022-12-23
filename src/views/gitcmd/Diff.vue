@@ -4,7 +4,7 @@
 
     <q-card>
       <q-card-section>
-        <q-form v-on:submit="getDiff" id="git-diff">
+        <q-form v-on:submit="gitDiff" id="git-diff">
           <q-input
             v-model="form.filename"
             label="File"
@@ -43,18 +43,19 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { invoke } from "@tauri-apps/api/tauri";
 
-export default {
+export default defineComponent({
   components: {
     VueJsonPretty,
   },
   data() {
     return {
       form: {
-        file: "",
+        filename: "",
         stageCheck: false,
       },
       response: null,
@@ -67,14 +68,14 @@ export default {
       // invoke("get_diff", { args: filename })
       invoke("diff", { args: [] })
         .then((message) => {
-          this.response = message;
+          this.response = message as any;
         })
         .catch((e) => {
           if (e) {
-            this.error = { error: JSON.stringify(e) };
+            this.error = { error: JSON.stringify(e) } as any;
           }
         });
     },
   },
-};
+});
 </script>

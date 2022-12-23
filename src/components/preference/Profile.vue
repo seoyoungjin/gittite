@@ -1,6 +1,6 @@
 <template>
   <div class="text-h6 q-pa-none">Profile</div>
-  <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+  <q-form class="q-gutter-md">
     <q-input
       v-model="authorName"
       label="Name"
@@ -26,10 +26,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useSettingsStore } from "@/stores/settings";
 
-export default {
+export default defineComponent({
   name: "Profile",
 
   data() {
@@ -60,5 +61,5 @@ export default {
       this.saveSettings();
     },
   },
-};
+});
 </script>
