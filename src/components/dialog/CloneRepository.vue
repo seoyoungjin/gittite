@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+    <q-card class="q-dialog-plugin" v-if="!cloning">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Clone a Repository</div>
         <q-space />
@@ -11,7 +11,8 @@
 
       <q-card-section class="q-pt-none">
         <q-card-actions vertical>
-          <q-input v-model="gitURL" label="Git URL" />
+          <q-input v-model="remoteUrl" label="Git URL" />
+          <q-input v-model="repositoryName" label="Repository Name" />
           <q-input v-model="localPath" label="Local Path">
             <template v-slot:after>
               <q-btn no-caps @click="selectDirectory"> Choose... </q-btn>
@@ -28,10 +29,20 @@
           color="primary"
           label="OK"
           @click="onOKClick"
-          :disable="!gitURL"
+          :disable="!(remoteUrl && repositoryName)"
         />
         <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
+    </q-card>
+    <q-card v-else class="q-dialog-plugin">
+      <div class="q-pa-md">
+        <h6>Cloning the repository</h6>
+        <RemoteProgress
+          ref="progressRef"
+          message="start"
+          @progressDone="progressDone"
+        />
+      </div>
     </q-card>
   </q-dialog>
 </template>
@@ -40,25 +51,29 @@
 import { defineComponent } from "vue";
 import { usePropStore } from "@/stores/props";
 import DialogMixin from "@/mixins/dialog";
-import * as git2rs from "@/api/git2rs";
 import { open } from "@tauri-apps/api/dialog";
+import RemoteProgress from "@/components/RemoteProgress.vue";
+import * as git2rs from "@/api/git2rs";
 
 export default defineComponent({
   name: "CloneRepository",
   mixins: [DialogMixin],
 
+  components: {
+    RemoteProgress,
+  },
+
   data() {
     const store = usePropStore();
     return {
-      gitURL: "",
+      remoteUrl: "",
+      repositoryName: "",
       localPath: store.CWD,
+      cloning: false,
     };
   },
 
-  emits: [
-    // REQUIRED
-    "ok",
-  ],
+  emits: ["ok"],
 
   methods: {
     show() {
@@ -70,14 +85,16 @@ export default defineComponent({
     },
 
     onOKClick() {
+      this.cloneRepository();
       this.$emit("ok");
-      this.hide();
+      // this.hide();
     },
 
     onCancelClick() {
       this.hide();
     },
 
+    // dialog specific
     async selectDirectory() {
       const selected = await open({
         directory: true,
@@ -85,7 +102,40 @@ export default defineComponent({
       if (Array.isArray(selected) || selected === null) {
         return;
       }
-      this.localPath = selected;
+      this.localPath = selected.split("\\").join("/");
+    },
+
+    async cloneRepository() {
+      const repositoryPath = this.localPath + "/" + this.repositoryName;
+      this.cloning = true;
+      await git2rs
+        .clone(this.remoteUrl, repositoryPath)
+        .then((message) => {
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
+      this.cloning = false;
+
+      // git2rs.testProgress().then(result => {
+      //    this.cloning = false;
+      // });
+    },
+
+    progressDone() {
+      this.hide();
     },
   },
 });

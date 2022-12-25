@@ -1,6 +1,5 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import RemoteProgress from "@/components/RemoteProgress.vue";
 import ProgressDialog from "@/components/dialog/ProgressDialog.vue";

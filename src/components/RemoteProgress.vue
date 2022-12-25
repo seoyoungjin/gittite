@@ -1,7 +1,7 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
+import { computed, ref } from "vue";
 import { listen } from "@tauri-apps/api/event";
-import * as git2rs from "@/api/git2rs";
 
 export default defineComponent({
   props: {
@@ -26,8 +26,13 @@ export default defineComponent({
     },
   },
 
-  setup() {
+  emits: ["progressDone"],
+
+  setup(_, { emit }) {
     const progress = ref(0.0);
+    const progressLabel = computed(() => {
+      return (progress.value * 100).toFixed(2) + "%";
+    });
     let unlisten = null as any;
 
     const startProgress = async () => {
@@ -36,6 +41,9 @@ export default defineComponent({
         // console.log("progress: " + JSON.stringify(event));
         let payload = event.payload as any;
         progress.value = payload.progress.progress / 100.0;
+        if (payload.progress.progress === 100) {
+          emit("progressDone");
+        }
       });
     };
 
@@ -54,18 +62,13 @@ export default defineComponent({
     return {
       unlisten,
       progress,
+      progressLabel,
 
       // functions
       startProgress,
       stopProgress,
       resetProgress,
     };
-  },
-
-  computed: {
-    progressLabel() {
-      return (this.progress * 100).toFixed(2) + "%";
-    },
   },
 });
 </script>

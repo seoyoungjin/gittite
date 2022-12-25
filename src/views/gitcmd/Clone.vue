@@ -3,66 +3,82 @@
     <h6>Clone</h6>
 
     <q-card>
-      <q-card-section>
-        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-          <q-input v-model="form.gitURL" label="gitURL" hint="Enter git url" />
-          <q-input
-            v-model="form.directory"
-            label="Directory"
-            hint="Enter directory"
-          />
-
-          <div>
-            <q-btn label="Submit" type="submit" color="primary" />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              class="q-ml-sm"
-            />
-          </div>
-        </q-form>
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h6">Clone a Repository</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="q-pt-none">
+        <q-card-actions vertical>
+          <q-input v-model="remoteUrl" label="Git URL" />
+          <q-input v-model="repositoryName" label="Repository Name" />
+          <q-input v-model="localPath" label="Local Path">
+            <template v-slot:after>
+              <q-btn no-caps @click="selectDirectory"> Choose... </q-btn>
+            </template>
+          </q-input>
+        </q-card-actions>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right">
+        <q-btn
+          no-caps
+          color="primary"
+          label="Submit"
+          @click="onSubmit"
+          :disable="!(remoteUrl && repositoryName)"
+        />
+        <q-btn no-caps label="Reset" @click="onReset" />
+      </q-card-actions>
+    </q-card>
+    <br />
+
+    <q-card>
+      <div class="q-pa-md">
+        <RemoteProgress ref="progressRef" />
+      </div>
     </q-card>
   </q-page>
-
-  <!--
-  <ProgressDialog v-model="showProgress" />
---></template>
+</template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-// import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
+import { open } from "@tauri-apps/api/dialog";
+import RemoteProgress from "@/components/RemoteProgress.vue";
 import * as git2rs from "@/api/git2rs";
 
 export default defineComponent({
-  /*
   components: {
-    ProgressDialog,
+    RemoteProgress,
   },
-*/
 
   data() {
     return {
-      form: {
-        gitURL: "",
-        directory: "",
-      },
-      showProgress: false,
+      remoteUrl: "",
+      repositoryName: "",
+      localPath: "",
     };
   },
 
   methods: {
-    gitClone() {
-      // const gitURL = "https://github.com/rust-lang/git2-rs.git";
-      // const localDir = "/home/yjseo/tmp/test";
-      const gitURL = this.form.gitURL;
-      const localDir = this.form.directory;
-
-      this.showProgress = true;
-      git2rs
-        .clone(gitURL, localDir)
+    async selectDirectory() {
+      const selected = await open({
+        directory: true,
+      });
+      if (Array.isArray(selected) || selected === null) {
+        return;
+      }
+      this.localPath = selected.split("\\").join("/");
+    },
+    async cloneRepository() {
+      const repositoryPath = this.localPath + "/" + this.repositoryName;
+      await git2rs
+        .clone(this.remoteUrl, repositoryPath)
         .then((message) => {
           this.$q.notify({
             color: "green-5",
@@ -80,14 +96,19 @@ export default defineComponent({
             message: message,
           });
         });
-    },
 
+      // await git2rs.testProgress();
+    },
     onSubmit() {
-      this.gitClone();
+      (this.$refs.progressRef as any).startProgress();
+      this.cloneRepository();
     },
     onReset() {
-      this.form.gitURL = "";
-      this.form.directory = "";
+      this.remoteUrl = "";
+      this.repositoryName = "";
+      this.localPath = "";
+
+      (this.$refs.progressRef as any).resetProgress();
     },
   },
 });

@@ -91,10 +91,7 @@ export default defineComponent({
     };
   },
 
-  emits: [
-    // REQUIRED
-    "ok",
-  ],
+  emits: ["ok"],
 
   methods: {
     show() {

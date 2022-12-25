@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
-    <q-card>
+    <q-card class="q-dialog-plugin">
       <!-- progress -->
       <q-card-section>
         <RemoteProgress ref="progressRef" />
@@ -38,7 +38,7 @@ export default defineComponent({
       (this.$refs.dialog as any).hide();
     },
     onOKClick() {
-      this.startRemoteProgress()
+      this.startRemoteProgress();
       // this.hide();
     },
     onCancelClick() {
