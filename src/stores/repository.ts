@@ -20,22 +20,21 @@ export const useRepositoryStore = defineStore("repository", {
   actions: {
     async setRepository(path: string) {
       const repo_path = await git2rs.setRepository(path).catch((e) => {
-        console.log(e);
+        throw e;
       });
       if (!repo_path) {
         return;
       }
       this.repo_path = repo_path;
-      git2rs
-        .getBranchName()
-        .then((res) => {
-          this.current_branch = res as string;
-          console.log("branch: " + res);
-        })
-        .catch((err) => {
-          console.log(err);
+      // TODO - misc repo data
+      // remoteOriginUrl
+      // last commit time
+      // ahead/behind
+      this.current_branch = await git2rs.getBranchName().catch((err) => {
           this.current_branch = "master";
-        });
+          console.log(err);
+      });
+      return repo_path;
     },
   },
 });

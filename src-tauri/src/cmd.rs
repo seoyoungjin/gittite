@@ -1,16 +1,8 @@
-use crate::app_data::{AppData, AppDataState};
+use crate::app_data::AppDataState;
 use crate::git_api::*;
 use git2::{Repository, StatusShow};
 use serde_json::Value;
 use std::path::Path;
-use std::sync::MutexGuard;
-
-fn verify_repo_path(app_data: &mut MutexGuard<'_, AppData>) {
-    if app_data.repo_path.is_none() {
-        let repo_path = ".".into();
-        app_data.repo_path = Some(repo_path);
-    }
-}
 
 #[tauri::command]
 pub fn init(args: Vec<String>) -> Result<String> {
@@ -62,9 +54,8 @@ pub fn get_status(
     app_data: AppDataState<'_>,
 ) -> Result<Vec<StatusItem>> {
     log::trace!("get_status status_type {:?}", status_type);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let status_show = match status_type.as_str() {
         "stage" => StatusShow::Index,
         "workdir" => StatusShow::Workdir,
@@ -79,9 +70,8 @@ pub fn get_commits(
     app_data: AppDataState<'_>,
 ) -> Result<Vec<CommitData>> {
     log::trace!("get_commits:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     revlog::get_commits(app_data.repo_path_ref(), &args)
 }
 
@@ -91,10 +81,9 @@ pub fn commit(
     app_data: AppDataState<'_>,
 ) -> Result<CommitId> {
     log::trace!("commit:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
+
     commit::commit(repo_path, args.as_str())
 }
 
@@ -104,9 +93,8 @@ pub fn amend(
     app_data: AppDataState<'_>,
 ) -> Result<CommitId> {
     log::trace!("amend:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let head_id = utils::get_head(&repo_path)?;
     commit::amend(repo_path, head_id, args.as_str())
@@ -118,9 +106,8 @@ pub fn commit_info(
     app_data: AppDataState<'_>,
 ) -> Result<CommitInfo> {
     log::trace!("commit_info:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let cid = match CommitId::from_str(args.as_str()) {
         Ok(cid) => cid,
@@ -135,9 +122,8 @@ pub fn commit_files(
     app_data: AppDataState<'_>,
 ) -> Result<Vec<StatusItem>> {
     log::trace!("commit_files:: args {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let cid = match CommitId::from_str(args.as_str()) {
         Ok(cid) => cid,
@@ -153,9 +139,8 @@ pub fn get_diff(
     app_data: AppDataState<'_>,
 ) -> Result<String> {
     log::trace!("get_diff:: path: {}, stage: {}", path, stage);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     // TODO
     let diff_opt = None;
@@ -169,9 +154,8 @@ pub fn get_diff_commit(
     app_data: AppDataState<'_>,
 ) -> Result<String> {
     log::trace!("get_diff_commit:: commit_id: {}", &commit_id[0..7]);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let repo = match repository::repo_open(repo_path) {
         Ok(repo) => repo,
@@ -193,9 +177,8 @@ pub fn add(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("add() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let path = Path::new(&args);
 
@@ -208,9 +191,8 @@ pub fn remove(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("remove() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let path = Path::new(&args);
 
@@ -223,9 +205,8 @@ pub fn reset_stage(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("reset_stage() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
+    let app_data = app_data.0.lock().unwrap();
 
-    verify_repo_path(&mut app_data);
     let repo_path = app_data.repo_path_ref();
     let path = args.as_str();
 
@@ -235,9 +216,7 @@ pub fn reset_stage(
 #[tauri::command]
 pub fn get_branch_name(app_data: AppDataState<'_>) -> Result<String> {
     log::trace!("get_branch_name()");
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::get_branch_name(repo_path)
@@ -249,9 +228,7 @@ pub fn create_branch(
     app_data: AppDataState<'_>,
 ) -> Result<String> {
     log::trace!("create_branch() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::create_branch(repo_path, args.as_str())
@@ -263,9 +240,7 @@ pub fn delete_branch(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("delete_branch() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::delete_branch(repo_path, args.as_str())
@@ -278,9 +253,7 @@ pub fn rename_branch(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("rename_branch() with : {:?} {:?}", branch, name);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::rename_branch(repo_path, branch.as_str(), name.as_str())
@@ -292,9 +265,7 @@ pub fn get_branch_remote(
     app_data: AppDataState<'_>,
 ) -> Result<Option<String>> {
     log::trace!("get_branch_remote() with : {:?}", branch);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::get_branch_remote(repo_path, branch.as_str())
@@ -306,9 +277,7 @@ pub fn branch_compare_upstream(
     app_data: AppDataState<'_>,
 ) -> Result<BranchCompare> {
     log::trace!("branch_compare_upstream() with : {:?}", branch);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::branch_compare_upstream(repo_path, branch.as_str())
@@ -320,9 +289,7 @@ pub fn get_branches_info(
     app_data: AppDataState<'_>,
 ) -> Result<Vec<BranchInfo>> {
     log::trace!("get_branches_info() with : {:?}", local);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::get_branches_info(repo_path, local)
@@ -334,9 +301,7 @@ pub fn checkout_branch(
     app_data: AppDataState<'_>,
 ) -> Result<()> {
     log::trace!("checkout_branch() with : {:?}", branch_ref);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     branch::checkout_branch(repo_path, branch_ref.as_str())
@@ -346,35 +311,24 @@ pub fn checkout_branch(
 pub fn checkout_remote_branch(
     branch_ref: String,
     app_data: AppDataState<'_>,
-) -> Result<(), String> {
+) -> Result<()> {
     log::trace!("checkout_remote_branch() with : {:?}", branch_ref);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
-    let branches = match branch::get_branches_info(repo_path, false) {
-        Ok(v) => v,
-        Err(e) => return Err(e.to_string()),
-    };
-
+    let branches = branch::get_branches_info(repo_path, false)?;
     for branch in branches {
         log::trace!("checkout_remote_branch() branch: {:?}", branch.name);
         if branch.name == branch_ref {
-            match branch::checkout_remote_branch(repo_path, &branch) {
-                Ok(()) => return Ok(()),
-                Err(e) => return Err(e.to_string()),
-            }
+            branch::checkout_remote_branch(repo_path, &branch)?;
         }
     }
-    return Err("can not find remote branch".to_string());
+    return Err(Error::Generic("can not find remote branch".to_string()));
 }
 
 #[tauri::command]
 pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>> {
-    let mut app_data = app_data.0.lock().unwrap();
-
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     remotes::get_remotes(repo_path)
@@ -386,8 +340,7 @@ pub fn tag(
     app_data: AppDataState<'_>,
 ) -> Result<Value> {
     log::trace!("tag() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     tag::tag(repo_path, &args)
@@ -399,8 +352,7 @@ pub fn stash(
     app_data: AppDataState<'_>,
 ) -> Result<Value> {
     log::trace!("stash() with : {:?}", args);
-    let mut app_data = app_data.0.lock().unwrap();
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     stash::stash(repo_path, &args)
@@ -409,12 +361,11 @@ pub fn stash(
 #[tauri::command]
 pub fn blame(
     path: String,
-    commit_id: Option<String>,
+    _commit_id: Option<String>,
     app_data: AppDataState<'_>,
 ) -> Result<FileBlame> {
     log::trace!("blame() with : {:?}", path);
-    let mut app_data = app_data.0.lock().unwrap();
-    verify_repo_path(&mut app_data);
+    let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     // TODO option?
@@ -422,7 +373,7 @@ pub fn blame(
 }
 
 #[tauri::command]
-pub async fn test_progress(app_data: AppDataState<'_>) -> Result<(), String> {
+pub async fn test_progress(app_data: AppDataState<'_>) -> Result<()> {
     log::trace!("test_progress");
     let app_data = app_data.0.lock().unwrap();
 

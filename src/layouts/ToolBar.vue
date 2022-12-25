@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { octRepo16 } from "quasar-extras-svg-icons/oct-icons-v17";
@@ -60,8 +60,27 @@ export default defineComponent({
     ...mapState(useSettingsStore, ["allRepository"]),
   },
   methods: {
+    ...mapActions(useRepositoryStore, ["setRepository"]),
+
     onItemClick(repo: string) {
-      // alert(this.allRepository);
+      this.setRepository(repo)
+        .then((message) => {
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
     },
   },
 });

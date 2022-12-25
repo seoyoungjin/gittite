@@ -1,6 +1,13 @@
 // vim:ts=2:sts=2:sw=2
 
-import type { CommitData, CommitInfo, Settings, StatusItem } from "./types";
+import type {
+  BranchCompare,
+  BranchInfo,
+  CommitData,
+  CommitInfo,
+  Settings,
+  StatusItem,
+} from "./types";
 import { invoke } from "@tauri-apps/api/tauri";
 
 export async function runCmd<T = any>(
@@ -113,7 +120,7 @@ export async function getBranchName(): Promise<string> {
   return await invoke("get_branch_name");
 }
 
-export async function createBranch(name: string) {
+export async function createBranch(name: string): Promise<string> {
   return await invoke("create_branch", { args: name });
 }
 
@@ -125,15 +132,17 @@ export async function renameBranch(branch: string, name: string) {
   return await invoke("rename_branch", { branch: branch, name: name });
 }
 
-export async function branchesInfo(local: boolean) {
+export async function branchesInfo(local: boolean): Promise<BranchInfo[]> {
   return await invoke("get_branches_info", { local: local });
 }
 
-export async function branchRemote(branch: string) {
+export async function branchRemote(branch: string): Promise<string | null> {
   return await invoke("get_branch_remote", { branch: branch });
 }
 
-export async function branchCompareUpstream(branch: string) {
+export async function branchCompareUpstream(
+  branch: string
+): Promise<BranchCompare> {
   return await invoke("branch_compare_upstream", { branch: branch });
 }
 
