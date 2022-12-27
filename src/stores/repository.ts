@@ -26,15 +26,26 @@ export const useRepositoryStore = defineStore("repository", {
         return;
       }
       this.repo_path = repo_path;
+
+      this.loadRepositoryInfo();
+
+      return repo_path;
+    },
+
+    loadRepositoryInfo() {
       // TODO - misc repo data
       // remoteOriginUrl
       // last commit time
       // ahead/behind
-      this.current_branch = await git2rs.getBranchName().catch((err) => {
-          this.current_branch = "master";
+      git2rs
+        .getBranchName()
+        .then((res) => {
+          this.current_branch = res as string;
+        })
+        .catch((err) => {
           console.log(err);
-      });
-      return repo_path;
+          this.current_branch = "master";
+        });
     },
   },
 });

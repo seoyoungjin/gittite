@@ -51,7 +51,7 @@
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from "../../api/git2rs";
 
 export default defineComponent({
   components: {
@@ -75,7 +75,8 @@ export default defineComponent({
       // alert(JSON.stringify(this.form, null, 4));
       // TODO argument
       var dirname = this.form.directory;
-      invoke("init", { args: [dirname] })
+      git2rs
+        .init(dirname)
         .then((message) => {
           this.response = message as any;
         })

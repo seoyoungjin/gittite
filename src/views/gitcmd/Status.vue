@@ -18,7 +18,7 @@
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from "@/api/git2rs";
 
 export default defineComponent({
   components: {
@@ -32,7 +32,8 @@ export default defineComponent({
 
   methods: {
     getStatus(args: string) {
-      invoke("get_status", { statusType: args })
+      git2rs
+        .getStatus(args)
         .then((message) => {
           this.response = message as any;
         })

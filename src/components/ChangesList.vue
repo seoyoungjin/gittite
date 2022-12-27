@@ -1,11 +1,11 @@
 <template>
   <div class="q-ma-none">
-    <!--Unstaged-->
+    <!-- Unstaged -->
     <div class="text-h7">Unstaged Changes</div>
     <q-scroll-area style="height: 25vh">
       <q-list dense bordered padding class="rounded-borders">
         <q-item
-          v-for="(item, index) in unstagedData"
+          v-for="(item, index) in allUnstagedFiles"
           :key="index"
           clickable
           @click="clickItem(item)"
@@ -25,12 +25,12 @@
       </q-list>
     </q-scroll-area>
 
-    <!--Staged-->
+    <!-- Staged -->
     <div class="text-h7">Staged Changes</div>
     <q-scroll-area style="height: 25vh">
       <q-list dense bordered padding class="rounded-borders">
         <q-item
-          v-for="(item, index) in stagedData"
+          v-for="(item, index) in allStagedFiles"
           :key="index"
           clickable
           @click="clickItem(item)"
@@ -51,14 +51,13 @@
     </q-scroll-area>
 
     <div>
-      <commit-message @commit="getStatus" />
+      <commit-message @commit="updateCommitStage" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useQuasar } from "quasar";
 import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commitStage";
 // import ChangesOption from "@/components/ChangesOption.vue";
@@ -73,12 +72,9 @@ import {
   octFileDiff16,
 } from "quasar-extras-svg-icons/oct-icons-v17";
 import * as git2rs from "@/api/git2rs";
-import type { StatusItem } from "@/api/types";
 
 export default defineComponent({
   setup() {
-    const $q = useQuasar();
-
     return {
       octDiff16,
       octDiffAdded16,
@@ -95,33 +91,16 @@ export default defineComponent({
     CommitMessage,
   },
 
-  data() {
-    return {
-      branchName: "",
-      stagedData: [] as StatusItem[],
-      unstagedData: [] as StatusItem[],
-    };
-  },
-
   mounted() {
-    this.getStatus();
+    this.updateCommitStage();
   },
 
   computed: {
-    ...mapState(useCommitStageStore, ["allStagedFiles"]),
+    ...mapState(useCommitStageStore, ["allStagedFiles", "allUnstagedFiles"]),
   },
 
   methods: {
-    ...mapActions(useCommitStageStore, ["updateStagedFiles"]),
-
-    getStatus() {
-      (async () => {
-        this.stagedData = (await git2rs.getStatus("stage")) as [];
-        this.unstagedData = (await git2rs.getStatus("workdir")) as [];
-        // staged list to pinia state
-        this.updateStagedFiles(this.stagedData as []);
-      })();
-    },
+    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
 
     clickItem(item: any) {
       this.$emit("selectItem", item);
@@ -131,7 +110,7 @@ export default defineComponent({
       git2rs
         .add(item.path)
         .then(() => {
-          this.getStatus();
+          this.updateCommitStage();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);
@@ -143,7 +122,7 @@ export default defineComponent({
       git2rs
         .resetStage(item.path)
         .then(() => {
-          this.getStatus();
+          this.updateCommitStage();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

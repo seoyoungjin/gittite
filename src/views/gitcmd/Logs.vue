@@ -18,7 +18,7 @@
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from "../../api/git2rs";
 
 export default defineComponent({
   components: {
@@ -33,9 +33,9 @@ export default defineComponent({
 
   methods: {
     getCommits() {
-      invoke("get_commits", { args: [] })
+      git2rs
+        .getCommits()
         .then((message) => {
-          // alert("Got response. Iterationg....");
           this.response = message as any;
         })
         .catch((e) => {

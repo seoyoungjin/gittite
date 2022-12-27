@@ -46,7 +46,7 @@
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
+import * as git2rs from "../../api/git2rs";
 
 export default defineComponent({
   components: {
@@ -65,8 +65,9 @@ export default defineComponent({
   methods: {
     gitDiff: function () {
       var filename = this.form.filename;
-      // invoke("get_diff", { args: filename })
-      invoke("diff", { args: [] })
+      var stageCheck = this.form.stageCheck;
+      git2rs
+        .getDiff(filename, stageCheck)
         .then((message) => {
           this.response = message as any;
         })

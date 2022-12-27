@@ -44,7 +44,6 @@
 import { defineComponent, ref } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import { invoke } from "@tauri-apps/api/tauri";
 import * as git2rs from "../../api/git2rs";
 
 export default defineComponent({
@@ -113,7 +112,7 @@ export default defineComponent({
 
     async getStatus(args: string) {
       try {
-        return await invoke("get_status", { statusType: args });
+        return await git2rs.getStatus(args);
       } catch (e) {
         if (e) {
           return { error: JSON.stringify(e) };

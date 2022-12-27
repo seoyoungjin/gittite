@@ -63,7 +63,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useQuasar } from "quasar";
 import { usePropStore } from "@/stores/props";
 import DialogMixin from "@/mixins/dialog";
 import * as git2rs from "@/api/git2rs";
@@ -75,7 +74,6 @@ export default defineComponent({
   mixins: [DialogMixin],
 
   data() {
-    const $q = useQuasar();
     const store = usePropStore();
 
     return {
