@@ -19,7 +19,7 @@
             <q-item-label>
               <small>Current Repository</small>
             </q-item-label>
-            <q-item-label>{{ repositoryPath }}</q-item-label>
+            <q-item-label>{{ repositoryName }}</q-item-label>
           </q-item-section>
         </div>
       </template>
@@ -56,7 +56,7 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useRepositoryStore, ["repositoryPath"]),
+    ...mapState(useRepositoryStore, ["repositoryName"]),
     ...mapState(useSettingsStore, ["allRepository"]),
   },
   methods: {

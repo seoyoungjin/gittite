@@ -10,6 +10,11 @@ const router = createRouter({
       component: WorkSpace,
     },
     {
+      path: "/select",
+      name: "selectRepository",
+      component: () => import("../views/SelectRepository.vue"),
+    },
+    {
       path: "/gitcmd",
       name: "gitcmd",
       component: () => import("../layouts/DevLayout.vue"),

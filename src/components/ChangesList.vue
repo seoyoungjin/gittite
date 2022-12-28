@@ -91,10 +91,6 @@ export default defineComponent({
     CommitMessage,
   },
 
-  mounted() {
-    this.updateCommitStage();
-  },
-
   computed: {
     ...mapState(useCommitStageStore, ["allStagedFiles", "allUnstagedFiles"]),
   },

@@ -30,6 +30,13 @@ export const useSettingsStore = defineStore("settings", {
       //alert(this.settings.all_repository);
       git2rs.saveSettings(this.settings);
     },
+    removeRepositoryFromSettings(path: string) {
+      const idx = this.settings.all_repository.indexOf(path);
+      if (idx > -1) {
+        this.settings.all_repository.splice(idx, 1);
+        git2rs.saveSettings(this.settings);
+      }
+    },
     setProfile(name: string, email: string, image: string) {
       this.settings.profile.name = name;
       this.settings.profile.email = email;

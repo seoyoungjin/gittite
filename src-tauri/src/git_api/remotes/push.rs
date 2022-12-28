@@ -236,7 +236,7 @@ mod tests {
 
         let (tmp_repo_dir, repo) = repo_init().unwrap();
         let (tmp_other_repo_dir, other_repo) = repo_init().unwrap();
-        let (tmp_upstream_dir, upstream) = repo_init_bare().unwrap();
+        let (tmp_upstream_dir, _upstream) = repo_init_bare().unwrap();
 
         repo.remote("origin", tmp_upstream_dir.path().to_str().unwrap())
             .unwrap();

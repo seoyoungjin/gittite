@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
+import { useCommitStageStore } from "./commitStage";
 import * as git2rs from "@/api/git2rs";
+import type { CommitData } from "@/api/types";
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
@@ -7,45 +9,48 @@ export const useRepositoryStore = defineStore("repository", {
       repo_path: "",
       current_branch: "",
       all_branches: [] as string[],
+      logList: [] as CommitData[],
     };
   },
   getters: {
-    // directory name
     repositoryName: (state) => {
-      return state.repo_path.split("/").reverse()[0];
+      const arr = state.repo_path.split("/").reverse().filter(Boolean);
+      if (arr.length == 0) return "";
+      return arr[0];
     },
     repositoryPath: (state) => state.repo_path,
     currentBranch: (state) => state.current_branch,
+    commitLogs: (state) => state.logList,
   },
   actions: {
     async setRepository(path: string) {
-      const repo_path = await git2rs.setRepository(path).catch((e) => {
-        throw e;
-      });
+      const repo_path = await git2rs.setRepository(path);
       if (!repo_path) {
         return;
       }
-      this.repo_path = repo_path;
-
       this.loadRepositoryInfo();
-
       return repo_path;
     },
 
-    loadRepositoryInfo() {
+    async loadRepositoryInfo() {
+      this.repo_path = await git2rs.workdir().catch(() => {
+        return "";
+      });
+      if (!this.repo_path)
+        return;
+
+      const stageStore = useCommitStageStore();
+      stageStore.updateCommitStage();
+
       // TODO - misc repo data
       // remoteOriginUrl
       // last commit time
       // ahead/behind
-      git2rs
-        .getBranchName()
-        .then((res) => {
-          this.current_branch = res as string;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.current_branch = "master";
-        });
+      this.current_branch = await git2rs.getBranchName().catch(() => {
+        return "master";
+      });
+
+      this.logList = await git2rs.getCommits();
     },
   },
 });

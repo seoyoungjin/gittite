@@ -48,6 +48,10 @@ export async function setRepository(path: string): Promise<string> {
   return await invoke("set_repository", { path });
 }
 
+export async function workdir(): Promise<string> {
+  return await invoke("workdir");
+}
+
 /// git
 export async function init(dirname: string): Promise<string> {
   return await invoke("init", { args: [dirname] });

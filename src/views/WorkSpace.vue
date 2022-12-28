@@ -89,7 +89,7 @@ export default defineComponent({
     };
   },
 
-  mounted() {
+  async mounted() {
     listen("menu-event", (ev) => {
       if (ev["payload"] == "init") {
         this.showInitReposity = true;
@@ -102,6 +102,12 @@ export default defineComponent({
       }
       console.log(ev.payload);
     });
+
+    await this.repoStore.loadRepositoryInfo();
+    // alert(this.repoStore.repositoryName);
+    if (!this.repoStore.repositoryName) {
+      this.$router.push("/select");
+    }
   },
 
   data() {

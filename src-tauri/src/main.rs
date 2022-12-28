@@ -58,6 +58,7 @@ fn main() {
             app_data::get_prop,
             app_data::set_prop,
             cmd::is_git_repository,
+            cmd::workdir,
             cmd::set_repository,
             cmd::clone,
             cmd::init,

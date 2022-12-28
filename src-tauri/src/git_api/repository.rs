@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_repopath() {
-        let mut repo_path = RepoPath::from("./foo/bar");
+        let repo_path = RepoPath::from("./foo/bar");
         let gitdir = PathBuf::from("./foo/bar");
 
         assert_eq!(repo_path.gitpath(), gitdir);

@@ -8,7 +8,7 @@
       class="rounded-borders"
     >
       <history-list-row
-        v-for="item in logList"
+        v-for="item in commitLogs"
         :item="item"
         :key="item.commit_id"
         clickable
@@ -20,9 +20,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { mapState } from "pinia";
+import { useRepositoryStore } from "@/stores/repository";
 import HistoryListRow from "./HistoryListRow.vue";
-import * as git2rs from "@/api/git2rs";
-import type { CommitData } from "@/api/types";
 
 export default defineComponent({
   name: "HistoryList",
@@ -31,23 +31,11 @@ export default defineComponent({
     HistoryListRow,
   },
 
-  mounted() {
-    this.getLogs();
-  },
-
-  data() {
-    return {
-      logList: [] as CommitData[],
-    };
+  computed: {
+    ...mapState(useRepositoryStore, ["commitLogs"]),
   },
 
   methods: {
-    getLogs() {
-      (async () => {
-        this.logList = await git2rs.getCommits();
-      })();
-    },
-
     clickItem(item: any) {
       // alert(JSON.stringify(item, null, 4));
       this.$emit("selectItem", item);

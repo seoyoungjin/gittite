@@ -5,6 +5,37 @@ use serde_json::Value;
 use std::path::Path;
 
 #[tauri::command]
+pub fn is_git_repository(path: String) -> bool {
+    // log::trace!("is_git repo {:?}", path);
+    let repo = Repository::discover(Path::new(&path));
+    repo.is_ok()
+}
+
+#[tauri::command]
+pub fn workdir(app_data: AppDataState<'_>) -> Result<String> {
+    let app_data = app_data.0.lock().unwrap();
+    let repo = repository::repo_open(app_data.repo_path_ref())?;
+    // TODO is_bare
+    Ok(repo.workdir().unwrap().to_str().unwrap().to_string())
+}
+
+#[tauri::command]
+pub fn set_repository(
+    path: String,
+    app_data: AppDataState<'_>,
+) -> Result<String> {
+    log::trace!("set_reposiroty path {:?}", path);
+    let mut app_data = app_data.0.lock().unwrap();
+
+    let repo_path: RepoPath = path.as_str().into();
+    let repo = repository::repo_open(&repo_path)?;
+    app_data.repo_path = Some(repo_path);
+
+    // TODO if is_bare(),  workdir() is none
+    Ok(repo.workdir().unwrap().to_str().unwrap().to_string())
+}
+
+#[tauri::command]
 pub fn init(args: Vec<String>) -> Result<String> {
     log::trace!("init args {:?}", args);
     init::init(&args)?;
@@ -22,30 +53,6 @@ pub async fn clone(
     let tx_git = app_data.tx_git.clone();
     clone::clone(&args, Some(tx_git))?;
     Ok("Repository cloned".to_string())
-}
-
-#[tauri::command]
-pub fn is_git_repository(path: String) -> bool {
-    // log::trace!("is_git repo {:?}", path);
-    let repo = Repository::discover(Path::new(&path));
-
-    repo.is_ok()
-}
-
-#[tauri::command]
-pub fn set_repository(
-    path: String,
-    app_data: AppDataState<'_>,
-) -> Result<String> {
-    log::trace!("set_reposiroty path {:?}", path);
-    let mut app_data = app_data.0.lock().unwrap();
-
-    let repo_path: RepoPath = path.as_str().into();
-    let repo = repository::repo_open(&repo_path)?;
-    app_data.repo_path = Some(repo_path);
-
-    // TODO if is_bare(),  workdir() is none
-    Ok(repo.workdir().unwrap().to_str().unwrap().to_string())
 }
 
 #[tauri::command]
