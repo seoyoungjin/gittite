@@ -3,9 +3,10 @@
 use super::error::{Error, Result};
 use super::{remotes::get_default_remote_in_repo, repository::repo_open, RepoPath};
 use git2::CredentialHelper;
+use serde::{Deserialize, Serialize};
 
 /// basic Authentication Credentials
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BasicAuthCredential {
     ///
     pub username: Option<String>,
@@ -15,6 +16,7 @@ pub struct BasicAuthCredential {
 
 impl BasicAuthCredential {
     ///
+    #[cfg(test)]
     pub const fn is_complete(&self) -> bool {
         self.username.is_some() && self.password.is_some()
     }

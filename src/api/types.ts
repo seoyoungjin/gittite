@@ -15,9 +15,8 @@ export interface RemoteBranch {
 }
 
 export interface BranchDetails {
-  // TODO - rust enum
-  local?: LocalBranch;
-  remote?: RemoteBranch;
+  Local?: LocalBranch;
+  Remote?: RemoteBranch;
 }
 
 export interface BranchInfo {

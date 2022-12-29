@@ -62,16 +62,14 @@ pub fn save_settings(
 }
 
 #[tauri::command]
-pub fn get_prop(
-    key: &str
-) -> Result<String, String> {
+pub fn get_prop(key: &str) -> Result<String, String> {
     log::trace!("get_prop({})", key);
 
     let res = match key {
         "CWD" => {
             let cwd = std::env::current_dir().unwrap();
             String::from(cwd.to_string_lossy())
-        },
+        }
         _ => return Err("invalid prop".into()),
     };
     Ok(res)
@@ -90,12 +88,41 @@ pub fn set_prop(
     match key {
         "modal" => {
             let menu_handle = win.menu_handle();
-            app_data.modal = if val == "true" { true } else { false }; 
-            menu_handle.get_item("preference").set_enabled(!app_data.modal).unwrap();
-            menu_handle.get_item("init").set_enabled(!app_data.modal).unwrap();
-            menu_handle.get_item("add_local").set_enabled(!app_data.modal).unwrap();
-            menu_handle.get_item("clone").set_enabled(!app_data.modal).unwrap();
-        },
+            app_data.modal = if val == "true" { true } else { false };
+            menu_handle
+                .get_item("preference")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("init")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("add_local")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("clone")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+
+            menu_handle
+                .get_item("branch_create")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("branch_rename")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("branch_delete")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+            menu_handle
+                .get_item("branch_reset")
+                .set_enabled(!app_data.modal)
+                .unwrap();
+        }
         _ => (),
     };
     Ok(())

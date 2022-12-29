@@ -7,7 +7,7 @@ use unicode_truncate::UnicodeTruncateStr;
 
 /// identifies a single commit
 #[serde_as]
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
 pub struct CommitId(#[serde_as(as = "DisplayFromStr")] Oid);
 
 impl Default for CommitId {

@@ -18,9 +18,9 @@ pub mod reset;
 pub mod diff;
 pub mod revlog;
 // spec revspec
-pub mod rev_parse;
-pub mod status;
+// pub mod rev_parse;
 // show grep
+pub mod status;
 
 // merge rebase reset switch
 pub mod blame;

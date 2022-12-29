@@ -34,7 +34,7 @@
           color="primary"
           label="OK"
           @click="onOKClick"
-          :disable="disableAddButton"
+          :disable="disableOkButton"
         />
         <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
@@ -70,10 +70,7 @@ export default defineComponent({
     };
   },
 
-  emits: [
-    // REQUIRED
-    "ok",
-  ],
+  emits: ["ok"],
 
   methods: {
     show() {
@@ -91,7 +88,7 @@ export default defineComponent({
       this.hide();
     },
 
-    // user method
+    // dialog specific
     async selectDirectory() {
       const selected = await open({
         directory: true,
@@ -113,7 +110,7 @@ export default defineComponent({
   },
 
   computed: {
-    disableAddButton() {
+    disableOkButton() {
       return !(this.localPath && this.errorCode == Error.Ok);
     },
     errorMessage() {

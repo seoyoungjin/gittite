@@ -270,7 +270,6 @@ mod tests {
         Ok(())
     }
 
-    /* TODO Tag sould containt commit_id?
     #[test]
     fn test_tag() -> Result<()> {
         let file_path = Path::new("foo");
@@ -285,19 +284,19 @@ mod tests {
         tag_commit(repo_path, &new_id, "tag", None)?;
 
         assert_eq!(
-            get_tags(repo_path, None).unwrap()[&new_id],
+            get_tags(repo_path, Some("tag".to_string())).unwrap(),
             vec![Tag::new("tag")]
         );
 
         assert!(matches!(tag_commit(repo_path, &new_id, "tag", None), Err(_)));
         assert_eq!(
-            get_tags(repo_path, None).unwrap()[&new_id],
+            get_tags(repo_path, Some("tag".to_string())).unwrap(),
             vec![Tag::new("tag")]
         );
 
         tag_commit(repo_path, &new_id, "second-tag", None)?;
         assert_eq!(
-            get_tags(repo_path, None).unwrap()[&new_id],
+            get_tags(repo_path, Some("second-tag".to_string())).unwrap(),
             vec![Tag::new("second-tag"), Tag::new("tag")]
         );
 
@@ -317,7 +316,7 @@ mod tests {
         tag_commit(repo_path, &new_id, "tag", Some("tag-message"))?;
 
         assert_eq!(
-            get_tags(repo_path).unwrap()[&new_id][0]
+            get_tags(repo_path, Some("tag".to_string())).unwrap()[0]
                 .annotation
                 .as_ref()
                 .unwrap(),
@@ -326,5 +325,4 @@ mod tests {
 
         Ok(())
     }
-    */
 }

@@ -1,4 +1,5 @@
 use crate::app_data::AppDataState;
+use crate::git_api::cred::BasicAuthCredential;
 use crate::git_api::*;
 use git2::{Repository, StatusShow};
 use serde_json::Value;
@@ -378,6 +379,26 @@ pub fn blame(
     // TODO option?
     blame::blame_file(repo_path, path.as_str(), None)
 }
+
+// cred
+
+#[tauri::command]
+pub fn need_username_password(app_data: AppDataState<'_>) -> Result<bool> {
+    log::trace!("need_username_password()");
+    let app_data = app_data.0.lock().unwrap();
+
+    cred::need_username_password(app_data.repo_path_ref())
+}
+
+#[tauri::command]
+pub fn extract_username_password(app_data: AppDataState<'_>) -> Result<BasicAuthCredential> {
+    log::trace!("need_username_password()");
+    let app_data = app_data.0.lock().unwrap();
+
+    cred::extract_username_password(app_data.repo_path_ref())
+}
+
+// progress
 
 #[tauri::command]
 pub async fn test_progress(app_data: AppDataState<'_>) -> Result<()> {

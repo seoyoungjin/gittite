@@ -4,22 +4,47 @@
 
 Git gui client based on tauri framework.
 
-This is a toy project to study tauri and rust.
+This was started as a toy project to study tauri and rust,
+but I'm going to continue this for personal use.
 
-## Todo
+---
 
-- [x] implement simple git command with tauri
-- [x] one git function i.e. log and changes
-- [x] all git2 function
-- [ ] test scheme and data
-- [ ] js library and test
+## Project Roadmap
+
+### v0.2.0
+
+- [x] branch
+  - [x] branch operation
+  - [ ] branch detail
+  - [ ] remote branch
+- [ ] tag
+  - [ ] handle IPC response in tagged json format for rust enum 
+- [ ] unitest
+- [ ] repository information
+- [x] layout
+- [ ] refresh with notify or periodically or button
+
+### v0.3.0
+
+- [ ] stash
+- [ ] preference
+- [ ] diff
+  - [ ] option
+  - [ ] full file
+  - [ ] diff between commit/branch
+- [ ] many log
+
+### next
+
+- [ ] push, fetch
+- [ ] authentication
+- [ ] merge
+- [ ] file browser
+- [ ] zoom in/out
+- [ ] badge on stage/history
+- [ ] branch merge graph
+- [ ] git-flow
 - [ ] frequently use case
-
-## personal goal
-
-- [x] rust, tauri
-- [x] js framework i.e. vue, svelte, ...
-- [x] git
 
 ## Compile
 
@@ -31,8 +56,8 @@ This is a toy project to study tauri and rust.
 
 - `cargo install tauri-cli`
 - `cargo tauri dev` : Start app in dev mode
-- `cargo tauri build`: Build
 - `yarn tauri dev`
+- `cargo tauri build`: Build
 
 ## Log trace
 

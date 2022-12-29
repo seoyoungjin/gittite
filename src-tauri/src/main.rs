@@ -11,9 +11,9 @@ use tauri::{PhysicalSize, Size};
 mod app_data;
 mod args;
 mod cmd;
+mod git_api;
 mod menu;
 mod settings;
-mod git_api;
 
 #[macro_export]
 macro_rules! throw {
@@ -40,9 +40,7 @@ fn main() {
     log::trace!("cliargs: {:?}", cliargs.repo_path);
     let settings = match settings::Settings::load() {
         Ok(v) => v,
-        Err(_e) => {
-            settings::Settings::default()
-        }
+        Err(_e) => settings::Settings::default(),
     };
 
     // progress message
@@ -62,19 +60,23 @@ fn main() {
             cmd::set_repository,
             cmd::clone,
             cmd::init,
+            // commit
             cmd::commit,
             cmd::amend,
             cmd::commit_info,
             cmd::commit_files,
+            // state
             cmd::add,
             cmd::remove,
             cmd::reset_stage,
+            //
             cmd::get_commits,
             cmd::get_status,
             cmd::get_remotes,
             cmd::get_diff,
             cmd::get_diff_commit,
             // cmd::get_diff_commits,
+            // branch
             cmd::get_branch_name,
             cmd::create_branch,
             cmd::delete_branch,
@@ -84,9 +86,14 @@ fn main() {
             cmd::branch_compare_upstream,
             cmd::checkout_branch,
             cmd::checkout_remote_branch,
+            //
             cmd::tag,
             cmd::stash,
             cmd::blame,
+            // cred
+            cmd::need_username_password,
+            cmd::extract_username_password,
+            // test
             cmd::test_progress,
         ])
         .setup(|app| {
