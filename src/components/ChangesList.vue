@@ -1,57 +1,73 @@
 <template>
-  <div class="q-ma-none">
-    <!-- Unstaged -->
-    <div class="text-h7">Unstaged Changes</div>
-    <q-scroll-area style="height: 25vh">
-      <q-list dense bordered padding class="rounded-borders">
-        <q-item
-          v-for="(item, index) in allUnstagedFiles"
-          :key="index"
-          clickable
-          @click="clickItem(item)"
+  <div class="q-pa-none" style="height: 100%">
+    <div :style="stageStyle">
+      <div style="height: 50%">
+        <div class="q-pa-xs bg-grey-2" style="height: 24px">
+          Unstaged Changes
+        </div>
+        <q-virtual-scroll
+          style="height: calc(100% - 25px)"
+          :items="allUnstagedFiles"
+          bordered
+          separator
+          v-slot="{ item, index }"
         >
-          <q-item-section side>
-            <q-icon
-              :name="octIconForStatus(item.wtree)"
-              :color="colorForStatus(item.wtree)"
-              size="14pt"
-              @click="stageFile(item)"
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ item.path }}</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-scroll-area>
-
-    <!-- Staged -->
-    <div class="text-h7">Staged Changes</div>
-    <q-scroll-area style="height: 25vh">
-      <q-list dense bordered padding class="rounded-borders">
-        <q-item
-          v-for="(item, index) in allStagedFiles"
-          :key="index"
-          clickable
-          @click="clickItem(item)"
+          <q-item
+            class="q-pa-none"
+            :key="index"
+            dense
+            clickable
+            @click="clickItem(item)"
+          >
+            <q-item-section side class="q-pa-xs">
+              <q-icon
+                :name="octIconForStatus(item.wtree)"
+                :color="colorForStatus(item.wtree)"
+                size="14pt"
+                @click="stageFile(item)"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ item.path }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-virtual-scroll>
+      </div>
+      <div style="height: 50%">
+        <div class="q-pa-xs bg-grey-2" style="height: 24px">
+          Staged Changes(Will Commit)
+        </div>
+        <q-virtual-scroll
+          style="height: calc(100% - 25px)"
+          :items="allStagedFiles"
+          bordered
+          separator
+          v-slot="{ item, index }"
         >
-          <q-item-section side>
-            <q-icon
-              :name="octIconForStatus(item.stage)"
-              :color="colorForStatus(item.stage)"
-              size="14pt"
-              @click="unstageFile(item)"
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ item.path }}</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-scroll-area>
-
+          <q-item
+            class="q-pa-none"
+            :key="index"
+            dense
+            clickable
+            @click="clickItem(item)"
+          >
+            <q-item-section side class="q-pa-xs">
+              <q-icon
+                :name="octIconForStatus(item.stage)"
+                :color="colorForStatus(item.stage)"
+                size="14pt"
+                @click="unstageFile(item)"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ item.path }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-virtual-scroll>
+      </div>
+    </div>
     <div>
-      <commit-message @commit="updateCommitStage" />
+      <CommitMessage @resize="onChildResize" @commit="updateCommitStage" />
     </div>
   </div>
 </template>
@@ -86,6 +102,12 @@ export default defineComponent({
     };
   },
 
+  data() {
+    return {
+      stageStyle: { height: "calc(100%-230pt)" },
+    };
+  },
+
   components: {
     // ChangesOption,
     CommitMessage,
@@ -97,6 +119,12 @@ export default defineComponent({
 
   methods: {
     ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+
+    onChildResize(size) {
+      // alert(JSON.stringify(size));
+      // this.stageStyle.height = (this.$q.screen.height - 90 - size.height) + "px";
+      this.stageStyle.height = "calc(100% - " + (size.height + 5) + "pt)";
+    },
 
     clickItem(item: any) {
       this.$emit("selectItem", item);

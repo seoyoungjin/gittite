@@ -1,7 +1,9 @@
 <template>
-  <div class="q-pa-none q-gutter-md">
+  <div class="q-pa-xs q-gutter-xs bg-grey-2">
+    <q-resize-observer @resize="onResize" />
     <q-input
       :dense="true"
+      bg-color="white"
       v-model="commitMessageSummary"
       placeholder="Summary (required)"
       outlined
@@ -15,6 +17,7 @@
       v-model="commitMessageBody"
       placeholder="Description"
       type="textarea"
+      bg-color="white"
       outlined
     />
 
@@ -22,7 +25,7 @@
       :disabled="!(stagedFileLength > 0 && commitMessageSummary)"
       color="primary"
       no-caps
-      @click="commitMessageButton()"
+      @click="gitCommit()"
     >
       Commit to&nbsp;<strong>{{ currentBranch }}</strong>
     </q-btn>
@@ -36,20 +39,36 @@ import * as git2rs from "@/api/git2rs";
 import { useCommitStageStore } from "@/stores/commitStage";
 import { useRepositoryStore } from "@/stores/repository";
 
+const initialData = () => ({
+  commitMessageSummary: "",
+  commitMessageBody: "",
+});
+
 export default defineComponent({
   name: "CommitMessage",
+  data() {
+    return {
+      ...initialData(),
+      clientHeight: 0,
+    };
+  },
   computed: {
     ...mapState(useCommitStageStore, ["stagedFileLength"]),
     ...mapState(useRepositoryStore, ["currentBranch"]),
   },
-  data() {
-    return {
-      commitMessageSummary: "",
-      commitMessageBody: "",
-    };
-  },
   methods: {
-    commitMessageButton() {
+    resetData() {
+      const data = initialData();
+      Object.keys(data).forEach((k) => (this[k] = data[k]));
+    },
+    onResize(size) {
+      // alert(JSON.stringify(size));
+      if (size.height !== this.clientHeight) {
+        this.clientHeight = size.height;
+        this.$emit("resize", size);
+      }
+    },
+    gitCommit() {
       var msg = this.commitMessageSummary;
       if (!msg) {
         alert("Enter commit message");
@@ -58,17 +77,17 @@ export default defineComponent({
       if (this.commitMessageBody) {
         msg = msg + "\n\n" + this.commitMessageBody;
       }
-
       git2rs
         .commit(msg)
         .then((message) => {
-          this.$emit("commit");
           this.$q.notify({
             color: "green-5",
             textColor: "white",
             icon: "cloud",
             message: message,
           });
+          this.$emit("commit");
+          this.resetData();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

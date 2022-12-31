@@ -23,11 +23,11 @@
         <q-separator />
 
         <q-tab-panels v-model="tab" animated class="fit">
-          <q-tab-panel name="changes" class="q-pa-sm">
+          <q-tab-panel name="changes" class="q-pa-none">
             <ChangesList v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
 
-          <q-tab-panel name="history" class="q-pa-sm">
+          <q-tab-panel name="history" class="q-pa-xs">
             <history-list v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
         </q-tab-panels>
