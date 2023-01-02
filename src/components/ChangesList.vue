@@ -120,7 +120,7 @@ export default defineComponent({
   methods: {
     ...mapActions(useCommitStageStore, ["updateCommitStage"]),
 
-    onChildResize(size) {
+    onChildResize(size: any) {
       // alert(JSON.stringify(size));
       // this.stageStyle.height = (this.$q.screen.height - 90 - size.height) + "px";
       this.stageStyle.height = "calc(100% - " + (size.height + 5) + "pt)";

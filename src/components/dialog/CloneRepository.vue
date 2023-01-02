@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin" v-if="!cloning">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Clone a Repository</div>
@@ -50,14 +50,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { usePropStore } from "@/stores/props";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import { open } from "@tauri-apps/api/dialog";
 import RemoteProgress from "@/components/RemoteProgress.vue";
 import * as git2rs from "@/api/git2rs";
 
 export default defineComponent({
   name: "CloneRepository",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   components: {
     RemoteProgress,

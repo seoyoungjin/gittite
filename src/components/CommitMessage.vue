@@ -58,10 +58,13 @@ export default defineComponent({
   },
   methods: {
     resetData() {
+      // Object.assign(this.$data, this.$options.data.apply(this));
       const data = initialData();
-      Object.keys(data).forEach((k) => (this[k] = data[k]));
+      // Object.keys(data).forEach((k) => (this[k] = data[k]));
+      this.commitMessageSummary = data.commitMessageSummary;
+      this.commitMessageBody = data.commitMessageBody;
     },
-    onResize(size) {
+    onResize(size: any) {
       // alert(JSON.stringify(size));
       if (size.height !== this.clientHeight) {
         this.clientHeight = size.height;

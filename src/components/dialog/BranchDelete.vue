@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Delete Branch</div>
@@ -46,13 +46,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import * as git2rs from "@/api/git2rs";
 import { useRepositoryStore } from "@/stores/repository";
 
 export default defineComponent({
   name: "BranchDelete",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   data() {
     return {

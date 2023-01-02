@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create a New Repository</div>
@@ -64,14 +64,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { usePropStore } from "@/stores/props";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import * as git2rs from "@/api/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
 
 export default defineComponent({
   name: "InitGitRepository",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   data() {
     const store = usePropStore();

@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Add Local Repository</div>
@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import { useSettingsStore } from "@/stores/settings";
 import { open } from "@tauri-apps/api/dialog";
@@ -58,7 +58,7 @@ enum Error {
 
 export default defineComponent({
   name: "AddLocalRepository",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   data() {
     const store = useSettingsStore();

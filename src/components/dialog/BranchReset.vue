@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Discard All Changes</div>
@@ -26,12 +26,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
 
 export default defineComponent({
   name: "BranchCreate",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   data() {
     return {

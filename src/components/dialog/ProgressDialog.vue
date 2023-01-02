@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <!-- progress -->
       <q-card-section>
@@ -17,11 +17,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import RemoteProgress from "@/components/RemoteProgress.vue";
 
 export default defineComponent({
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
   components: {
     RemoteProgress,
   },

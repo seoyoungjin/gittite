@@ -21,11 +21,7 @@ export const usePropStore = defineStore("props", {
       this.initialized = true;
       this.props.cwd = await git2rs.get_prop("CWD");
     },
-    setCwd(value: string) {
-      this.props.cwd = value;
-      git2rs.set_prop("CWD", value);
-    },
-    setModal(value: boolean) {
+    setPropModal(value: boolean) {
       this.props.modal = value;
       git2rs.set_prop("modal", "" + value);
     },

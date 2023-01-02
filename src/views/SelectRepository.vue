@@ -57,11 +57,11 @@ export default defineComponent({
   },
 
   mounted() {
-    this.setModal(true);
+    this.setPropModal(true);
   },
 
   unmounted() {
-    this.setModal(false);
+    this.setPropModal(false);
   },
 
   data() {
@@ -73,7 +73,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(usePropStore, ["setModal"]),
+    ...mapActions(usePropStore, ["setPropModal"]),
   },
 });
 </script>

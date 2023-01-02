@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="onDialogShow" @hide="onDialogHide">
+  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
     <q-card style="width: 600px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Preference</div>
@@ -39,12 +39,12 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import DialogMixin from "@/mixins/dialog";
+import ModalMixin from "@/mixins/modal";
 import PrefProfile from "@/components/preference/Profile.vue";
 
 export default defineComponent({
   name: "Preference",
-  mixins: [DialogMixin],
+  mixins: [ModalMixin],
 
   setup() {
     return {
