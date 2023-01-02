@@ -53,6 +53,10 @@
   <AddLocalRepository v-model="showAddLocalReposity" />
   <CloneRepository v-model="showCloneReposity" />
   <Preference v-model="showPreference" />
+  <BranchCreate v-model="showBranchCreate" />
+  <BranchRename v-model="showBranchRename" />
+  <BranchDelete v-model="showBranchDelete" />
+  <BranchReset v-model="showBranchReset" />
 </template>
 
 <script lang="ts">
@@ -65,10 +69,15 @@ import ChangesList from "@/components/ChangesList.vue";
 // import ChangesOption from "@/components/ChangesOption.vue";
 import HistoryList from "@/components/HistoryList.vue";
 import DiffView from "@/components/DiffView.vue";
+// dialog
 import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
 import CloneRepository from "@/components/dialog/CloneRepository.vue";
 import Preference from "@/components/dialog/Preference.vue";
+import BranchCreate from "@/components/dialog/BranchCreate.vue";
+import BranchRename from "@/components/dialog/BranchRename.vue";
+import BranchDelete from "@/components/dialog/BranchDelete.vue";
+import BranchReset from "@/components/dialog/BranchReset.vue";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { usePropStore } from "@/stores/props";
@@ -91,14 +100,22 @@ export default defineComponent({
 
   async mounted() {
     listen("menu-event", (ev) => {
-      if (ev["payload"] == "init") {
+      if (ev.payload == "init") {
         this.showInitReposity = true;
-      } else if (ev["payload"] == "add_local") {
+      } else if (ev.payload == "add_local") {
         this.showAddLocalReposity = true;
-      } else if (ev["payload"] == "clone") {
+      } else if (ev.payload == "clone") {
         this.showCloneReposity = true;
-      } else if (ev["payload"] == "preference") {
+      } else if (ev.payload == "preference") {
         this.showPreference = true;
+      } else if (ev.payload == "branch_create") {
+        this.showBranchCreate = true;
+      } else if (ev.payload == "branch_rename") {
+        this.showBranchRename = true;
+      } else if (ev.payload == "branch_delete") {
+        this.showBranchDelete = true;
+      } else if (ev.payload == "branch_reset") {
+        this.showBranchReset = true;
       }
       console.log(ev.payload);
     });
@@ -118,6 +135,10 @@ export default defineComponent({
       showAddLocalReposity: false,
       showCloneReposity: false,
       showPreference: false,
+      showBranchCreate: false,
+      showBranchRename: false,
+      showBranchDelete: false,
+      showBranchReset: false,
     };
   },
 
@@ -133,6 +154,10 @@ export default defineComponent({
     AddLocalRepository,
     CloneRepository,
     Preference,
+    BranchCreate,
+    BranchRename,
+    BranchDelete,
+    BranchReset,
   },
 
   methods: {

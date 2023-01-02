@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
 import { useCommitStageStore } from "./commitStage";
 import * as git2rs from "@/api/git2rs";
-import type { CommitData } from "@/api/types";
+import type { BranchInfo, CommitData } from "@/api/types";
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
     return {
       repo_path: "",
       current_branch: "",
-      all_branches: [] as string[],
+      all_branches: [] as BranchInfo[],
       logList: [] as CommitData[],
     };
   },
@@ -20,6 +20,7 @@ export const useRepositoryStore = defineStore("repository", {
     },
     repositoryPath: (state) => state.repo_path,
     currentBranch: (state) => state.current_branch,
+    allBranches: (state) => state.all_branches,
     commitLogs: (state) => state.logList,
   },
   actions: {
@@ -36,8 +37,7 @@ export const useRepositoryStore = defineStore("repository", {
       this.repo_path = await git2rs.workdir().catch(() => {
         return "";
       });
-      if (!this.repo_path)
-        return;
+      if (!this.repo_path) return;
 
       const stageStore = useCommitStageStore();
       stageStore.updateCommitStage();
@@ -46,11 +46,31 @@ export const useRepositoryStore = defineStore("repository", {
       // remoteOriginUrl
       // last commit time
       // ahead/behind
+
+      this.logList = await git2rs.getCommits().catch(() => {
+        return [] as CommitData[];
+      });
+
+      await this.loadAllBranches();
+    },
+
+    async loadAllBranches() {
       this.current_branch = await git2rs.getBranchName().catch(() => {
         return "master";
       });
+      this.all_branches = await git2rs.branchesInfo(true).catch(() => {
+        return [] as BranchInfo[];
+      });
+    },
 
-      this.logList = await git2rs.getCommits();
+    getBranchInfo(name: string): BranchInfo {
+      for (const branch of this.all_branches) {
+        if (branch.name === name) {
+          // alert(JSON.stringify(branch, null, 4));
+          return branch;
+        }
+      }
+      throw "Can not find branch information for: " + name;
     },
   },
 });
