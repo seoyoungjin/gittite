@@ -22,7 +22,7 @@ but I'm going to continue this for personal use.
 - [ ] unitest
 - [ ] repository information
 - [x] layout
-- [ ] refresh with notify or periodically or button
+- [x] refresh with notify or button
 
 ### v0.3.0
 

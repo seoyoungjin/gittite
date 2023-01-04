@@ -37,6 +37,9 @@
     <q-btn flat dense icon="file_copy" @click="onCloneRepository">
       <q-tooltip> Clone Repository </q-tooltip>
     </q-btn>
+    <q-btn flat dense icon="refresh" @click="onRefresh">
+      <q-tooltip> Refresh </q-tooltip>
+    </q-btn>
     <q-separator vertical />
     <q-btn flat dense icon="settings" @click="onPreference">
       <q-tooltip> Preference </q-tooltip>
@@ -75,7 +78,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useRepositoryStore, ["getBranchInfo", "loadAllBranches"]),
+    ...mapActions(useRepositoryStore, ["getBranchInfo", "loadRepositoryInfo"]),
 
     onInitRepository() {
       this.$emit("initRepository");
@@ -88,6 +91,9 @@ export default defineComponent({
     },
     onPreference() {
       this.$emit("preference");
+    },
+    onRefresh() {
+      this.loadRepositoryInfo();
     },
     onBranchSwitch(branchName: string) {
       // TODO check changes
@@ -103,7 +109,7 @@ export default defineComponent({
             message: message,
           });
           // refresh
-          this.loadAllBranches();
+          this.loadRepositoryInfo();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

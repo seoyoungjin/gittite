@@ -9,6 +9,7 @@ import type {
   StatusItem,
 } from "./types";
 import { invoke } from "@tauri-apps/api/tauri";
+// import { invoke } from "../tests/helpers/fakeInvoke";
 
 export async function runCmd<T = any>(
   cmd: string,
