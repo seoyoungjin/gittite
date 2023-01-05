@@ -1,0 +1,61 @@
+{
+  "repo": "/tmp/test_repo",
+  "workdir": "/tmp/test_repo",
+  "get_branch_name": "master",
+  "get_status": [],
+  "get_commits": [],
+  "get_branches_info": [
+    {
+      "details": {
+        "Local": {
+          "has_upstream": true,
+          "is_head": false,
+          "remote": "origin"
+        }
+      },
+      "name": "develop",
+      "reference": "refs/heads/develop",
+      "top_commit": "fa01b51116fbe5b6a7a01e9741a26b7110656cab",
+      "top_commit_message": "refresh button added"
+    },
+    {
+      "details": {
+        "Local": {
+          "has_upstream": false,
+          "is_head": true,
+          "remote": null
+        }
+      },
+      "name": "feature/test",
+      "reference": "refs/heads/feature/test",
+      "top_commit": "fa01b51116fbe5b6a7a01e9741a26b7110656cab",
+      "top_commit_message": "refresh button added"
+    },
+    {
+      "details": {
+        "Local": {
+          "has_upstream": true,
+          "is_head": false,
+          "remote": "origin"
+        }
+      },
+      "name": "master",
+      "reference": "refs/heads/master",
+      "top_commit": "ad6359d2c7ab7a89f9f18fc4b8dca5732141b9de",
+      "top_commit_message": "SelectRepository.vue added for not git repository"
+    },
+    {
+      "details": {
+        "Local": {
+          "has_upstream": false,
+          "is_head": false,
+          "remote": null
+        }
+      },
+      "name": "release-0.1",
+      "reference": "refs/heads/release-0.1",
+      "top_commit": "8298bf20bc1ea43659fe371d2740c5f11ab2b102",
+      "top_commit_message": "yarn tauri build error"
+    }
+  ]
+}

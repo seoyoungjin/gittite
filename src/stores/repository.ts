@@ -12,6 +12,7 @@ export const useRepositoryStore = defineStore("repository", {
       logList: [] as CommitData[],
     };
   },
+
   getters: {
     repositoryName: (state) => {
       const arr = state.repo_path.split("/").reverse().filter(Boolean);
@@ -23,13 +24,14 @@ export const useRepositoryStore = defineStore("repository", {
     allBranches: (state) => state.all_branches,
     commitLogs: (state) => state.logList,
   },
+
   actions: {
     async setRepository(path: string) {
       const repo_path = await git2rs.setRepository(path);
       if (!repo_path) {
         return;
       }
-      this.loadRepositoryInfo();
+      await this.loadRepositoryInfo();
       return repo_path;
     },
 
@@ -40,7 +42,7 @@ export const useRepositoryStore = defineStore("repository", {
       if (!this.repo_path) return;
 
       const stageStore = useCommitStageStore();
-      stageStore.updateCommitStage();
+      await stageStore.updateCommitStage();
 
       // TODO - misc repo data
       // remoteOriginUrl
