@@ -3,7 +3,7 @@
 use super::error::{Error, Result};
 use super::{
     commit_files::{get_commit_diff, get_compare_commits_diff},
-    utils::{diff_to_string, get_head_repo, work_dir},
+    utils::{diff_to_stream, get_head_repo, work_dir},
     CommitId, RepoPath,
 };
 use crate::git_api::{repository::repo_open, utils::hash};
@@ -372,7 +372,8 @@ pub fn get_diff_string(
 ) -> Result<String> {
     let repo = repo_open(repo_path)?;
     let diff = get_diff_raw(&repo, p, stage, false, options)?;
-    diff_to_string(&diff)
+    let bytes = diff_to_stream(&diff).unwrap();
+    Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
 #[cfg(test)]

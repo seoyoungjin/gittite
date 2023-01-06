@@ -176,7 +176,8 @@ pub fn get_diff_commit(
     // TODO
     let diff_opt = None;
     let diff = commit_files::get_commit_diff(repo_path, &repo, cid, path, diff_opt).unwrap();
-    utils::diff_to_string(&diff)
+    let bytes = utils::diff_to_stream(&diff).unwrap();
+    Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
 #[tauri::command]

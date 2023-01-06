@@ -50,8 +50,8 @@ pub(crate) fn bytes2string(bytes: &[u8]) -> Result<String> {
     Ok(String::from_utf8(bytes.to_vec())?)
 }
 
-/// diff to string
-pub fn diff_to_string<'a>(diff: &'a Diff) -> Result<String> {
+/// diff to stream
+pub fn diff_to_stream<'a>(diff: &'a Diff) -> Result<Vec<u8>> {
     let mut buf = BufWriter::new(Vec::new());
     diff.print(DiffFormat::Patch, |_delta, _hunk, line: git2::DiffLine| {
         match line.origin() {
@@ -65,7 +65,7 @@ pub fn diff_to_string<'a>(diff: &'a Diff) -> Result<String> {
         }
     })?;
     let bytes = buf.into_inner().unwrap();
-    Ok(String::from_utf8(bytes).unwrap())
+    Ok(bytes)
 }
 
 #[cfg(test)]
