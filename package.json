@@ -16,9 +16,11 @@
     "@quasar/extras": "^1.0.0",
     "@tauri-apps/api": "^1.2.0",
     "diff2html": "^3.4.22",
+    "mem": "^9.0.2",
     "pinia": "^2.0.23",
     "quasar": "^2.10.1",
     "quasar-extras-svg-icons": "^1.25.2",
+    "quick-lru": "^6.1.1",
     "vue": "^3.2.38",
     "vue-json-pretty": "^2.2.2",
     "vue-router": "^4.1.5"

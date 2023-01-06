@@ -6,10 +6,10 @@
   >
     <!--Main Part-->
     <q-item-section>
-      <q-item-label>{{ item.summary }}</q-item-label>
+      <q-item-label class="text-subtitle2">{{ item.summary }}</q-item-label>
       <q-item-label caption>
         {{ item.author }} -
-        {{ formattedString }}
+        <RelativeTime :date="new Date(item.time * 1000)" />
       </q-item-label>
     </q-item-section>
   </q-item>
@@ -17,24 +17,19 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { date } from "quasar";
+import RelativeTime from "./RelativeTime.vue";
 
 export default defineComponent({
   name: "HistoryListRow",
   props: ["item"],
-  components: {},
+  components: {
+    RelativeTime,
+  },
   data() {
     return {
       showOptions: false,
       showPopover: false,
     };
   },
-  computed: {
-    formattedString() {
-      // "YYYY-MM-DDTHH:mm:ss Z"
-      return date.formatDate(this.item.time * 1000, "MMM D, YYYY");
-    },
-  },
-  methods: {},
 });
 </script>
