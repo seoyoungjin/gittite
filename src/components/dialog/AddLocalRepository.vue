@@ -48,7 +48,7 @@ import ModalMixin from "@/mixins/modal";
 import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import { useSettingsStore } from "@/stores/settings";
 import { open } from "@tauri-apps/api/dialog";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 enum Error {
   Ok = 0,

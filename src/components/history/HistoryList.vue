@@ -1,20 +1,19 @@
 <template>
-  <div class="q-pa-none" style="max-width: 80vh">
-    <q-list
-      dense
+  <div class="q-pa-none" style="width: 100%">
+    <q-virtual-scroll
+      :items="commitLogs"
       bordered
       separator
-      style="max-height: 80vh"
-      class="rounded-borders"
+      v-slot="{ item, index }"
     >
-      <history-list-row
-        v-for="item in commitLogs"
+      <HistoryListItem
+        :key="index"
         :item="item"
-        :key="item.commit_id"
+        dense
         clickable
         @click="clickItem(item)"
       />
-    </q-list>
+    </q-virtual-scroll>
   </div>
 </template>
 
@@ -22,13 +21,13 @@
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
-import HistoryListRow from "./HistoryListRow.vue";
+import HistoryListItem from "./HistoryListItem.vue";
 
 export default defineComponent({
   name: "HistoryList",
 
   components: {
-    HistoryListRow,
+    HistoryListItem,
   },
 
   computed: {

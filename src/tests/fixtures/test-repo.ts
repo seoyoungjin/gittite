@@ -2,9 +2,9 @@
 import TestRepoObject from "../fixtures/test-repo.json";
 
 function get_status(args) {
-  console.log("GET_TATUS", args);
+  console.log("GET_STATUS", args);
   if (args.status_type == "workdir") {
-    console.log("GET_TATUS", args);
+    console.log("GET_STATUS", args);
   }
 }
 

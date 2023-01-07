@@ -58,7 +58,7 @@ import { mapActions, mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { octGitBranch16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import SetLayout from "../components/SetLayout.vue";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   name: "ToolBar2",

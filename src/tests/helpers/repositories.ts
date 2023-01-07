@@ -1,7 +1,7 @@
-import * as Path from 'path'
-import * as FSE from 'fs-extra'
-import { mkdirSync } from './temp'
-import klawSync, { Item } from 'klaw-sync'
+import * as Path from "path";
+import * as FSE from "fs-extra";
+import { mkdirSync } from "./temp";
+import klawSync, { Item } from "klaw-sync";
 
 /**
  * Set up the named fixture repository to be used in a test.
@@ -13,36 +13,35 @@ export async function setupFixtureRepository(
 ): Promise<string> {
   const testRepoFixturePath = Path.join(
     __dirname,
-    '..',
-    'fixtures',
+    "..",
+    "fixtures",
     repositoryName
-  )
-  const testRepoPath = mkdirSync('gitite-test-')
+  );
+  const testRepoPath = mkdirSync("gitite-test-");
   console.log("-----", testRepoPath); // xXX
-  await FSE.copy(testRepoFixturePath, testRepoPath)
+  await FSE.copy(testRepoFixturePath, testRepoPath);
 
   await FSE.rename(
-    Path.join(testRepoPath, '_git'),
-    Path.join(testRepoPath, '.git')
-  )
+    Path.join(testRepoPath, "_git"),
+    Path.join(testRepoPath, ".git")
+  );
 
   const ignoreHiddenFiles = function (item: Item) {
-    const basename = Path.basename(item.path)
-    return basename === '.' || basename[0] !== '.'
-  }
+    const basename = Path.basename(item.path);
+    return basename === "." || basename[0] !== ".";
+  };
 
-  const entries = klawSync(testRepoPath)
-  const visiblePaths = entries.filter(ignoreHiddenFiles)
+  const entries = klawSync(testRepoPath);
+  const visiblePaths = entries.filter(ignoreHiddenFiles);
   const submodules = visiblePaths.filter(
-    entry => Path.basename(entry.path) === '_git'
-  )
+    (entry) => Path.basename(entry.path) === "_git"
+  );
 
   for (const submodule of submodules) {
-    const directory = Path.dirname(submodule.path)
-    const newPath = Path.join(directory, '.git')
-    await FSE.rename(submodule.path, newPath)
+    const directory = Path.dirname(submodule.path);
+    const newPath = Path.join(directory, ".git");
+    await FSE.rename(submodule.path, newPath);
   }
 
-  return testRepoPath
+  return testRepoPath;
 }
-

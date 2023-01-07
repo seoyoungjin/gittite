@@ -65,7 +65,7 @@
 import { defineComponent } from "vue";
 import { usePropStore } from "@/stores/props";
 import ModalMixin from "@/mixins/modal";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 import { sep } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/dialog";
 

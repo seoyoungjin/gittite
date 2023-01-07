@@ -28,7 +28,7 @@ origin   https://github.com/... (push)
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
-import * as git2rs from "../../api/git2rs";
+import * as git2rs from "../../lib/git2rs";
 
 export default defineComponent({
   components: {

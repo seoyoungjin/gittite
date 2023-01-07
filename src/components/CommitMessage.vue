@@ -35,7 +35,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 import { useCommitStageStore } from "@/stores/commitStage";
 import { useRepositoryStore } from "@/stores/repository";
 

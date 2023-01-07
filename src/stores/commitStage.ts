@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import * as git2rs from "@/api/git2rs";
-import type { StatusItem } from "@/api/types";
+import * as git2rs from "@/lib/git2rs";
+import type { StatusItem } from "@/models/status";
 
 export const useCommitStageStore = defineStore("stage", {
   state: () => ({

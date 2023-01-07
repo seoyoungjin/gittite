@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { useCommitStageStore } from "./commitStage";
-import * as git2rs from "@/api/git2rs";
-import type { BranchInfo, CommitData } from "@/api/types";
+import * as git2rs from "@/lib/git2rs";
+import type { BranchInfo } from "@/models/branch";
+import type { CommitData } from "@/models/commit";
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {

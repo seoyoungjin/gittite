@@ -3,7 +3,7 @@ import { defineComponent, ref } from "vue";
 import { listen } from "@tauri-apps/api/event";
 import RemoteProgress from "@/components/RemoteProgress.vue";
 import ProgressDialog from "@/components/dialog/ProgressDialog.vue";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   components: {

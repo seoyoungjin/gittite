@@ -50,7 +50,7 @@
 import { defineComponent } from "vue";
 import { open } from "@tauri-apps/api/dialog";
 import RemoteProgress from "@/components/RemoteProgress.vue";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   components: {

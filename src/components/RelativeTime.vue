@@ -26,7 +26,10 @@ export default defineComponent({
   name: "RelativeTime",
 
   props: {
-    date: Date,
+    date: {
+      type: Date,
+      default: Date(),
+    },
     /**
      * For relative durations, use abbreviated units
      * ('m' instead of 'minutes', 'd' instead of 'days')
@@ -61,7 +64,7 @@ export default defineComponent({
   },
 
   mounted() {
-    // this.relativeText = formatRelative(this.date * 1000 - Date.now());
+    // this.relativeText = formatRelative(this.date - Date.now());
     this.updateWithDate(this.date);
   },
 
@@ -98,7 +101,7 @@ export default defineComponent({
       const absoluteText = formatDate(then, {
         dateStyle: "full",
         timeStyle: "short",
-      });
+      } as Intl.DateTimeFormatOptions);
       const relativeText = formatRelative(diff);
 
       // Future date, let's just show as absolute and reschedule. If it's less
@@ -106,7 +109,10 @@ export default defineComponent({
       if (diff > 0 && duration > MINUTE) {
         this.updateAndSchedule(
           absoluteText,
-          formatDate(then, { dateStyle: "medium", timeStyle: "short" }),
+          formatDate(then, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          } as Intl.DateTimeFormatOptions),
           duration
         );
       } else if (duration < MINUTE) {
@@ -123,12 +129,14 @@ export default defineComponent({
         } else {
           // More than a week ago, just the date will suffice
           this.absoluteText = absoluteText;
-          this.relativeText = formatDate(then, { dateStyle: "medium" });
+          this.relativeText = formatDate(then, {
+            dateStyle: "medium",
+          } as Intl.DateTimeFormatOptions);
         }
       }
     },
 
-    updateFromScheduler: () => {
+    updateFromScheduler() {
       this.updateWithDate(this.date);
     },
   },

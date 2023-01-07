@@ -47,7 +47,7 @@
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import ModalMixin from "@/mixins/modal";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 import { useRepositoryStore } from "@/stores/repository";
 
 export default defineComponent({

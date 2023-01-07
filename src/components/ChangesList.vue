@@ -87,7 +87,7 @@ import {
   octDiffRenamed16,
   octFileDiff16,
 } from "quasar-extras-svg-icons/oct-icons-v17";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   setup() {

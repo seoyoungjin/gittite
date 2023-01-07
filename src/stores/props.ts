@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import * as git2rs from "@/api/git2rs";
+import * as git2rs from "@/lib/git2rs";
 
 export const usePropStore = defineStore("props", {
   state: () => ({

@@ -1,13 +1,9 @@
 // vim:ts=2:sts=2:sw=2
 
-import type {
-  BranchCompare,
-  BranchInfo,
-  CommitData,
-  CommitInfo,
-  Settings,
-  StatusItem,
-} from "./types";
+import type { BranchCompare, BranchInfo } from "../models/branch";
+import type { CommitData, CommitInfo } from "../models/commit";
+import type { StatusItem } from "../models/status";
+import type { Settings } from "../models/settings";
 import { invoke } from "@tauri-apps/api/tauri";
 // import { invoke } from "../tests/helpers/fakeInvoke";
 

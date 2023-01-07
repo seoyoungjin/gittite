@@ -47,7 +47,7 @@ import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
 import { open } from "@tauri-apps/api/dialog";
-import * as git2rs from "../../api/git2rs";
+import * as git2rs from "../../lib/git2rs";
 
 export default defineComponent({
   components: {

@@ -6,7 +6,9 @@
   >
     <!--Main Part-->
     <q-item-section>
-      <q-item-label class="text-subtitle2">{{ item.summary }}</q-item-label>
+      <q-item-label class="text-subtitle2 ellipsis">{{
+        item.summary
+      }}</q-item-label>
       <q-item-label caption>
         {{ item.author }} -
         <RelativeTime :date="new Date(item.time * 1000)" />
@@ -17,10 +19,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import RelativeTime from "./RelativeTime.vue";
+import RelativeTime from "../RelativeTime.vue";
 
 export default defineComponent({
-  name: "HistoryListRow",
+  name: "HistoryListItem",
   props: ["item"],
   components: {
     RelativeTime,

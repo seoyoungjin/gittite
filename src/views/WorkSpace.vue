@@ -28,7 +28,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-xs">
-            <history-list v-on:selectItem="handleSelectItem" />
+            <HistoryList v-on:selectItem="handleSelectItem" />
           </q-tab-panel>
         </q-tab-panels>
       </template>
@@ -67,7 +67,7 @@ import ToolBar from "@/layouts/ToolBar.vue";
 import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
 // import ChangesOption from "@/components/ChangesOption.vue";
-import HistoryList from "@/components/HistoryList.vue";
+import HistoryList from "@/components/history/HistoryList.vue";
 import DiffView from "@/components/DiffView.vue";
 // dialog
 import InitRepository from "@/components/dialog/InitRepository.vue";
