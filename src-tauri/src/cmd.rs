@@ -1,5 +1,6 @@
 use crate::app_data::AppDataState;
 use crate::git_api::cred::BasicAuthCredential;
+use crate::git_api::repository::RepoInfo;
 use crate::git_api::*;
 use git2::{Repository, StatusShow};
 use serde_json::Value;
@@ -13,11 +14,10 @@ pub fn is_git_repository(path: String) -> bool {
 }
 
 #[tauri::command]
-pub fn workdir(app_data: AppDataState<'_>) -> Result<String> {
+pub fn get_repo_info(app_data: AppDataState<'_>) -> Result<RepoInfo> {
     let app_data = app_data.0.lock().unwrap();
-    let repo = repository::repo_open(app_data.repo_path_ref())?;
-    // TODO is_bare
-    Ok(repo.workdir().unwrap().to_str().unwrap().to_string())
+
+    Ok(repository::get_repo_info(app_data.repo_path_ref())?)
 }
 
 #[tauri::command]

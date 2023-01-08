@@ -3,7 +3,7 @@ import TestRepoObject from "../fixtures/test-repo.json";
 
 function get_status(args) {
   console.log("GET_STATUS", args);
-  if (args.status_type == "workdir") {
+  if (args.status_type == "get_status") {
     console.log("GET_STATUS", args);
   }
 }

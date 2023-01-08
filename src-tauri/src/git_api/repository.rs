@@ -1,4 +1,6 @@
+use super::error::Result;
 use git2::Repository;
+use serde::Serialize;
 use std::path::{Path, PathBuf};
 
 ///
@@ -45,6 +47,37 @@ pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
     }
 
     Ok(repo)
+}
+
+/// repository information
+
+#[derive(Serialize)]
+pub struct RepoInfo {
+    path: String,
+    is_bare: bool,
+    is_shallow: bool,
+    // is_empty: bool,
+    // state
+    // remote: string;
+    // current branch
+}
+
+pub fn get_repo_info(repo_path: &RepoPath) -> Result<RepoInfo> {
+    let repo = repo_open(repo_path)?;
+
+    let workdir = repo.workdir();
+    let path = if workdir.is_none() {
+        repo_path.gitpath()
+    } else {
+        workdir.unwrap()
+    };
+
+    Ok(RepoInfo {
+        path: path.to_string_lossy().into(),
+        is_bare: repo.is_bare(),
+        is_shallow: repo.is_shallow(),
+        // is_empty: repo.is_empty(),
+    })
 }
 
 #[cfg(test)]

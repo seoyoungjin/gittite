@@ -121,8 +121,7 @@ export default defineComponent({
     });
 
     await this.repoStore.loadRepositoryInfo();
-    // alert(this.repoStore.repositoryName);
-    if (!this.repoStore.repositoryName) {
+    if (!this.repoStore.currentRepository) {
       this.$router.push("/select");
     }
   },

@@ -2,30 +2,19 @@
 
 import type { BranchCompare, BranchInfo } from "../models/branch";
 import type { CommitData, CommitInfo } from "../models/commit";
-import type { StatusItem } from "../models/status";
+import type { RepoInfo } from "../models/repository";
 import type { Settings } from "../models/settings";
+import type { StatusItem } from "../models/status";
+
 import { invoke } from "@tauri-apps/api/tauri";
 // import { invoke } from "../tests/helpers/fakeInvoke";
 
-export async function runCmd<T = any>(
-  cmd: string,
-  options: { [key: string]: any } = {}
-) {
-  return (await invoke(cmd, options).catch((e) => {
-    throw e;
-  })) as T;
-}
-
 export async function loadSettings(): Promise<Settings> {
-  return await runCmd("get_settings").then((res) => {
-    return res;
-  });
+  return await invoke("get_settings");
 }
 
 export async function saveSettings(value: any) {
-  return await runCmd("save_settings", { value }).then((res) => {
-    return res;
-  });
+  return await invoke("save_settings", { value });
 }
 
 export async function get_prop(key: string): Promise<string> {
@@ -45,8 +34,8 @@ export async function setRepository(path: string): Promise<string> {
   return await invoke("set_repository", { path });
 }
 
-export async function workdir(): Promise<string> {
-  return await invoke("workdir");
+export async function get_repo_info(): Promise<RepoInfo> {
+  return await invoke("get_repo_info");
 }
 
 /// git
@@ -55,21 +44,15 @@ export async function init(dirname: string): Promise<string> {
 }
 
 export async function clone(gitUrl: string, localDir: string): Promise<string> {
-  return await runCmd("clone", { args: [gitUrl, localDir] }).then((res) => {
-    return res;
-  });
+  return await invoke("clone", { args: [gitUrl, localDir] });
 }
 
 export async function getCommits(): Promise<CommitData[]> {
-  return await runCmd("get_commits", { args: [] }).then((res) => {
-    return res;
-  });
+  return await invoke("get_commits", { args: [] });
 }
 
 export async function getDiff(path: string, stage: boolean): Promise<string> {
-  return await runCmd("get_diff", { path: path, stage: stage }).then((res) => {
-    return res;
-  });
+  return await invoke("get_diff", { path: path, stage: stage });
 }
 
 export async function getDiffCommit(

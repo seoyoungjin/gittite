@@ -1,13 +1,14 @@
 import { defineStore } from "pinia";
 import { useCommitStageStore } from "./commitStage";
 import * as git2rs from "@/lib/git2rs";
+import { Repository } from "@/models/repository";
 import type { BranchInfo } from "@/models/branch";
 import type { CommitData } from "@/models/commit";
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
     return {
-      repo_path: "",
+      repo: null as Repository | null,
       current_branch: "",
       all_branches: [] as BranchInfo[],
       logList: [] as CommitData[],
@@ -15,12 +16,13 @@ export const useRepositoryStore = defineStore("repository", {
   },
 
   getters: {
+    currentRepository: (state) => state.repo,
     repositoryName: (state) => {
-      const arr = state.repo_path.split("/").reverse().filter(Boolean);
-      if (arr.length == 0) return "";
-      return arr[0];
+      return state.repo ? state.repo.repoName : "";
     },
-    repositoryPath: (state) => state.repo_path,
+    repositoryPath: (state) => {
+      return state.repo ? state.repo.repoPath : "";
+    },
     currentBranch: (state) => state.current_branch,
     allBranches: (state) => state.all_branches,
     commitLogs: (state) => state.logList,
@@ -29,18 +31,15 @@ export const useRepositoryStore = defineStore("repository", {
   actions: {
     async setRepository(path: string) {
       const repo_path = await git2rs.setRepository(path);
-      if (!repo_path) {
-        return;
+      if (repo_path) {
+        await this.loadRepositoryInfo();
       }
-      await this.loadRepositoryInfo();
       return repo_path;
     },
 
     async loadRepositoryInfo() {
-      this.repo_path = await git2rs.workdir().catch(() => {
-        return "";
-      });
-      if (!this.repo_path) return;
+      const repo_info = await git2rs.get_repo_info();
+      this.repo = new Repository(repo_info);
 
       const stageStore = useCommitStageStore();
       await stageStore.updateCommitStage();

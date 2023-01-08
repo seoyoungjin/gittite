@@ -1,6 +1,9 @@
 {
-  "repo": "/tmp/test_repo",
-  "workdir": "/tmp/test_repo",
+  "set_repository": "/tmp/test_repo",
+  "get_repo_info": {
+    "path": "/tmp/test_repo",
+    "is_bare": false
+  },
   "get_branch_name": "master",
   "get_status": [],
   "get_commits": [],

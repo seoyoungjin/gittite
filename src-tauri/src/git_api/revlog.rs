@@ -1,4 +1,3 @@
-// TODO
 // #![deny(warnings)]
 
 use super::error::{Error, Result};
@@ -10,11 +9,6 @@ use serde::Serialize;
 use std::ffi::OsString;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
-
-// author name <email> date
-//   author().name(), author().email(), author.when()
-// js and rust time exchange format
-// tree_id ,tree is used for diff
 
 #[derive(Serialize)]
 pub struct CommitData {
