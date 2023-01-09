@@ -38,7 +38,7 @@ export const useRepositoryStore = defineStore("repository", {
     },
 
     async loadRepositoryInfo() {
-      const repo_info = await git2rs.get_repo_info();
+      const repo_info = await git2rs.getRepositoryInfo();
       this.repo = new Repository(repo_info);
 
       const stageStore = useCommitStageStore();

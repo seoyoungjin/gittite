@@ -11,6 +11,12 @@
     <div v-if="response">
       <vue-json-pretty :data="response" />
     </div>
+
+    <br />
+    <div v-if="repositoryInfo">
+      <h6>Repository Information</h6>
+      <vue-json-pretty :data="repositoryInfo" />
+    </div>
   </q-page>
 </template>
 
@@ -29,10 +35,13 @@ export default defineComponent({
   data() {
     return {
       response: null,
+      repositoryInfo: null,
     };
   },
 
-  mounted() {},
+  async mounted() {
+    this.repositoryInfo = await git2rs.getRepositoryInfo();
+  },
 
   methods: {
     async selectRepo() {
@@ -55,6 +64,10 @@ export default defineComponent({
             this.response = { error: JSON.stringify(e) } as any;
           }
         });
+
+      this.repositoryInfo = await git2rs.getRepositoryInfo().catch(() => {
+        return null;
+      });
     },
   },
 });

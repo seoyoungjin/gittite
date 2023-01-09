@@ -180,6 +180,8 @@ pub fn get_diff_commit(
     Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
+// stage
+
 #[tauri::command]
 pub fn add(
     args: String,
@@ -221,6 +223,8 @@ pub fn reset_stage(
 
     reset::reset_stage(repo_path, path)
 }
+
+// branch
 
 #[tauri::command]
 pub fn get_branch_name(app_data: AppDataState<'_>) -> Result<String> {
@@ -397,6 +401,19 @@ pub fn extract_username_password(app_data: AppDataState<'_>) -> Result<BasicAuth
     let app_data = app_data.0.lock().unwrap();
 
     cred::extract_username_password(app_data.repo_path_ref())
+}
+
+// ignore
+
+#[tauri::command]
+pub fn add_to_ignore(
+    path: String,
+    app_data: AppDataState<'_>,
+) -> Result<()> {
+    log::trace!("add_to_ignore:: path {:?}", path);
+    let app_data = app_data.0.lock().unwrap();
+
+    ignore::add_to_ignore(app_data.repo_path_ref(), path.as_str())
 }
 
 // progress

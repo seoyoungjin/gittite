@@ -2,7 +2,7 @@
 
 pub mod clone;
 pub mod cred;
-pub mod error;
+mod error;
 pub mod init;
 pub mod repository;
 
@@ -33,7 +33,7 @@ pub mod remotes;
 
 // sig tree blob
 // pub mod cat_file;
-mod ignore;
+pub mod ignore;
 pub mod progress;
 pub mod utils;
 

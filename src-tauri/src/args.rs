@@ -1,4 +1,3 @@
-use crate::git_api::error::Result;
 use crate::git_api::repository::RepoPath;
 use clap::Parser;
 use std::path::PathBuf;
@@ -19,7 +18,7 @@ pub struct CliArgs {
     pub repo_path: RepoPath,
 }
 
-pub fn process_cmdline() -> Result<CliArgs> {
+pub fn process_cmdline() -> Result<CliArgs, ()> {
     let cli = Cli::parse();
 
     let workdir = cli.workdir.map(PathBuf::from);

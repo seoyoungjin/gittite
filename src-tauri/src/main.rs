@@ -65,14 +65,15 @@ fn main() {
             cmd::amend,
             cmd::commit_info,
             cmd::commit_files,
-            // state
+            // stage
             cmd::add,
             cmd::remove,
             cmd::reset_stage,
-            //
+            // log/status
             cmd::get_commits,
             cmd::get_status,
             cmd::get_remotes,
+            // diff
             cmd::get_diff,
             cmd::get_diff_commit,
             // cmd::get_diff_commits,
@@ -86,13 +87,15 @@ fn main() {
             cmd::branch_compare_upstream,
             cmd::checkout_branch,
             cmd::checkout_remote_branch,
-            //
+            // tag/stash/blame
             cmd::tag,
             cmd::stash,
             cmd::blame,
             // cred
             cmd::need_username_password,
             cmd::extract_username_password,
+            // config/ignore
+            cmd::add_to_ignore,
             // test
             cmd::test_progress,
         ])

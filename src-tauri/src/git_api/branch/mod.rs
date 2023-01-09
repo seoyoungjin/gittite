@@ -73,6 +73,7 @@ pub struct BranchInfo {
     pub details: BranchDetails,
 }
 
+#[cfg(test)]
 impl BranchInfo {
     /// returns details about local branch or None
     pub const fn local_details(&self) -> Option<&LocalBranch> {

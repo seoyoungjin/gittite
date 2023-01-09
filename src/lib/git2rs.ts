@@ -34,7 +34,7 @@ export async function setRepository(path: string): Promise<string> {
   return await invoke("set_repository", { path });
 }
 
-export async function get_repo_info(): Promise<RepoInfo> {
+export async function getRepositoryInfo(): Promise<RepoInfo> {
   return await invoke("get_repo_info");
 }
 
@@ -47,6 +47,7 @@ export async function clone(gitUrl: string, localDir: string): Promise<string> {
   return await invoke("clone", { args: [gitUrl, localDir] });
 }
 
+// history/diff
 export async function getCommits(): Promise<CommitData[]> {
   return await invoke("get_commits", { args: [] });
 }
@@ -62,6 +63,7 @@ export async function getDiffCommit(
   return invoke("get_diff_commit", { commitId: commitId, path: path });
 }
 
+// stage
 export async function add(name: string): Promise<boolean> {
   return invoke("add", { args: name });
 }
@@ -78,11 +80,7 @@ export async function getStatus(args: string): Promise<StatusItem[]> {
   return await invoke("get_status", { statusType: args });
 }
 
-export async function blameFile(path: string, commitId: string | null) {
-  return await invoke("blame", { path: path, commitId: commitId });
-}
-
-// commit related
+// commit
 export async function commit(message: string): Promise<string> {
   return await invoke("commit", { args: message });
 }
@@ -192,11 +190,20 @@ export async function stashDrop(stashid: string) {
   return await invoke("stash", { args: ["drop", stashid] });
 }
 
-// TODO
 // remote
 export async function fetch() {}
 
 export async function push() {}
+
+// blame
+export async function blameFile(path: string, commitId: string | null) {
+  return await invoke("blame", { path: path, commitId: commitId });
+}
+
+// config/ignore
+export async function addToIgnore(path: string) {
+  return await invoke("add_to_ignore", { path });
+}
 
 // test progress
 export async function testProgress() {
