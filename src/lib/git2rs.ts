@@ -48,8 +48,29 @@ export async function clone(gitUrl: string, localDir: string): Promise<string> {
 }
 
 // history/diff
-export async function getCommits(): Promise<CommitData[]> {
-  return await invoke("get_commits", { args: [] });
+export async function getCommits(
+  revisionRange?: string,
+  limit?: number,
+  skip?: number,
+  additionalArgs?: string[]
+): Promise<CommitData[]> {
+  const args = [];
+
+  // TODO
+  // if (revisionRange != undefined) {
+  //   args.push(revisionRange);
+  // }
+  if (limit != undefined) {
+    args.push(`--max-count=${limit}`);
+  }
+  if (skip != undefined) {
+    args.push(`--skip=${skip}`);
+  }
+  if (additionalArgs != undefined) {
+    args.push(...additionalArgs);
+  }
+
+  return await invoke("get_commits", { args: args });
 }
 
 export async function getDiff(path: string, stage: boolean): Promise<string> {

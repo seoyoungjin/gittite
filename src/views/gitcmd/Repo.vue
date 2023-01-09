@@ -40,7 +40,7 @@ export default defineComponent({
   },
 
   async mounted() {
-    this.repositoryInfo = await git2rs.getRepositoryInfo();
+    this.repositoryInfo = (await git2rs.getRepositoryInfo()) as any;
   },
 
   methods: {
@@ -65,9 +65,9 @@ export default defineComponent({
           }
         });
 
-      this.repositoryInfo = await git2rs.getRepositoryInfo().catch(() => {
+      this.repositoryInfo = (await git2rs.getRepositoryInfo().catch(() => {
         return null;
-      });
+      })) as any;
     },
   },
 });

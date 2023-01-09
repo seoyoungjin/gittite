@@ -20,7 +20,7 @@ but I'm going to continue this for personal use.
 - [ ] tag
   - [ ] handle IPC response in tagged json format for rust enum 
 - [ ] unitest
-- [ ] repository information
+- [x] repository information
 - [x] layout
 - [x] refresh with notify or button
 
@@ -32,7 +32,7 @@ but I'm going to continue this for personal use.
   - [ ] option
   - [ ] full file
   - [ ] diff between commit/branch
-- [ ] many log
+- [x] big log list
 
 ### next
 
