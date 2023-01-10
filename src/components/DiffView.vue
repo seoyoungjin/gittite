@@ -11,7 +11,7 @@ import "diff2html/bundles/css/diff2html.min.css";
 export default defineComponent({
   name: "DiffView",
   props: {
-    curSelected: null,
+    selection: {},
   },
 
   data() {
@@ -23,7 +23,7 @@ export default defineComponent({
   computed: {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
-        drawFileList: "commit_id" in this.curSelected,
+        drawFileList: "commit_id" in this.selection,
         matching: "none",
         outputFormat: "line-by-line",
       });
@@ -32,8 +32,8 @@ export default defineComponent({
 
   methods: {
     getDiff: async function () {
-      // alert(JSON.stringify(this.curSelected));
-      let current = this.curSelected;
+      // alert(JSON.stringify(this.selection));
+      let current = this.selection;
       if ("path" in current) {
         this.diffs = await git2rs.getDiff(current.path, "stage" in current);
       } else if ("commit_id" in current) {
@@ -43,7 +43,7 @@ export default defineComponent({
   },
 
   watch: {
-    curSelected: "getDiff",
+    selection: "getDiff",
   },
 });
 </script>
