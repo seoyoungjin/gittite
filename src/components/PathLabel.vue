@@ -1,17 +1,19 @@
 <template>
+  <!--
+<div class="ellipsis"> {{ path }} </div>
+-->
   <span class="row inline no-wrap">
-    <div class="text-grey-7">
+    <div class="text-grey-7 ellipsis">
       {{ filePath(path) }}
     </div>
     <div>
       {{ fileName(path) }}
     </div>
+    <q-tooltip :class="className">
+      {{ path }}
+    </q-tooltip>
   </span>
-  <!--
-  <div class="ellipsis">
-    {{ path }}
-  </div>
---></template>
+</template>
 
 <script lang="ts">
 // TODO Renamed, Copied
@@ -28,6 +30,10 @@ export default defineComponent({
     availableWidth: {
       type: Number,
       required: false,
+    },
+    className: {
+      type: String,
+      default: "bg-black text-body2",
     },
   },
   methods: {

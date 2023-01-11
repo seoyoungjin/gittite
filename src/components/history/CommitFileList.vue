@@ -16,8 +16,8 @@
       >
         <q-item-section side class="q-pa-xs">
           <q-icon
-            :name="octIconForStatus(item.stage)"
-            :color="colorForStatus(item.stage)"
+            :name="octIconForStatus(item.status)"
+            :color="colorForStatus(item.status)"
             size="14pt"
           />
         </q-item-section>

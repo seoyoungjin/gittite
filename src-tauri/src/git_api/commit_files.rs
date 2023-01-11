@@ -30,7 +30,7 @@ pub fn get_commit_files(
                     .path()
                     .map(|p| p.to_str().unwrap_or("").to_string())
                     .unwrap_or_default(),
-                stage: Some(status),
+                status: Some(status),
                 wtree: None,
             }
         })
@@ -148,7 +148,7 @@ mod tests {
         let diff = get_commit_files(repo_path, id, None)?;
 
         assert_eq!(diff.len(), 1);
-        assert_eq!(diff[0].stage, Some(StatusItemType::Added));
+        assert_eq!(diff[0].status, Some(StatusItemType::Added));
 
         Ok(())
     }
@@ -166,7 +166,7 @@ mod tests {
         let diff = get_commit_files(repo_path, id, None)?;
 
         assert_eq!(diff.len(), 1);
-        assert_eq!(diff[0].stage, Some(StatusItemType::Added));
+        assert_eq!(diff[0].status, Some(StatusItemType::Added));
 
         Ok(())
     }
@@ -190,8 +190,8 @@ mod tests {
         let id = stash_save(repo_path, None, true, false)?;
         let diff = get_commit_files(repo_path, id, None)?;
         assert_eq!(diff.len(), 2);
-        assert_eq!(diff[0].stage, Some(StatusItemType::Modified));
-        assert_eq!(diff[1].stage, Some(StatusItemType::Added));
+        assert_eq!(diff[0].status, Some(StatusItemType::Modified));
+        assert_eq!(diff[1].status, Some(StatusItemType::Added));
 
         Ok(())
     }

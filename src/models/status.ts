@@ -1,5 +1,5 @@
 export interface StatusItem {
   path: string;
-  stage?: string;
+  status?: string;
   wtree?: string;
 }
