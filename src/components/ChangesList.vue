@@ -75,7 +75,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import { useCommitStageStore } from "@/stores/commitStage";
+import { useCommitStageStore } from "@/stores/commit-stage";
 // import ChangesOption from "@/components/ChangesOption.vue";
 import CommitMessage from "@/components/CommitMessage.vue";
 import PathLabel from "@/components/PathLabel.vue";
@@ -120,7 +120,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+    ...mapActions(useCommitStageStore, ["updateCommitStage", "setCurrentItem"]),
 
     onChildResize(size: any) {
       // alert(JSON.stringify(size));
@@ -129,7 +129,7 @@ export default defineComponent({
     },
 
     clickItem(item: any) {
-      this.$emit("selectItem", item);
+      this.setCurrentItem(item);
     },
 
     stageFile(item: any) {

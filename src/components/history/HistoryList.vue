@@ -29,7 +29,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import { useRepositoryStore } from "@/stores/repository";
+import { useHistoryStore } from "@/stores/history";
 import HistoryListItem from "./HistoryListItem.vue";
 
 export default defineComponent({
@@ -46,7 +46,7 @@ export default defineComponent({
   },
 
   computed: {
-    ...mapState(useRepositoryStore, ["commitLogs"]),
+    ...mapState(useHistoryStore, ["commitLogs"]),
   },
 
   watch: {
@@ -60,7 +60,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useRepositoryStore, ["loadNextCommitBatch"]),
+    ...mapActions(useHistoryStore, ["loadNextCommitBatch"]),
 
     clickItem(item: any) {
       this.$emit("selectItem", item);

@@ -36,7 +36,7 @@
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import * as git2rs from "@/lib/git2rs";
-import { useCommitStageStore } from "@/stores/commitStage";
+import { useCommitStageStore } from "@/stores/commit-stage";
 import { useRepositoryStore } from "@/stores/repository";
 
 const initialData = () => ({

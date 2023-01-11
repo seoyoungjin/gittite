@@ -24,7 +24,7 @@
 
         <q-tab-panels v-model="tab" animated class="fit">
           <q-tab-panel name="changes" class="q-pa-none">
-            <ChangesList v-on:selectItem="handleSelectItem" />
+            <ChangesList />
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-xs">
@@ -41,7 +41,7 @@
           @preference="showPreference = true"
         />
         <div v-if="tab === 'changes'" class="q-pa-none">
-          <ContentForChanges :selection="curSelected" />
+          <ContentForChanges />
         </div>
         <div v-else class="q-pa-none fit">
           <ContentForHistory :selection="curSelected" />

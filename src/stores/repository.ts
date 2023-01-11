@@ -1,14 +1,9 @@
 import { defineStore } from "pinia";
-import { useCommitStageStore } from "./commitStage";
+import { useCommitStageStore } from "./commit-stage";
+import { useHistoryStore } from "./history";
 import * as git2rs from "@/lib/git2rs";
 import { Repository } from "@/models/repository";
 import type { BranchInfo } from "@/models/branch";
-import type { CommitData } from "@/models/commit";
-
-const CommitBatchSize = 100;
-const LoadingHistoryRequestKey = "history";
-
-const requestsInFight = new Set<string>();
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
@@ -16,7 +11,6 @@ export const useRepositoryStore = defineStore("repository", {
       repo: null as Repository | null,
       current_branch: "",
       all_branches: [] as BranchInfo[],
-      commit_list: [] as CommitData[],
     };
   },
 
@@ -30,7 +24,6 @@ export const useRepositoryStore = defineStore("repository", {
     },
     currentBranch: (state) => state.current_branch,
     allBranches: (state) => state.all_branches,
-    commitLogs: (state) => state.commit_list,
   },
 
   actions: {
@@ -49,53 +42,15 @@ export const useRepositoryStore = defineStore("repository", {
       const stageStore = useCommitStageStore();
       await stageStore.updateCommitStage();
 
+      const historyStore = useHistoryStore();
+      await historyStore.loadCommitBatch("HEAD", 0);
+
       // TODO - misc repo data
       // remoteOriginUrl
       // last commit time
       // ahead/behind
 
-      this.commit_list = [];
-      await this.loadCommitBatch("HEAD", 0);
-
       await this.loadAllBranches();
-    },
-
-    // Load a batch of commits from the repository,
-    // using a given commitish object as the starting point
-    async loadCommitBatch(commitish: string, skip: number): Promise<any> {
-      if (requestsInFight.has(LoadingHistoryRequestKey)) {
-        return null;
-      }
-
-      const requestKey = `history/compare/${commitish}/skip/${skip}`;
-      if (requestsInFight.has(requestKey)) {
-        return null;
-      }
-
-      requestsInFight.add(requestKey);
-
-      const commits = await git2rs.getCommits(commitish, CommitBatchSize, skip);
-
-      requestsInFight.delete(requestKey);
-      if (!commits) {
-        return null;
-      }
-
-      this.storeCommits_(commits);
-      return commits.map((c) => c.commit_id);
-    },
-
-    async loadNextCommitBatch(): Promise<any> {
-      return await this.loadCommitBatch("HEAD", this.commit_list.length);
-    },
-
-    storeCommits_(newCommits: CommitData[]) {
-      this.commit_list = this.commit_list.concat(newCommits);
-      /*
-      for (cosnt commit of commits) {
-        this.commitLookup.set(commit.sha, commit)
-      }
-      */
     },
 
     async loadAllBranches() {
