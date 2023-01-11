@@ -1,6 +1,12 @@
 <template>
   <div class="q-pa-none" style="height: 100%">
-    <q-infinite-scroll ref="historyList" bordered separator @load="onLoad" :offset="200">
+    <q-infinite-scroll
+      ref="historyList"
+      bordered
+      separator
+      @load="onLoad"
+      :offset="200"
+    >
       <q-list dense bordered separator>
         <HistoryListItem
           v-for="(item, index) in commitLogs"
@@ -35,7 +41,7 @@ export default defineComponent({
 
   data() {
     return {
-      historyLoadCompleted: false
+      historyLoadCompleted: false,
     };
   },
 

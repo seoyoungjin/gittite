@@ -1,5 +1,7 @@
 <template>
-  <div v-html="prettyHtml" />
+  <q-scroll-area class="fit">
+    <div v-html="prettyHtml" class="q-pa-xs" />
+  </q-scroll-area>
 </template>
 
 <script lang="ts">
@@ -11,7 +13,8 @@ import "diff2html/bundles/css/diff2html.min.css";
 export default defineComponent({
   name: "DiffView",
   props: {
-    selection: {},
+    selection: null,
+    selectedFile: null,
   },
 
   data() {
@@ -23,7 +26,8 @@ export default defineComponent({
   computed: {
     prettyHtml() {
       return Diff2Html.html(this.diffs, {
-        drawFileList: "commit_id" in this.selection,
+        // drawFileList: "commit_id" in this.selection,
+        drawFileList: false,
         matching: "none",
         outputFormat: "line-by-line",
       });
@@ -37,13 +41,18 @@ export default defineComponent({
       if ("path" in current) {
         this.diffs = await git2rs.getDiff(current.path, "stage" in current);
       } else if ("commit_id" in current) {
-        this.diffs = await git2rs.getDiffCommit(current.commit_id, null);
+        // this.diffs = await git2rs.getDiffCommit(current.commit_id, null);
+        this.diffs = await git2rs.getDiffCommit(
+          current.commit_id,
+          this.selectedFile
+        );
       }
     },
   },
 
   watch: {
     selection: "getDiff",
+    selectedFile: "getDiff",
   },
 });
 </script>

@@ -28,7 +28,7 @@
               />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ item.path }}</q-item-label>
+              <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
           </q-item>
         </q-virtual-scroll>
@@ -60,7 +60,7 @@
               />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ item.path }}</q-item-label>
+              <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
           </q-item>
         </q-virtual-scroll>
@@ -78,6 +78,7 @@ import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commitStage";
 // import ChangesOption from "@/components/ChangesOption.vue";
 import CommitMessage from "@/components/CommitMessage.vue";
+import PathLabel from "@/components/PathLabel.vue";
 import {
   octDiff16,
   octDiffAdded16,
@@ -111,6 +112,7 @@ export default defineComponent({
   components: {
     // ChangesOption,
     CommitMessage,
+    PathLabel,
   },
 
   computed: {

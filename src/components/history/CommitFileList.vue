@@ -1,10 +1,10 @@
 <template>
   <div class="q-pa-none" style="height: 100%">
     <q-virtual-scroll
-      style="height: calc(100% - 25px)"
-      :items="allUnstagedFiles"
+      :items="commitFiles"
       bordered
       separator
+      class="fit"
       v-slot="{ item, index }"
     >
       <q-item
@@ -16,14 +16,13 @@
       >
         <q-item-section side class="q-pa-xs">
           <q-icon
-            :name="octIconForStatus(item.wtree)"
-            :color="colorForStatus(item.wtree)"
+            :name="octIconForStatus(item.stage)"
+            :color="colorForStatus(item.stage)"
             size="14pt"
-            @click="stageFile(item)"
           />
         </q-item-section>
         <q-item-section>
-          <q-item-label>{{ item.path }}</q-item-label>
+          <q-item-label class="ellipsis">{{ item.path }}</q-item-label>
         </q-item-section>
       </q-item>
     </q-virtual-scroll>
@@ -57,16 +56,8 @@ export default defineComponent({
     };
   },
 
-  data() {
-    return {
-      stageStyle: { height: "calc(100%-230pt)" },
-    };
-  },
-
-  components: {
-  },
-
-  computed: {
+  props: {
+    commitFiles: [] as any[],
   },
 
   methods: {

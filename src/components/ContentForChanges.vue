@@ -1,5 +1,7 @@
 <template>
-  <diff-view :selection="selection" />
+  <div style="height: 100vh">
+    <DiffView :selection="selection" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -10,7 +12,7 @@ export default defineComponent({
   name: "ContentForChanges",
 
   props: {
-    selection: {},
+    selection: null,
   },
 
   components: {
