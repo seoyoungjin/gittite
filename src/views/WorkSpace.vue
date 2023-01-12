@@ -24,7 +24,7 @@
 
         <q-tab-panels v-model="tab" animated class="fit">
           <q-tab-panel name="changes" class="q-pa-none">
-            <ChangesList v-on:selectItem="handleSelectItem" />
+            <ChangesList />
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-xs">
@@ -40,11 +40,12 @@
           @cloneRepository="showCloneReposity = true"
           @preference="showPreference = true"
         />
-        <q-scroll-area class="fit">
-          <div class="q-pa-md">
-            <diff-view :curSelected="curSelected" />
-          </div>
-        </q-scroll-area>
+        <div v-if="tab === 'changes'" class="q-pa-none">
+          <ContentForChanges />
+        </div>
+        <div v-else class="q-pa-none fit">
+          <ContentForHistory :selection="curSelected" />
+        </div>
       </template>
     </q-splitter>
   </q-layout>
@@ -68,7 +69,8 @@ import ToolBar2 from "@/layouts/ToolBar2.vue";
 import ChangesList from "@/components/ChangesList.vue";
 // import ChangesOption from "@/components/ChangesOption.vue";
 import HistoryList from "@/components/history/HistoryList.vue";
-import DiffView from "@/components/DiffView.vue";
+import ContentForChanges from "@/components/ContentForChanges.vue";
+import ContentForHistory from "@/components/ContentForHistory.vue";
 // dialog
 import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
@@ -147,7 +149,8 @@ export default defineComponent({
     ChangesList,
     // ChangesOption,
     HistoryList,
-    DiffView,
+    ContentForChanges,
+    ContentForHistory,
     // dialog
     InitRepository,
     AddLocalRepository,

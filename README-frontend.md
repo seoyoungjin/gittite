@@ -1,13 +1,7 @@
-<pre>
 When I started the project with tauri,
 I planned to organize the UI only with HTML and javascript.
-This is because it can take advantage of tauri compared to electron.
-
 However, following the example, I was forced to encounter nodejs.
-With hot reload function, it is vety convenient to change UI
-while running the app.
-I startd to study nodejs frameworks i.e. react, vue, and velte.
-</pre>
+I startd to study nodejs frameworks i.e. react, vue, and svelte.
 
 ## Project setup
 
@@ -31,12 +25,12 @@ From a beginner's point of view...
 ### svelte
 
 It is simple and easy to learn, but there are not many pretty ui.
-I tried sveltekit, sveltstrap, unocss, smui, carbon, daisui, etc.
+I tried sveltekit, sveltstrap, unocss, smui, carbon, daisyui, etc.
 Daisyui is the most plausible, but there are also a lot of CSS attributes.
 
 ### react
 
-At the first i reviewed react because it is popular.
+At the first I reviewed react because it is popular.
 But I give up studying as soon as I see the HTML code in javascript function.
 
 ### vuetify

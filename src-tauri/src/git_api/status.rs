@@ -104,7 +104,7 @@ impl From<Status> for WStatusItemType {
 #[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct StatusItem {
     pub path: String,
-    pub stage: Option<StatusItemType>,
+    pub status: Option<StatusItemType>,
     pub wtree: Option<WStatusItemType>,
 }
 
@@ -151,21 +151,21 @@ pub fn get_status(
             StatusShow::Index => {
                 res.push(StatusItem {
                     path,
-                    stage: Some(StatusItemType::from(st)),
+                    status: Some(StatusItemType::from(st)),
                     wtree: None,
                 });
             }
             StatusShow::Workdir => {
                 res.push(StatusItem {
                     path,
-                    stage: None,
+                    status: None,
                     wtree: Some(WStatusItemType::from(st)),
                 });
             }
             _ => {
                 res.push(StatusItem {
                     path,
-                    stage: Some(StatusItemType::from(st)),
+                    status: Some(StatusItemType::from(st)),
                     wtree: Some(WStatusItemType::from(st)),
                 });
             }

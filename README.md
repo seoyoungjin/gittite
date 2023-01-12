@@ -57,7 +57,16 @@ but I'm going to continue this for personal use.
 - `cargo install tauri-cli`
 - `cargo tauri dev` : Start app in dev mode
 - `yarn tauri dev`
-- `cargo tauri build`: Build
+
+### Build Package
+
+- `yarn tauri build`
+- `cargo tauri build`
+
+### Lint
+
+- `yarn eslint`
+- `yarn type-check`
 
 ## Log trace
 

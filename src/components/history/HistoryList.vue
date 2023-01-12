@@ -1,6 +1,12 @@
 <template>
   <div class="q-pa-none" style="height: 100%">
-    <q-infinite-scroll ref="historyList" bordered separator @load="onLoad" :offset="200">
+    <q-infinite-scroll
+      ref="historyList"
+      bordered
+      separator
+      @load="onLoad"
+      :offset="200"
+    >
       <q-list dense bordered separator>
         <HistoryListItem
           v-for="(item, index) in commitLogs"
@@ -23,7 +29,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import { useRepositoryStore } from "@/stores/repository";
+import { useHistoryStore } from "@/stores/history";
 import HistoryListItem from "./HistoryListItem.vue";
 
 export default defineComponent({
@@ -35,12 +41,12 @@ export default defineComponent({
 
   data() {
     return {
-      historyLoadCompleted: false
+      historyLoadCompleted: false,
     };
   },
 
   computed: {
-    ...mapState(useRepositoryStore, ["commitLogs"]),
+    ...mapState(useHistoryStore, ["commitLogs"]),
   },
 
   watch: {
@@ -54,10 +60,10 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useRepositoryStore, ["loadNextCommitBatch"]),
+    ...mapActions(useHistoryStore, ["loadNextCommitBatch", "setCurrentItem"]),
 
     clickItem(item: any) {
-      this.$emit("selectItem", item);
+      this.setCurrentItem(item);
     },
 
     onLoad(index: number, done: (stop: any) => void) {

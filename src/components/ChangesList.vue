@@ -20,15 +20,14 @@
             @click="clickItem(item)"
           >
             <q-item-section side class="q-pa-xs">
-              <q-icon
-                :name="octIconForStatus(item.wtree)"
-                :color="colorForStatus(item.wtree)"
+              <OctStatusIcon
+                v-bind:status="item.wtree"
                 size="14pt"
                 @click="stageFile(item)"
               />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ item.path }}</q-item-label>
+              <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
           </q-item>
         </q-virtual-scroll>
@@ -52,15 +51,14 @@
             @click="clickItem(item)"
           >
             <q-item-section side class="q-pa-xs">
-              <q-icon
-                :name="octIconForStatus(item.stage)"
-                :color="colorForStatus(item.stage)"
+              <OctStatusIcon
+                v-bind:status="item.status"
                 size="14pt"
                 @click="unstageFile(item)"
               />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ item.path }}</q-item-label>
+              <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
           </q-item>
         </q-virtual-scroll>
@@ -75,33 +73,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
-import { useCommitStageStore } from "@/stores/commitStage";
+import { useCommitStageStore } from "@/stores/commit-stage";
 // import ChangesOption from "@/components/ChangesOption.vue";
 import CommitMessage from "@/components/CommitMessage.vue";
-import {
-  octDiff16,
-  octDiffAdded16,
-  octDiffIgnored16,
-  octDiffModified16,
-  octDiffRemoved16,
-  octDiffRenamed16,
-  octFileDiff16,
-} from "quasar-extras-svg-icons/oct-icons-v17";
+import OctStatusIcon from "@/components/OctStatusIcon.vue";
+import PathLabel from "@/components/PathLabel.vue";
 import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
-  setup() {
-    return {
-      octDiff16,
-      octDiffAdded16,
-      octDiffIgnored16,
-      octDiffModified16,
-      octDiffRemoved16,
-      octDiffRenamed16,
-      octFileDiff16,
-    };
-  },
-
   data() {
     return {
       stageStyle: { height: "calc(100%-230pt)" },
@@ -111,6 +90,8 @@ export default defineComponent({
   components: {
     // ChangesOption,
     CommitMessage,
+    OctStatusIcon,
+    PathLabel,
   },
 
   computed: {
@@ -118,7 +99,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+    ...mapActions(useCommitStageStore, ["updateCommitStage", "setCurrentItem"]),
 
     onChildResize(size: any) {
       // alert(JSON.stringify(size));
@@ -127,7 +108,7 @@ export default defineComponent({
     },
 
     clickItem(item: any) {
-      this.$emit("selectItem", item);
+      this.setCurrentItem(item);
     },
 
     stageFile(item: any) {
@@ -161,42 +142,6 @@ export default defineComponent({
         icon: "warning",
         message: message,
       });
-    },
-
-    octIconForStatus(status: string | undefined): any {
-      switch (status) {
-        case "New":
-        case "Added":
-        case "Untracked":
-          return octDiffAdded16;
-        case "Modified":
-          return octDiffModified16;
-        case "Deleted":
-          return octDiffRemoved16;
-        case "Renamed":
-          return octDiffRenamed16;
-        // case "Conflicted":
-        default:
-          throw "Unknown status";
-      }
-    },
-
-    colorForStatus(status: string | undefined): string {
-      switch (status) {
-        case "New":
-        case "Added":
-        case "Untracked":
-          return "green";
-        case "Modified":
-          return "yellow-9";
-        case "Deleted":
-          return "red";
-        case "Renamed":
-          return "blue";
-        // case "Conflicted":
-        default:
-          return "grey";
-      }
     },
   },
 });
