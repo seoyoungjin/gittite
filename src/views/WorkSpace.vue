@@ -82,16 +82,16 @@ import BranchDelete from "@/components/dialog/BranchDelete.vue";
 import BranchReset from "@/components/dialog/BranchReset.vue";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
-import { usePropStore } from "@/stores/props";
+import { useAppStore } from "@/stores/app";
 
 export default defineComponent({
   setup() {
     const repoStore = useRepositoryStore();
     const settingsStore = useSettingsStore();
-    const propStore = usePropStore();
+    const appStore = useAppStore();
 
     settingsStore.loadSettings();
-    propStore.initStore();
+    appStore.initStore();
 
     return {
       repoStore,
@@ -118,6 +118,8 @@ export default defineComponent({
         this.showBranchDelete = true;
       } else if (ev.payload == "branch_reset") {
         this.showBranchReset = true;
+      } else if (ev.payload == "select") {
+        this.$router.push("/select");
       }
       console.log(ev.payload);
     });

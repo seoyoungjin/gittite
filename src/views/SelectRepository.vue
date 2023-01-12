@@ -35,7 +35,7 @@
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useSettingsStore } from "@/stores/settings";
-import { usePropStore } from "@/stores/props";
+import { useAppStore } from "@/stores/app";
 import RepositoryItem from "@/components/RepositoryItem.vue";
 import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
@@ -73,7 +73,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(usePropStore, ["setPropModal"]),
+    ...mapActions(useAppStore, ["setPropModal"]),
   },
 });
 </script>

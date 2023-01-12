@@ -41,13 +41,16 @@ export const useHistoryStore = defineStore("history", {
   },
 
   actions: {
+    resetHistory() {
+      this.commitList = [];
+      this.currentItem = null;
+      this.currentCommitInfo = null;
+      this.currentCommitFiles = [] as StatusItem[];
+    },
+
     // Load a batch of commits from the repository,
     // using a given commitish object as the starting point
     async loadCommitBatch(commitish: string, skip: number): Promise<any> {
-      if (skip === 0 && this.commitList.length) {
-        this.commitList = [];
-      }
-
       if (requestsInFight.has(LoadingHistoryRequestKey)) {
         return null;
       }
@@ -59,7 +62,11 @@ export const useHistoryStore = defineStore("history", {
 
       requestsInFight.add(requestKey);
 
-      const commits = await git2rs.getCommits(commitish, CommitBatchSize, skip);
+      const commits = await git2rs
+        .getCommits(commitish, CommitBatchSize, skip)
+        .catch(() => {
+          return [];
+        });
 
       requestsInFight.delete(requestKey);
       if (!commits) {
@@ -68,7 +75,7 @@ export const useHistoryStore = defineStore("history", {
 
       // select first item at start
       if (!this.currentItem) {
-        this.setCurrentItem(commits[0]);
+        if (commits.length) this.setCurrentItem(commits[0]);
       }
 
       this.storeCommits_(commits);
@@ -81,11 +88,6 @@ export const useHistoryStore = defineStore("history", {
 
     storeCommits_(newCommits: CommitData[]) {
       this.commitList = this.commitList.concat(newCommits);
-      /*
-      for (cosnt commit of commits) {
-        this.commitLookup.set(commit.sha, commit)
-      }
-      */
     },
 
     // current item

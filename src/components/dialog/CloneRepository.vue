@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
+  <q-dialog ref="dialog" @show="onDialogShow" @hide="unsetModal">
     <q-card class="q-dialog-plugin" v-if="!cloning">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Clone a Repository</div>
@@ -49,7 +49,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { usePropStore } from "@/stores/props";
+import { mapState } from "pinia";
+import { useAppStore } from "@/stores/app";
 import ModalMixin from "@/mixins/modal";
 import { open } from "@tauri-apps/api/dialog";
 import RemoteProgress from "@/components/RemoteProgress.vue";
@@ -64,16 +65,19 @@ export default defineComponent({
   },
 
   data() {
-    const store = usePropStore();
     return {
       remoteUrl: "",
       repositoryName: "",
-      localPath: store.CWD,
+      localPath: "",
       cloning: false,
     };
   },
 
   emits: ["ok"],
+
+  computed: {
+    ...mapState(useAppStore, ["CWD"]),
+  },
 
   methods: {
     show() {
@@ -95,6 +99,11 @@ export default defineComponent({
     },
 
     // dialog specific
+    onDialogShow() {
+      this.localPath = this.CWD;
+      this.setModal();
+    },
+
     async selectDirectory() {
       const selected = await open({
         directory: true,

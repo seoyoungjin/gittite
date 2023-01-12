@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-none" style="height: 100%">
     <q-virtual-scroll
-      :items="commitFiles"
+      :items="historyCommitFiles"
       bordered
       separator
       class="fit"
@@ -27,15 +27,17 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { mapState } from "pinia";
+import { useHistoryStore } from "@/stores/history";
 import OctStatusIcon from "@/components/OctStatusIcon.vue";
 
 export default defineComponent({
-  props: {
-    commitFiles: [] as any[],
-  },
-
   components: {
     OctStatusIcon,
+  },
+
+  computed: {
+    ...mapState(useHistoryStore, ["historyCommitFiles"]),
   },
 
   methods: {

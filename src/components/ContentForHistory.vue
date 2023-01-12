@@ -14,10 +14,7 @@
         style="height: 100%"
       >
         <template v-slot:before>
-          <CommitFileList
-            :commitFiles="historyCommitFiles"
-            @selectItem="handleSelectItem"
-          />
+          <CommitFileList @selectItem="handleSelectItem" />
         </template>
 
         <template v-slot:after>

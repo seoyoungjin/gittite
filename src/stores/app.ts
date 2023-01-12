@@ -1,7 +1,9 @@
+// stores runtime data
+
 import { defineStore } from "pinia";
 import * as git2rs from "@/lib/git2rs";
 
-export const usePropStore = defineStore("props", {
+export const useAppStore = defineStore("gittite", {
   state: () => ({
     props: {
       cwd: "",

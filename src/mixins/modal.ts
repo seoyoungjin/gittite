@@ -1,10 +1,10 @@
 import { defineComponent } from "vue";
 import { mapActions } from "pinia";
-import { usePropStore } from "@/stores/props";
+import { useAppStore } from "@/stores/app";
 
 export default defineComponent({
   methods: {
-    ...mapActions(usePropStore, ["setPropModal"]),
+    ...mapActions(useAppStore, ["setPropModal"]),
 
     setModal() {
       this.setPropModal(true);

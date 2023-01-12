@@ -28,10 +28,11 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     }
 
     let mut file_menu = Menu::new();
-    file_menu = file_menu.add_item(CustomMenuItem::new("init", "Initialize Repository..."));
+    file_menu = file_menu.add_item(CustomMenuItem::new("select", "Open Repository..."));
     file_menu = file_menu.add_native_item(MenuItem::Separator);
+    file_menu = file_menu.add_item(CustomMenuItem::new("init", "Initialize Repository..."));
     file_menu = file_menu.add_item(CustomMenuItem::new("add_local", "Add Local Repository..."));
-    file_menu = file_menu.add_item(CustomMenuItem::new("clone", "Close Repository..."));
+    file_menu = file_menu.add_item(CustomMenuItem::new("clone", "Clone Repository..."));
     #[cfg(not(target_os = "macos"))]
     {
         file_menu = file_menu.add_native_item(MenuItem::Separator);

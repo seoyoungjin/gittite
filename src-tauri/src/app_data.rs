@@ -84,44 +84,28 @@ pub fn set_prop(
 ) -> Result<(), String> {
     log::trace!("set_prop({}, {})", key, val);
     let mut app_data = app_data.0.lock().unwrap();
+    let all_menu = vec![
+        "preference",
+        "select",
+        "init",
+        "add_local",
+        "clone",
+        "branch_create",
+        "branch_rename",
+        "branch_delete",
+        "branch_reset",
+    ];
 
     match key {
         "modal" => {
             let menu_handle = win.menu_handle();
             app_data.modal = if val == "true" { true } else { false };
-            menu_handle
-                .get_item("preference")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("init")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("add_local")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("clone")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-
-            menu_handle
-                .get_item("branch_create")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("branch_rename")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("branch_delete")
-                .set_enabled(!app_data.modal)
-                .unwrap();
-            menu_handle
-                .get_item("branch_reset")
-                .set_enabled(!app_data.modal)
-                .unwrap();
+            for menu_name in all_menu.iter() {
+                menu_handle
+                    .get_item(menu_name)
+                    .set_enabled(!app_data.modal)
+                    .unwrap();
+            }
         }
         _ => (),
     };

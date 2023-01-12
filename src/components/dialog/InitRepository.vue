@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
+  <q-dialog ref="dialog" @show="onDialogShow" @hide="unsetModal">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Create a New Repository</div>
@@ -63,7 +63,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { usePropStore } from "@/stores/props";
+import { mapState } from "pinia";
+import { useAppStore } from "@/stores/app";
 import ModalMixin from "@/mixins/modal";
 import * as git2rs from "@/lib/git2rs";
 import { sep } from "@tauri-apps/api/path";
@@ -74,12 +75,10 @@ export default defineComponent({
   mixins: [ModalMixin],
 
   data() {
-    const store = usePropStore();
-
     return {
       form: {
         name: "",
-        directory: store.CWD,
+        directory: "",
         bareCheck: false,
         templateCheck: false,
         templateDir: "",
@@ -90,6 +89,10 @@ export default defineComponent({
   },
 
   emits: ["ok"],
+
+  computed: {
+    ...mapState(useAppStore, ["CWD"]),
+  },
 
   methods: {
     show() {
@@ -109,6 +112,12 @@ export default defineComponent({
 
     onCancelClick() {
       this.hide();
+    },
+
+    // dialog specific
+    onDialogShow() {
+      this.form.directory = this.CWD;
+      this.setModal();
     },
 
     async selectDirectory() {

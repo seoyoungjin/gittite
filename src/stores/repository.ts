@@ -39,18 +39,19 @@ export const useRepositoryStore = defineStore("repository", {
       const repo_info = await git2rs.getRepositoryInfo();
       this.repo = new Repository(repo_info);
 
+      await this.loadAllBranches();
+
       const stageStore = useCommitStageStore();
       await stageStore.updateCommitStage();
 
       const historyStore = useHistoryStore();
+      historyStore.resetHistory();
       await historyStore.loadCommitBatch("HEAD", 0);
 
       // TODO - misc repo data
       // remoteOriginUrl
       // last commit time
       // ahead/behind
-
-      await this.loadAllBranches();
     },
 
     async loadAllBranches() {
