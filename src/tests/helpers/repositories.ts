@@ -17,7 +17,7 @@ export async function setupFixtureRepository(
     "fixtures",
     repositoryName
   );
-  const testRepoPath = mkdirSync("gitite-test-");
+  const testRepoPath = mkdirSync("gittite-test-");
   console.log("-----", testRepoPath); // xXX
   await FSE.copy(testRepoFixturePath, testRepoPath);
 

@@ -103,7 +103,7 @@ export default defineComponent({
 
     onChildResize(size: any) {
       // alert(JSON.stringify(size));
-      // this.stageStyle.height = (this.$q.screen.height - 90 - size.height) + "px";
+      // (this.$q.screen.height - 90 - size.height) + "px";
       this.stageStyle.height = "calc(100% - " + (size.height + 5) + "pt)";
     },
 
@@ -112,8 +112,14 @@ export default defineComponent({
     },
 
     stageFile(item: any) {
-      git2rs
-        .add(item.path)
+      let stage_function: (path: string) => Promise<boolean>;
+
+      if (item.wtree == "Deleted") {
+        stage_function = git2rs.stageRemovePath;
+      } else {
+        stage_function = git2rs.stageAddPath;
+      }
+      stage_function(item.path)
         .then(() => {
           this.updateCommitStage();
         })

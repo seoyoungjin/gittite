@@ -222,10 +222,10 @@ mod tests {
     use super::*;
     use crate::git_api::tests::{debug_cmd_print, get_statuses, repo_init, write_commit_file};
     use crate::git_api::{
-        addremove::stage_add_file,
         commit::commit,
         commit_files::get_commit_files,
         commit_info::get_commits_info,
+        stage::stage_add_file,
         utils::{repo_read_file, repo_write_file},
     };
     use std::{fs::File, io::Write, path::Path};

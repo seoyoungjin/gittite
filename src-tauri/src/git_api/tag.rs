@@ -74,8 +74,7 @@ where
         SubCommand::Delete { tagname } => {
             let res = tag_delete(repo_path, tagname.as_str())?;
             serde_json::to_value(res)
-        }
-        // _ => return Err(Error::Generic("invalid tag command".to_string())),
+        } // _ => return Err(Error::Generic("invalid tag command".to_string())),
     };
 
     match res {

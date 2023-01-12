@@ -44,8 +44,8 @@ pub fn reset_workdir(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::git_api::addremove::stage_add_file;
     use crate::git_api::repository::RepoPath;
+    use crate::git_api::stage::stage_add_file;
     use crate::git_api::tests::{get_statuses, repo_init_empty};
     use std::{fs::File, io::Write, path::Path};
 

@@ -1,13 +1,19 @@
 <template>
   <q-page class="q-ma-lg">
-    <h6>Stage Add/Remove</h6>
+    <h6>Stage Stage/Unstage</h6>
 
     <q-card>
       <q-card-section>
         <q-form @reset="onReset" class="q-gutter-md">
-          <q-input v-model="file" label="File to add" hint="Enter file name" />
-          <q-btn label="Add" @click="onGitAdd" color="primary" />
-          <q-btn label="Unstage" @click="onGitReset" color="primary" />
+          <q-checkbox v-model="isDeleted" label="Check for Deleted File" />
+          <q-input
+            v-model="file"
+            label="File to stage"
+            hint="Enter file name"
+          />
+
+          <q-btn label="Stage" @click="onGitStage" color="primary" />
+          <q-btn label="Unstage" @click="onGitUnstage" color="primary" />
           <q-btn label="Reset" type="reset" color="primary" />
         </q-form>
       </q-card-section>
@@ -53,12 +59,14 @@ export default defineComponent({
 
   data() {
     return {
+      splitterModel: ref(50),
+
       response: null,
       stagedJson: null,
       unstagedJson: null,
 
       file: "",
-      splitterModel: ref(50),
+      isDeleted: false,
     };
   },
 
@@ -80,10 +88,16 @@ export default defineComponent({
       this.refreshStatus();
     },
 
-    onGitAdd() {
+    onGitStage() {
       var name = this.file;
-      git2rs
-        .add(name)
+      let stage_function: (path: string) => Promise<boolean>;
+
+      if (this.isDeleted == true) {
+        stage_function = git2rs.stageRemovePath;
+      } else {
+        stage_function = git2rs.stageAddPath;
+      }
+      stage_function(name)
         .then((message) => {
           this.response = message as any;
         })
@@ -95,7 +109,7 @@ export default defineComponent({
       this.refreshStatus();
     },
 
-    onGitReset() {
+    onGitUnstage() {
       var name = this.file;
       git2rs
         .resetStage(name)

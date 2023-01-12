@@ -114,8 +114,8 @@ mod tests {
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
     use crate::git_api::RepoPath;
     use crate::git_api::{
-        addremove::stage_add_file, commit_files::get_commit_files, commit_info::get_commit_info,
-        revlog::get_commits, tag::get_tags, utils::get_head,
+        commit_files::get_commit_files, commit_info::get_commit_info, revlog::get_commits,
+        stage::stage_add_file, tag::get_tags, utils::get_head,
     };
     use std::{fs::File, io::Write, path::Path};
 
@@ -292,7 +292,10 @@ mod tests {
             Tag::new("tag").name
         );
 
-        assert!(matches!(tag_commit(repo_path, &new_id, "tag", None), Err(_)));
+        assert!(matches!(
+            tag_commit(repo_path, &new_id, "tag", None),
+            Err(_)
+        ));
         // assert_eq!(
         //     get_tags(repo_path, Some("tag".to_string())).unwrap(),
         //     vec![Tag::new("tag")]

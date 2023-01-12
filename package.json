@@ -1,6 +1,6 @@
 {
-  "name": "vite3",
-  "version": "0.0.0",
+  "name": "gittite",
+  "version": "0.2.0",
   "license": "MIT",
   "scripts": {
     "build": "run-p type-check build-only",

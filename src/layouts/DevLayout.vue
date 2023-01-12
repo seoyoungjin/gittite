@@ -109,7 +109,7 @@ export default {
         { icon: "restore", text: "Logs", link: "/gitcmd/logs" },
         { icon: "add", text: "Commit", link: "/gitcmd/commit" },
         { icon: "difference", text: "Diff", link: "/gitcmd/diff" },
-        { icon: "folder", text: "Stage", link: "/gitcmd/addremove" },
+        { icon: "folder", text: "Stage", link: "/gitcmd/stage" },
         { icon: "star_border", text: "Branch", link: "/gitcmd/branch" },
         { icon: "whatshot", text: "Tags", link: "/gitcmd/tags" },
         { icon: "watch_later", text: "Stash", link: "/gitcmd/stash" },

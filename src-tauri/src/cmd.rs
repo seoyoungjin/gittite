@@ -180,34 +180,45 @@ pub fn get_diff_commit(
     Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
-// stage
+// stage/reset
 
 #[tauri::command]
-pub fn add(
-    args: String,
+pub fn stage_add_all(
+    args: Vec<String>,
     app_data: AppDataState<'_>,
 ) -> Result<()> {
-    log::trace!("add() with : {:?}", args);
+    log::trace!("stage_add_all() with : {:?}", args);
     let app_data = app_data.0.lock().unwrap();
 
-    let repo_path = app_data.repo_path_ref();
-    let path = Path::new(&args);
-
-    addremove::stage_add_file(repo_path, path)
+    stage::stage_add_all(app_data.repo_path_ref(), args)
 }
 
 #[tauri::command]
-pub fn remove(
+pub fn stage_add_path(
     args: String,
     app_data: AppDataState<'_>,
 ) -> Result<()> {
-    log::trace!("remove() with : {:?}", args);
+    log::trace!("stage_add_path() with : {:?}", args);
     let app_data = app_data.0.lock().unwrap();
 
     let repo_path = app_data.repo_path_ref();
     let path = Path::new(&args);
 
-    addremove::stage_remove_file(repo_path, path)
+    stage::stage_add_file(repo_path, path)
+}
+
+#[tauri::command]
+pub fn stage_remove_path(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<()> {
+    log::trace!("stage_remove_path() with : {:?}", args);
+    let app_data = app_data.0.lock().unwrap();
+
+    let repo_path = app_data.repo_path_ref();
+    let path = Path::new(&args);
+
+    stage::stage_remove_file(repo_path, path)
 }
 
 #[tauri::command]
@@ -222,6 +233,17 @@ pub fn reset_stage(
     let path = args.as_str();
 
     reset::reset_stage(repo_path, path)
+}
+
+#[tauri::command]
+pub fn reset_workdir(
+    args: String,
+    app_data: AppDataState<'_>,
+) -> Result<()> {
+    log::trace!("reset_workdir() with : {:?}", args);
+    let app_data = app_data.0.lock().unwrap();
+
+    reset::reset_workdir(app_data.repo_path_ref(), args.as_str())
 }
 
 // branch

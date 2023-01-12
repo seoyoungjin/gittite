@@ -218,8 +218,8 @@ pub fn get_message(
 #[cfg(test)]
 mod tests {
     use super::{get_commits_info, CommitId};
-    use crate::git_api::addremove::stage_add_file;
     use crate::git_api::error::Result;
+    use crate::git_api::stage::stage_add_file;
     use crate::git_api::tests::{init_log, repo_init_empty};
     use crate::git_api::{commit::commit, RepoPath};
     use serde_json;

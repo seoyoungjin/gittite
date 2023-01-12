@@ -381,7 +381,7 @@ mod tests {
     use super::{get_diff, get_diff_commit};
     use crate::git_api::error::Result;
     use crate::git_api::tests::{get_statuses, repo_init, repo_init_empty};
-    use crate::git_api::{addremove::stage_add_file, commit::commit, status::get_status, RepoPath};
+    use crate::git_api::{commit::commit, stage::stage_add_file, status::get_status, RepoPath};
     use git2::StatusShow;
     use std::{
         fs::{self, File},

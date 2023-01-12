@@ -142,7 +142,7 @@ pub fn push_raw(
 mod tests {
     use super::*;
     use crate::git_api::{
-        addremove, branch, commit, commit_files,
+        branch, commit, commit_files, stage,
         tests::{get_commit_ids, repo_clone, repo_init, repo_init_bare, write_commit_file},
     };
     use git2::Repository;
@@ -249,7 +249,7 @@ mod tests {
         let mut tmp_repo_file = File::create(tmp_repo_file_path).unwrap();
         writeln!(tmp_repo_file, "TempSomething").unwrap();
 
-        addremove::stage_add_file(
+        stage::stage_add_file(
             &tmp_repo_dir.path().to_str().unwrap().into(),
             Path::new("temp_file.txt"),
         )
@@ -292,7 +292,7 @@ mod tests {
         let mut tmp_other_repo_file = File::create(tmp_other_repo_file_path).unwrap();
         writeln!(tmp_other_repo_file, "TempElse").unwrap();
 
-        addremove::stage_add_file(
+        stage::stage_add_file(
             &tmp_other_repo_dir.path().to_str().unwrap().into(),
             Path::new("temp_file.txt"),
         )

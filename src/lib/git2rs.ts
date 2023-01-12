@@ -85,18 +85,27 @@ export async function getDiffCommit(
 }
 
 // stage
-export async function add(name: string): Promise<boolean> {
-  return invoke("add", { args: name });
+export async function stageAddAll(args: string[]): Promise<void> {
+  return invoke("stage_add_all", { args: args });
 }
 
-export async function remove(name: string): Promise<boolean> {
-  return invoke("remove", { args: name });
+export async function stageAddPath(path: string): Promise<boolean> {
+  return invoke("stage_add_path", { args: path });
 }
 
-export async function resetStage(name: string): Promise<boolean> {
-  return invoke("reset_stage", { args: name });
+export async function stageRemovePath(path: string): Promise<boolean> {
+  return invoke("stage_remove_path", { args: path });
 }
 
+export async function resetStage(path: string): Promise<boolean> {
+  return invoke("reset_stage", { args: path });
+}
+
+export async function resetWorkdir(path: string): Promise<void> {
+  return invoke("reset_workdir", { args: path });
+}
+
+// status
 export async function getStatus(args: string): Promise<StatusItem[]> {
   return await invoke("get_status", { statusType: args });
 }

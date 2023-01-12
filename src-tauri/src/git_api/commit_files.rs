@@ -131,7 +131,8 @@ mod tests {
     use crate::git_api::error::Result;
     use crate::git_api::tests::{get_statuses, repo_init};
     use crate::git_api::{
-        addremove::stage_add_file, commit::commit, stash::stash_save, RepoPath, StatusItemType,
+        commit::commit, stash::stash_save, stage::stage_add_file, RepoPath,
+        StatusItemType,
     };
     use std::{fs::File, io::Write, path::Path};
 

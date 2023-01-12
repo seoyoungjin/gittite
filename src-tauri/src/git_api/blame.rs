@@ -141,7 +141,7 @@ pub fn blame_file(
 mod tests {
     use super::*;
     use crate::git_api::{
-        addremove::stage_add_file, commit::commit, error::Result, tests::repo_init_empty,
+        commit::commit, error::Result, stage::stage_add_file, tests::repo_init_empty,
     };
     use std::{
         fs::{File, OpenOptions},

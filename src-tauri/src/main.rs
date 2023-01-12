@@ -65,10 +65,12 @@ fn main() {
             cmd::amend,
             cmd::commit_info,
             cmd::commit_files,
-            // stage
-            cmd::add,
-            cmd::remove,
+            // stage/reset
+            cmd::stage_add_all,
+            cmd::stage_add_path,
+            cmd::stage_remove_path,
             cmd::reset_stage,
+            cmd::reset_workdir,
             // log/status
             cmd::get_commits,
             cmd::get_status,

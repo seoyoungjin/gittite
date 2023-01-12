@@ -60,9 +60,9 @@ const router = createRouter({
           component: () => import("../views/gitcmd/Diff.vue"),
         },
         {
-          path: "addremove",
-          name: "git-addremove",
-          component: () => import("../views/gitcmd/AddRemove.vue"),
+          path: "stage",
+          name: "git-stage",
+          component: () => import("../views/gitcmd/Stage.vue"),
         },
         {
           path: "branch",
@@ -78,11 +78,6 @@ const router = createRouter({
           path: "stash",
           name: "git-stash",
           component: () => import("../views/gitcmd/Stash.vue"),
-        },
-        {
-          path: "addremove",
-          name: "git-add-remove",
-          component: () => import("../views/gitcmd/AddRemove.vue"),
         },
         {
           path: "remote",

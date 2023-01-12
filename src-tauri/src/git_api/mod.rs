@@ -11,7 +11,7 @@ pub mod commit_files;
 pub mod commit_info;
 
 // TODO mv
-pub mod addremove;
+pub mod stage;
 // TODO reset_workdir
 pub mod reset;
 
@@ -52,7 +52,7 @@ pub use status::{StatusItem, StatusItemType};
 mod tests {
     use super::error::Result;
     use super::utils::repo_write_file;
-    use super::{addremove, commit, revlog, status};
+    use super::{commit, revlog, stage, status};
     use super::{CommitId, RepoPath};
 
     use git2::{Repository, StatusShow};
@@ -226,7 +226,7 @@ mod tests {
     ) -> CommitId {
         repo_write_file(repo, file, content).unwrap();
 
-        addremove::stage_add_file(
+        stage::stage_add_file(
             &repo.workdir().unwrap().to_str().unwrap().into(),
             Path::new(file),
         )
