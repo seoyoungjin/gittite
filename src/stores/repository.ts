@@ -72,5 +72,15 @@ export const useRepositoryStore = defineStore("repository", {
       }
       throw new Error("Can not find branch information for: " + name);
     },
+
+    // used in branch-create
+    branchExist(name: string): boolen {
+      for (const branch of this.all_branches) {
+        if (branch.name === name) {
+          return true;
+        }
+      }
+      return false;
+    },
   },
 });

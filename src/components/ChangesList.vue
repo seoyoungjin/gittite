@@ -120,20 +120,20 @@ export default defineComponent({
         stage_function = git2rs.stageAddPath;
       }
       stage_function(item.path)
-        .then(() => {
-          this.updateCommitStage();
+        .then(async () => {
+          await this.updateCommitStage();
         })
-        .catch((e) => {
+        .catch(async (e) => {
           var message = JSON.stringify(e, null, 4);
-          this.showNotification(message);
+          await this.showNotification(message);
         });
     },
 
     unstageFile(item: any) {
       git2rs
         .resetStage(item.path)
-        .then(() => {
-          this.updateCommitStage();
+        .then(async () => {
+          await this.updateCommitStage();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

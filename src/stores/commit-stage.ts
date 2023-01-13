@@ -18,15 +18,18 @@ export const useCommitStageStore = defineStore("stage", {
 
   actions: {
     async updateCommitStage() {
-      this.staged = await git2rs.getStatus("stage");
-      this.unstaged = await git2rs.getStatus("workdir");
-      // alert(JSON.stringify(this.staged));
+      this.staged = await git2rs.getStatus("stage").catch(() =>{
+        return [] as StatusItem[];
+      });
+      this.unstaged = await git2rs.getStatus("workdir").catch(() =>{
+        return [] as StatusItem[];
+      });
 
       if (!this.currentItem) {
-        if (this.allUnstagedFiles.length) {
-          this.currentItem = this.allUnstagedFiles[0];
-        } else if (this.allStagedFiles.length) {
-          this.currentItem = this.allStagedFiles[0];
+        if (this.unstaged.length) {
+          this.currentItem = this.unstaged[0];
+        } else if (this.staged.length) {
+          this.currentItem = this.staged[0];
         }
       }
     },
