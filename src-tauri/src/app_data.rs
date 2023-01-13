@@ -88,12 +88,13 @@ pub fn set_prop(
         "preference",
         "select",
         "init",
-        "add_local",
+        "add-local",
         "clone",
-        "branch_create",
-        "branch_rename",
-        "branch_delete",
-        "branch_reset",
+        "show-devtools",
+        "branch-create",
+        "branch-rename",
+        "branch-delete",
+        "branch-reset",
     ];
 
     match key {

@@ -104,22 +104,24 @@ export default defineComponent({
     listen("menu-event", (ev) => {
       if (ev.payload == "init") {
         this.showInitReposity = true;
-      } else if (ev.payload == "add_local") {
+      } else if (ev.payload == "add-local") {
         this.showAddLocalReposity = true;
       } else if (ev.payload == "clone") {
         this.showCloneReposity = true;
       } else if (ev.payload == "preference") {
         this.showPreference = true;
-      } else if (ev.payload == "branch_create") {
+      } else if (ev.payload == "branch-create") {
         this.showBranchCreate = true;
-      } else if (ev.payload == "branch_rename") {
+      } else if (ev.payload == "branch-rename") {
         this.showBranchRename = true;
-      } else if (ev.payload == "branch_delete") {
+      } else if (ev.payload == "branch-delete") {
         this.showBranchDelete = true;
-      } else if (ev.payload == "branch_reset") {
+      } else if (ev.payload == "branch-reset") {
         this.showBranchReset = true;
       } else if (ev.payload == "select") {
-        this.$router.push("/select");
+        if (this.$route.path != "/select") {
+          this.$router.push("/select");
+        }
       }
       console.log(ev.payload);
     });

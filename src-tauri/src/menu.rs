@@ -31,7 +31,7 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     file_menu = file_menu.add_item(CustomMenuItem::new("select", "Open Repository..."));
     file_menu = file_menu.add_native_item(MenuItem::Separator);
     file_menu = file_menu.add_item(CustomMenuItem::new("init", "Initialize Repository..."));
-    file_menu = file_menu.add_item(CustomMenuItem::new("add_local", "Add Local Repository..."));
+    file_menu = file_menu.add_item(CustomMenuItem::new("add-local", "Add Local Repository..."));
     file_menu = file_menu.add_item(CustomMenuItem::new("clone", "Clone Repository..."));
     #[cfg(not(target_os = "macos"))]
     {
@@ -40,20 +40,21 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     }
     menu = menu.add_submenu(Submenu::new("File", file_menu));
 
+    // view
+    let mut view_menu = Menu::new();
     #[cfg(target_os = "macos")]
     {
-        menu = menu.add_submenu(Submenu::new(
-            "View",
-            Menu::new().add_native_item(MenuItem::EnterFullScreen),
-        ));
+        view_menu = view_menu.add_native_item(MenuItem::EnterFullScreen);
     }
+    view_menu = view_menu.add_item(CustomMenuItem::new("show-devtools", "Show DevTools..."));
+    menu = menu.add_submenu(Submenu::new("View", view_menu));
 
     // branch
     let branch_menu = Menu::with_items([
-        CustomMenuItem::new("branch_create", "Create...").into(),
-        CustomMenuItem::new("branch_rename", "Rename...").into(),
-        CustomMenuItem::new("branch_delete", "Delete...").into(),
-        CustomMenuItem::new("branch_reset", "Reset...").into(),
+        CustomMenuItem::new("branch-create", "Create...").into(),
+        CustomMenuItem::new("branch-rename", "Rename...").into(),
+        CustomMenuItem::new("branch-delete", "Delete...").into(),
+        CustomMenuItem::new("branch-reset", "Reset...").into(),
     ]);
     menu = menu.add_submenu(Submenu::new("Branch", branch_menu));
 
@@ -72,6 +73,10 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
 
 pub fn event_handler(event: WindowMenuEvent<Wry>) {
     let event_name = event.menu_item_id();
-    event.window().emit("menu-event", event_name).unwrap();
+    if event_name == "show-devtools" {
+        event.window().open_devtools();
+    } else {
+        event.window().emit("menu-event", event_name).unwrap();
+    }
     log::trace!("{}", event_name);
 }
