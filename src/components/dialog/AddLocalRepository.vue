@@ -21,10 +21,7 @@
       </q-card-section>
 
       <!-- error message -->
-      <q-card-section class="row" v-if="localPath && errorCode">
-        <q-icon :name="octAlert16" size="16pt" color="yellow-7" />
-        {{ errorMessage }}
-      </q-card-section>
+      <DialogError :message="errorMessage" v-if="localPath && errorCode" />
 
       <q-separator />
 
@@ -45,7 +42,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ModalMixin from "@/mixins/modal";
-import { octAlert16 } from "quasar-extras-svg-icons/oct-icons-v17";
+import DialogError from "@/components/DialogError.vue";
 import { useSettingsStore } from "@/stores/settings";
 import { open } from "@tauri-apps/api/dialog";
 import * as git2rs from "@/lib/git2rs";
@@ -60,11 +57,14 @@ export default defineComponent({
   name: "AddLocalRepository",
   mixins: [ModalMixin],
 
+  components: {
+    DialogError,
+  },
+
   data() {
     const store = useSettingsStore();
     return {
       store,
-      octAlert16,
       localPath: "",
       errorCode: Error.Ok,
     };

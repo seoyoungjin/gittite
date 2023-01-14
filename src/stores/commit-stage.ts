@@ -18,10 +18,10 @@ export const useCommitStageStore = defineStore("stage", {
 
   actions: {
     async updateCommitStage() {
-      this.staged = await git2rs.getStatus("stage").catch(() =>{
+      this.staged = await git2rs.getStatus("stage").catch(() => {
         return [] as StatusItem[];
       });
-      this.unstaged = await git2rs.getStatus("workdir").catch(() =>{
+      this.unstaged = await git2rs.getStatus("workdir").catch(() => {
         return [] as StatusItem[];
       });
 

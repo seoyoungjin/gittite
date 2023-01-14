@@ -20,8 +20,9 @@ use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::{FetchOptions, Progress, RemoteCallbacks};
 use std::cell::RefCell;
 use std::ffi::OsString;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc::Sender;
+use std::sync::Mutex;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -38,7 +39,11 @@ struct State {
     progress: Option<Progress<'static>>,
     total: usize,
     current: usize,
+    path: Option<PathBuf>,
 }
+
+// prevent too many progress
+static PREV_PERCENT: Mutex<u8> = Mutex::new(0);
 
 fn transfer_progress(
     state: &mut State,
@@ -47,17 +52,12 @@ fn transfer_progress(
     if let Some(sender) = sender {
         let stats = state.progress.as_ref().unwrap();
 
-        // prevent too many progress
-        static mut PERCENT: u8 = 0;
         let progress =
             ProgressPercent::new(stats.received_objects(), stats.total_objects()).progress;
-        // TODO
-        unsafe {
-            if progress == PERCENT {
-                return;
-            }
-            PERCENT = progress;
+        if progress == *PREV_PERCENT.lock().unwrap() {
+            return;
         }
+        *PREV_PERCENT.lock().unwrap() = progress;
 
         log::debug!(
             "transfer: {}/{}",
@@ -89,6 +89,7 @@ where
         progress: None,
         total: 0,
         current: 0,
+        path: None,
     });
     let mut cb = RemoteCallbacks::new();
     cb.transfer_progress(|stats| {
@@ -98,8 +99,14 @@ where
         true
     });
 
-    let co = CheckoutBuilder::new();
-    // co.progress(|path, cur, total| {};
+    let mut co = CheckoutBuilder::new();
+    co.progress(|path, cur, total| {
+        let mut state = state.borrow_mut();
+        state.path = path.map(|p| p.to_path_buf());
+        state.current = cur;
+        state.total = total;
+    });
+
     let mut fo = FetchOptions::new();
     fo.remote_callbacks(cb);
 

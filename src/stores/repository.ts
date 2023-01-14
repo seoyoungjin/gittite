@@ -64,23 +64,11 @@ export const useRepositoryStore = defineStore("repository", {
     },
 
     getBranchInfo(name: string): BranchInfo {
-      for (const branch of this.all_branches) {
-        if (branch.name === name) {
-          // alert(JSON.stringify(branch, null, 4));
-          return branch;
-        }
+      const idx = this.all_branches.findIndex((b) => b.name === name);
+      if (idx < 0) {
+        throw new Error("Can not find branch information for: " + name);
       }
-      throw new Error("Can not find branch information for: " + name);
-    },
-
-    // used in branch-create
-    branchExist(name: string): boolen {
-      for (const branch of this.all_branches) {
-        if (branch.name === name) {
-          return true;
-        }
-      }
-      return false;
+      return this.all_branches[idx];
     },
   },
 });

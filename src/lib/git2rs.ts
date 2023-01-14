@@ -116,7 +116,7 @@ export async function commit(message: string): Promise<string> {
 }
 
 export async function commitAmend(message: string): Promise<string> {
-  return await invoke("amend", { args: message });
+  return await invoke("commit_amend", { args: message });
 }
 
 export async function commitInfo(commitId: string): Promise<CommitInfo> {
@@ -164,6 +164,10 @@ export async function checkoutBranch(branch: string) {
 
 export async function checkoutRemoteBranch(branch: string) {
   return await invoke("checkout_remote_branch", { branchRef: branch });
+}
+
+export async function validateBranchName(name: string): Promise<Boolean> {
+  return await invoke("validate_branch_name", { name: name });
 }
 
 // tag

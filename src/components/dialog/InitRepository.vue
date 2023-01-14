@@ -116,7 +116,9 @@ export default defineComponent({
 
     // dialog specific
     onDialogShow() {
-      this.form.directory = this.CWD;
+      if (!this.form.directory) {
+        this.form.directory = this.CWD;
+      }
       this.setModal();
     },
 

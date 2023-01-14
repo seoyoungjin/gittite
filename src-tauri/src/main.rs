@@ -55,6 +55,7 @@ fn main() {
             app_data::save_settings,
             app_data::get_prop,
             app_data::set_prop,
+            // repository
             cmd::is_git_repository,
             cmd::get_repo_info,
             cmd::set_repository,
@@ -62,7 +63,7 @@ fn main() {
             cmd::init,
             // commit
             cmd::commit,
-            cmd::amend,
+            cmd::commit_amend,
             cmd::commit_info,
             cmd::commit_files,
             // stage/reset
@@ -80,15 +81,16 @@ fn main() {
             cmd::get_diff_commit,
             // cmd::get_diff_commits,
             // branch
-            cmd::get_branch_name,
-            cmd::create_branch,
-            cmd::delete_branch,
-            cmd::rename_branch,
-            cmd::get_branch_remote,
-            cmd::get_branches_info,
             cmd::branch_compare_upstream,
             cmd::checkout_branch,
             cmd::checkout_remote_branch,
+            cmd::create_branch,
+            cmd::delete_branch,
+            cmd::get_branch_name,
+            cmd::get_branch_remote,
+            cmd::get_branches_info,
+            cmd::rename_branch,
+            cmd::validate_branch_name,
             // tag/stash/blame
             cmd::tag,
             cmd::stash,

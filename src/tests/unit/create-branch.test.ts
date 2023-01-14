@@ -34,14 +34,13 @@ describe("Create Branch", () => {
 
     expect(store.currentBranch).toBe("master");
 
-    // check exist branch
-    expect(store.branchExist("develop")).toBe(true);
-    expect(store.branchExist("not_exist")).toBe(false);
-
     // TODO
     // button enable?
     // error message
 
     // switch with changes
   });
+
+  // valid test
+  // alreay exist
 });

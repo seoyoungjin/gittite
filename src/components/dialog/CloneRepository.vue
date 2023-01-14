@@ -100,7 +100,9 @@ export default defineComponent({
 
     // dialog specific
     onDialogShow() {
-      this.localPath = this.CWD;
+      if (!this.localPath) {
+        this.localPath = this.CWD;
+      }
       this.setModal();
     },
 

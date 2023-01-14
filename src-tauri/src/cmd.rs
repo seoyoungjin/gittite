@@ -96,14 +96,14 @@ pub fn commit(
 }
 
 #[tauri::command]
-pub fn amend(
+pub fn commit_amend(
     args: String,
     app_data: AppDataState<'_>,
 ) -> Result<CommitId> {
-    log::trace!("amend:: args {:?}", args);
+    log::trace!("commit_amend:: args {:?}", args);
     let app_data = app_data.0.lock().unwrap();
-
     let repo_path = app_data.repo_path_ref();
+
     let head_id = utils::get_head(&repo_path)?;
     commit::amend(repo_path, head_id, args.as_str())
 }
@@ -247,6 +247,12 @@ pub fn reset_workdir(
 }
 
 // branch
+
+#[tauri::command]
+pub fn validate_branch_name(name: String) -> Result<bool> {
+    log::trace!("validate_branch_name()");
+    branch::validate_branch_name(name.as_str())
+}
 
 #[tauri::command]
 pub fn get_branch_name(app_data: AppDataState<'_>) -> Result<String> {

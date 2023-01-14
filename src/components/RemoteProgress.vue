@@ -42,7 +42,7 @@ export default defineComponent({
         let payload = event.payload as any;
         progress.value = payload.progress.progress / 100.0;
         if (payload.progress.progress === 100) {
-          emit("progressDone");
+          setTimeout(() => emit("progressDone"), 1000);
         }
       });
     };

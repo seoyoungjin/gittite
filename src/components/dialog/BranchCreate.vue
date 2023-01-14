@@ -30,6 +30,9 @@
         </q-card-actions>
       </q-card-section>
 
+      <!-- error message -->
+      <DialogError :message="currentError.message" v-if="currentError" />
+
       <q-separator />
 
       <q-card-actions align="right">
@@ -38,7 +41,7 @@
           color="primary"
           label="OK"
           @click="onOKClick"
-          :disable="!branchName"
+          :disable="disabled"
         />
         <q-btn no-caps label="Cancel" @click="onCancelClick" />
       </q-card-actions>
@@ -50,6 +53,7 @@
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import ModalMixin from "@/mixins/modal";
+import DialogError from "@/components/DialogError.vue";
 import * as git2rs from "@/lib/git2rs";
 import { useRepositoryStore } from "@/stores/repository";
 
@@ -57,11 +61,16 @@ export default defineComponent({
   name: "BranchCreate",
   mixins: [ModalMixin],
 
+  components: {
+    DialogError,
+  },
+
   data() {
     return {
       branchName: "",
       branchItems: [] as any[],
-      branchSelected: "",
+      defaultBranch: "",
+      currentError: null as Error | null,
     };
   },
 
@@ -69,6 +78,28 @@ export default defineComponent({
 
   computed: {
     ...mapState(useRepositoryStore, ["currentBranch", "allBranches"]),
+
+    disabled(): boolean {
+      const disabled = this.branchName.length === 0 || !!this.currentError;
+      return disabled;
+    },
+  },
+
+  watch: {
+    branchName: async function (val: string) {
+      this.currentError = null;
+      if (val.length === 0) return;
+      const exists = this.allBranches.findIndex((b) => b.name === val) > -1;
+      if (exists) {
+        this.currentError = new Error(`A branch named ${val} already exists`);
+        return;
+      }
+      const valid = await git2rs.validateBranchName(val);
+      if (!valid) {
+        this.currentError = new Error("Invalid branch name");
+        return;
+      }
+    },
   },
 
   methods: {
@@ -93,23 +124,17 @@ export default defineComponent({
     onDialogShow() {
       this.setModal();
       this.branchItems = [
-        // {
-        //  title: defaultBranch.name,
-        //  title: "develop",
-        //  description: "The default branch in your repository.",
-        //  key: "develop",
-        // },
         {
           title: this.currentBranch,
           description: "The currently checked out branch.",
           key: this.currentBranch,
         },
       ];
-      this.branchSelected = this.currentBranch;
+      this.defaultBranch = this.currentBranch;
     },
 
     // onBranchClick(branchName: string) {
-    //   this.branchSelected = branchName;
+    //   this.defaultBranch = branchName;
     // },
 
     createBranch(name: string) {

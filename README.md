@@ -11,28 +11,28 @@ but I'm going to continue this for personal use.
 
 ## Project Roadmap
 
-### v0.2.0
+### v0.2.x
 
-- [x] branch
-  - [x] branch operation
-  - [ ] branch detail
+- [ ] branch
+  - [ ] branch detail - ahead/behind
   - [ ] remote branch
-- [ ] tag
+- [ ] stash
   - [ ] handle IPC response in tagged json format for rust enum 
 - [ ] unitest
-- [x] repository information
-- [x] layout
-- [x] refresh with notify or button
+- [ ] amend
+- [ ] repository preference
+- [ ] open repository page
+- [x] devtools menu
+- [ ] popup menu with right button click
 
 ### v0.3.0
 
-- [ ] stash
+- [ ] tag
 - [ ] preference
 - [ ] diff
   - [ ] option
   - [ ] full file
   - [ ] diff between commit/branch
-- [x] big log list
 
 ### next
 
@@ -40,11 +40,18 @@ but I'm going to continue this for personal use.
 - [ ] authentication
 - [ ] merge
 - [ ] file browser
-- [ ] zoom in/out
+- [ ] zoom in/out - if tauri support
 - [ ] badge on stage/history
 - [ ] branch merge graph
-- [ ] git-flow
 - [ ] frequently use case
+
+### v0.2.0
+
+- [x] branch operation
+- [x] repository information
+- [x] changes and history layout
+- [x] refresh button
+- [x] infinite scroll for big log list
 
 ## Compile
 
