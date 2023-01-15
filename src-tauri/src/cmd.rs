@@ -2,7 +2,7 @@ use crate::app_data::AppDataState;
 use crate::git_api::cred::BasicAuthCredential;
 use crate::git_api::repository::RepoInfo;
 use crate::git_api::*;
-use git2::{Repository, StatusShow};
+use git2::{Reference, Repository, StatusShow};
 use serde_json::Value;
 use std::path::Path;
 
@@ -119,9 +119,12 @@ pub fn commit_info(
     let app_data = app_data.0.lock().unwrap();
 
     let repo_path = app_data.repo_path_ref();
-    let cid = match CommitId::from_str(args.as_str()) {
-        Ok(cid) => cid,
-        Err(e) => return Err(Error::Git(e)),
+    let args = args.as_str();
+    let cid = if Reference::is_valid_name(args) {
+        utils::refname_to_id(repo_path, args)?
+    }
+    else {
+        CommitId::from_str(args)?
     };
     commit_info::get_commit_info(repo_path, cid)
 }
@@ -135,9 +138,12 @@ pub fn commit_files(
     let app_data = app_data.0.lock().unwrap();
 
     let repo_path = app_data.repo_path_ref();
-    let cid = match CommitId::from_str(args.as_str()) {
-        Ok(cid) => cid,
-        Err(e) => return Err(Error::Git(e)),
+    let args = args.as_str();
+    let cid = if Reference::is_valid_name(args) {
+        utils::refname_to_id(repo_path, args)?
+    }
+    else {
+        CommitId::from_str(args)?
     };
     commit_files::get_commit_files(repo_path, cid, None)
 }
@@ -167,13 +173,14 @@ pub fn get_diff_commit(
     let app_data = app_data.0.lock().unwrap();
 
     let repo_path = app_data.repo_path_ref();
-    let repo = match repository::repo_open(repo_path) {
-        Ok(repo) => repo,
-        Err(e) => return Err(Error::Git(e)),
-    };
-    let cid = match CommitId::from_str(commit_id.as_str()) {
-        Ok(cid) => cid,
-        Err(e) => return Err(Error::Git(e)),
+    let repo = repository::repo_open(repo_path)?;
+
+    let args = commit_id.as_str();
+    let cid = if Reference::is_valid_name(args) {
+        utils::refname_to_id(repo_path, args)?
+    }
+    else {
+        CommitId::from_str(args)?
     };
     // TODO
     let diff_opt = None;

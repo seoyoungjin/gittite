@@ -21,6 +21,15 @@ pub fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
     hasher.finish()
 }
 
+///
+pub fn refname_to_id(repo_path: &RepoPath, name: &str) -> Result<CommitId> {
+    // Reference::is_valid_name(str);
+    let repo = repo_open(repo_path)?;
+    let id = repo.refname_to_id(name)?;
+
+    Ok(id.into())
+}
+
 //
 pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
     repo.workdir()
@@ -112,7 +121,7 @@ mod tests {
     use crate::git_api::tests::{init_log, repo_init};
 
     #[test]
-    fn test_head() -> Result<(), Error> {
+    fn test_head() -> Result<()> {
         init_log();
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();

@@ -137,7 +137,6 @@ export default defineComponent({
         message: "",
       },
       amendForm: {
-        // TODO retrieve message
         message: "",
       },
       infoForm: {
@@ -151,10 +150,17 @@ export default defineComponent({
   methods: {
     refresh() {
       (async () => {
+        let lastCommitInfo = await git2rs.commitInfo("HEAD");
         this.commitForm.message = "";
-        this.amendForm.message = "";
+        // TODO message format
+        this.amendForm.message = lastCommitInfo.message.subject;
+        if (lastCommitInfo.message.body) {
+          this.amendForm.message =
+            lastCommitInfo.message.subject +
+            "\n\n" +
+            lastCommitInfo.message.body;
+        }
         this.stagedJson = (await git2rs.getStatus("stage")) as any;
-        // alert(this.stagedJson);
       })();
     },
 

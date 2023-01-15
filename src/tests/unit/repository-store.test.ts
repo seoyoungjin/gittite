@@ -25,15 +25,14 @@ describe("Repository Store", () => {
     }
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     setActivePinia(createPinia());
 
     store = useRepositoryStore();
+    await store.setRepository(".");
   });
 
   it("test setRepository", async () => {
-    await store.setRepository(".");
-
     expect(store.repositoryPath).toBe("/tmp/test_repo");
     expect(store.repositoryName).toBe("test_repo");
     expect(store.currentBranch).toBe("master");
