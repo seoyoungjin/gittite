@@ -34,9 +34,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import * as git2rs from "@/lib/git2rs";
 import { useCommitStageStore } from "@/stores/commit-stage";
+import { useHistoryStore } from "@/stores/history";
 import { useRepositoryStore } from "@/stores/repository";
 
 const initialData = () => ({
@@ -57,6 +58,9 @@ export default defineComponent({
     ...mapState(useRepositoryStore, ["currentBranch"]),
   },
   methods: {
+    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+    ...mapActions(useHistoryStore, ["resetHistory", "loadCommitBatch"]),
+
     resetData() {
       // Object.assign(this.$data, this.$options.data.apply(this));
       const data = initialData();
@@ -70,6 +74,12 @@ export default defineComponent({
         this.clientHeight = size.height;
         this.$emit("resize", size);
       }
+    },
+    async updateChangesAndHistory() {
+      await this.updateCommitStage();
+      // TODO load last commit and prepend history
+      this.resetHistory();
+      await this.loadCommitBatch("HEAD", 0);
     },
     gitCommit() {
       var msg = this.commitMessageSummary;
@@ -89,8 +99,8 @@ export default defineComponent({
             icon: "cloud",
             message: message,
           });
-          this.$emit("commit");
           this.resetData();
+          this.updateChangesAndHistory();
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

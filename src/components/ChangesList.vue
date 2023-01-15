@@ -65,7 +65,7 @@
       </div>
     </div>
     <div>
-      <CommitMessage @resize="onChildResize" @commit="updateCommitStage" />
+      <CommitMessage @resize="onChildResize" />
     </div>
   </div>
 </template>

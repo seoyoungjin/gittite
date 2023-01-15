@@ -21,6 +21,12 @@ pub fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
     hasher.finish()
 }
 
+//
+pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
+    repo.workdir()
+        .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
+}
+
 ///
 pub fn get_head(repo_path: &RepoPath) -> Result<CommitId> {
     let repo = repo_open(repo_path)?;
@@ -38,12 +44,6 @@ pub fn get_head_repo(repo: &Repository) -> Result<CommitId> {
         ))),
         |head_id| Ok(head_id.into()),
     )
-}
-
-//
-pub(crate) fn work_dir(repo: &Repository) -> Result<&Path, std::io::Error> {
-    repo.workdir()
-        .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
 }
 
 pub(crate) fn bytes2string(bytes: &[u8]) -> Result<String> {
