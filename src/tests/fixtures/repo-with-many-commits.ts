@@ -24,7 +24,7 @@ function get_commits(): [] {
 
 class TestIPC {
   constructor(data: any) {
-    // Object.keys(data).forEach((k) => (this[k] = data[k]));
+    Object.keys(data).forEach((k) => (this[k] = data[k]));
     this.get_commits = get_commits();
   }
 }

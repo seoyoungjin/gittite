@@ -318,7 +318,7 @@ pub fn create_branch(
     let branch = repo.branch(name, &head_commit, false)?;
     let branch_ref = branch.into_reference();
     let branch_ref_name = bytes2string(branch_ref.name_bytes())?;
-    repo.set_head(branch_ref_name.as_str())?;
+    // repo.set_head(branch_ref_name.as_str())?;
 
     Ok(branch_ref_name)
 }

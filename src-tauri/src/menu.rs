@@ -54,7 +54,9 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
         CustomMenuItem::new("branch-create", "Create...").into(),
         CustomMenuItem::new("branch-rename", "Rename...").into(),
         CustomMenuItem::new("branch-delete", "Delete...").into(),
-        CustomMenuItem::new("branch-reset", "Reset...").into(),
+        MenuItem::Separator.into(),
+        CustomMenuItem::new("branch-reset", "Discard all changes...").into(),
+        CustomMenuItem::new("branch-stash", "Stash all changes...").into(),
     ]);
     menu = menu.add_submenu(Submenu::new("Branch", branch_menu));
 

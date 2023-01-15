@@ -39,12 +39,13 @@
           @addLocalRepository="showAddLocalReposity = true"
           @cloneRepository="showCloneReposity = true"
           @preference="showPreference = true"
+          @branchSwitch="onBranchSwitch"
         />
         <div v-if="tab === 'changes'" class="q-pa-none">
           <ContentForChanges />
         </div>
         <div v-else class="q-pa-none fit">
-          <ContentForHistory :selection="curSelected" />
+          <ContentForHistory />
         </div>
       </template>
     </q-splitter>
@@ -54,10 +55,11 @@
   <AddLocalRepository v-model="showAddLocalReposity" />
   <CloneRepository v-model="showCloneReposity" />
   <Preference v-model="showPreference" />
-  <BranchCreate v-model="showBranchCreate" />
+  <BranchCreate v-model="showBranchCreate" @branchSwitch="onBranchSwitch" />
   <BranchRename v-model="showBranchRename" />
   <BranchDelete v-model="showBranchDelete" />
   <BranchReset v-model="showBranchReset" />
+  <BranchSwitch v-model="showBranchSwitch" @ok="branchSwitch" />
 </template>
 
 <script lang="ts">
@@ -80,14 +82,18 @@ import BranchCreate from "@/components/dialog/BranchCreate.vue";
 import BranchRename from "@/components/dialog/BranchRename.vue";
 import BranchDelete from "@/components/dialog/BranchDelete.vue";
 import BranchReset from "@/components/dialog/BranchReset.vue";
+import BranchSwitch from "@/components/dialog/BranchSwitch.vue";
 import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
+import { useCommitStageStore } from "@/stores/commit-stage";
 import { useAppStore } from "@/stores/app";
+import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   setup() {
     const repoStore = useRepositoryStore();
     const settingsStore = useSettingsStore();
+    const stageStore = useCommitStageStore();
     const appStore = useAppStore();
 
     settingsStore.loadSettings();
@@ -95,6 +101,7 @@ export default defineComponent({
 
     return {
       repoStore,
+      stageStore,
       splitterModel: ref(250),
       tab: ref("changes"),
     };
@@ -118,6 +125,8 @@ export default defineComponent({
         this.showBranchDelete = true;
       } else if (ev.payload == "branch-reset") {
         this.showBranchReset = true;
+      } else if (ev.payload == "branch-stash") {
+        // TODO
       } else if (ev.payload == "select") {
         if (this.$route.path != "/select") {
           this.$router.push("/select");
@@ -134,7 +143,6 @@ export default defineComponent({
 
   data() {
     return {
-      curSelected: Object,
       // dialog
       showInitReposity: false,
       showAddLocalReposity: false,
@@ -144,6 +152,7 @@ export default defineComponent({
       showBranchRename: false,
       showBranchDelete: false,
       showBranchReset: false,
+      showBranchSwitch: false,
     };
   },
 
@@ -164,20 +173,47 @@ export default defineComponent({
     BranchRename,
     BranchDelete,
     BranchReset,
+    BranchSwitch,
   },
 
   methods: {
-    handleSelectItem(item: any) {
-      this.curSelected = item;
-    },
     setRepository(path: string) {
-      // subdirectory
-      // this.repoStore.setRepository("/Users/yjseo/work/tite/src");
-      // not existent
-      // this.repoStore.setRepository("/foo");
-      // not repository
-      // this.repoStore.setRepository("/tmp");
       this.repoStore.setRepository(path);
+    },
+    branchSwich() {
+      const branchName = this.repoStore.branchToSwitch;
+      const info = this.repoStore.getBranchInfo(branchName);
+      git2rs
+        .checkoutBranch(info.reference)
+        .then(() => {
+          var message = "Switch to " + branchName;
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+          // refresh
+          this.repoStore.loadRepositoryInfo();
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
+    },
+    async onBranchSwitch(branchName: string) {
+      console.log("onBranchSwithch", branchName);
+      await this.repoStore.setBranchToSwitch(branchName);
+      if (this.stageStore.hasChanges) {
+        this.showBranchSwitch = true;
+      } else {
+        await this.branchSwich();
+      }
     },
   },
 });

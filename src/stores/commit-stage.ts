@@ -14,6 +14,7 @@ export const useCommitStageStore = defineStore("stage", {
     allStagedFiles: (state) => state.staged,
     allUnstagedFiles: (state) => state.unstaged,
     stagedFileLength: (state) => state.staged.length,
+    hasChanges: (state) => state.staged.length || state.unstaged.length,
   },
 
   actions: {

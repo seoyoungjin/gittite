@@ -74,7 +74,7 @@ export default defineComponent({
     };
   },
 
-  emits: ["ok"],
+  emits: ["ok", "branchSwitch"],
 
   computed: {
     ...mapState(useRepositoryStore, ["currentBranch", "allBranches"]),
@@ -140,7 +140,7 @@ export default defineComponent({
     createBranch(name: string) {
       git2rs
         .createBranch(name)
-        .then((message) => {
+        .then(async (message) => {
           this.$q.notify({
             color: "green-5",
             textColor: "white",
@@ -148,7 +148,8 @@ export default defineComponent({
             message: message,
           });
           // refresh
-          this.loadAllBranches();
+          await this.loadAllBranches();
+          this.$emit("branchSwitch", name);
         })
         .catch((e) => {
           var message = JSON.stringify(e, null, 4);

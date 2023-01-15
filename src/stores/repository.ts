@@ -11,6 +11,7 @@ export const useRepositoryStore = defineStore("repository", {
       repo: null as Repository | null,
       current_branch: "",
       all_branches: [] as BranchInfo[],
+      branch_to_switch: "",
     };
   },
 
@@ -23,6 +24,7 @@ export const useRepositoryStore = defineStore("repository", {
       return state.repo ? state.repo.repoPath : "";
     },
     currentBranch: (state) => state.current_branch,
+    branchToSwitch: (state) => state.branch_to_switch,
     allBranches: (state) => state.all_branches,
   },
 
@@ -70,5 +72,9 @@ export const useRepositoryStore = defineStore("repository", {
       }
       return this.all_branches[idx];
     },
+
+    setBranchToSwitch(name: string) {
+      this.branch_to_switch = name;
+    }
   },
 });

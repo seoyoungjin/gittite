@@ -58,7 +58,6 @@ import { mapActions, mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { octGitBranch16 } from "quasar-extras-svg-icons/oct-icons-v17";
 import SetLayout from "../components/SetLayout.vue";
-import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
   name: "ToolBar2",
@@ -78,7 +77,7 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useRepositoryStore, ["getBranchInfo", "loadRepositoryInfo"]),
+    ...mapActions(useRepositoryStore, ["loadRepositoryInfo"]),
 
     onInitRepository() {
       this.$emit("initRepository");
@@ -92,34 +91,12 @@ export default defineComponent({
     onPreference() {
       this.$emit("preference");
     },
+    onBranchSwitch(branchName: string) {
+      if (this.currentBranch !== branchName)
+        this.$emit("branchSwitch", branchName);
+    },
     onRefresh() {
       this.loadRepositoryInfo();
-    },
-    onBranchSwitch(branchName: string) {
-      // TODO check changes
-      var info = this.getBranchInfo(branchName);
-      git2rs
-        .checkoutBranch(info.reference)
-        .then(() => {
-          var message = "Switch to " + branchName;
-          this.$q.notify({
-            color: "green-5",
-            textColor: "white",
-            icon: "cloud",
-            message: message,
-          });
-          // refresh
-          this.loadRepositoryInfo();
-        })
-        .catch((e) => {
-          var message = JSON.stringify(e, null, 4);
-          this.$q.notify({
-            color: "red-5",
-            textColor: "white",
-            icon: "warning",
-            message: message,
-          });
-        });
     },
   },
 });

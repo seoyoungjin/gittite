@@ -6,12 +6,9 @@ import { useRepositoryStore } from "@/stores/repository";
 import WorkSpace from "@/views/WorkSpace.vue";
 
 import { mockIPC } from "@tauri-apps/api/mocks";
-// import { invoke } from "@tauri-apps/api/tauri";
 import TestRepoIPC from "../fixtures/test-repo.json";
 
 describe("WorkSpace.vue Test", () => {
-  let store = null;
-
   mockIPC((cmd, args) => {
     console.log(">> ", cmd, args);
     if (Object.keys(TestRepoIPC).includes(cmd)) {

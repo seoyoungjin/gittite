@@ -95,6 +95,7 @@ pub fn set_prop(
         "branch-rename",
         "branch-delete",
         "branch-reset",
+        "branch-stash",
     ];
 
     match key {
