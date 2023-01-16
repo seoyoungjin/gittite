@@ -1,9 +1,5 @@
 <template>
-  <q-item
-    class="item-row"
-    @mouseover="showOptions = true"
-    @mouseout="showOptions = false"
-  >
+  <q-item @mouseover="showOptions = true" @mouseout="showOptions = false">
     <!--Main Part-->
     <q-item-section>
       <q-item-label class="text-subtitle2 ellipsis">{{

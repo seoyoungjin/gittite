@@ -75,6 +75,6 @@ export const useRepositoryStore = defineStore("repository", {
 
     setBranchToSwitch(name: string) {
       this.branch_to_switch = name;
-    }
+    },
   },
 });

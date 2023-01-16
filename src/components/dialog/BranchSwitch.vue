@@ -53,7 +53,7 @@ export default defineComponent({
   data() {
     return {
       items: [] as any[],
-      switch_option: ref("stash")
+      switch_option: ref("stash"),
     };
   },
 

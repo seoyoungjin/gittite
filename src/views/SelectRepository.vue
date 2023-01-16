@@ -1,29 +1,68 @@
 <template>
-  <div class="q-pa-lg doc-container">
-    <div class="text-h6 row justify-center">Select Repository</div>
-    <div class="q-pa-md row justify-center">
-      <q-list
-        bordered
-        style="min-width: 50vw; max-height: 80vh"
-        class="rounded-borders"
-      >
-        <RepositoryItem
-          v-for="repo in allRepository"
-          :key="repo"
-          :repo="repo"
-        />
-      </q-list>
-    </div>
-    <div class="row justify-center">
-      <q-btn
-        no-caps
-        rounded
-        color="primary"
-        @click="showAddLocalReposity = true"
-      >
-        Add Repository
-      </q-btn>
-    </div>
+  <div class="q-pa-md">
+    <q-layout view="lHh lpr lFf" container style="height: 80vh">
+      <q-header bordered class="bg-white text-black">
+        <q-toolbar>
+          <q-toolbar-title> Select Repository </q-toolbar-title>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container>
+        <q-page class="q-pa-md">
+          <div class="row q-gutter-md">
+            <div class="col-5">
+              <br />
+              <div class="column q-gutter-lg" align="right">
+                <q-btn
+                  no-caps
+                  color="primary"
+                  align="left"
+                  style="width: 250px"
+                  @click="showCloneReposity = true"
+                >
+                  <OctIcon left size="2em" symbol="repoClone" />
+                  <div>Clone a repository...</div>
+                </q-btn>
+
+                <q-btn
+                  no-caps
+                  color="primary"
+                  align="left"
+                  style="width: 250px"
+                  @click="showInitReposity = true"
+                >
+                  <OctIcon left size="2em" symbol="plus" />
+                  Create a new repository...
+                </q-btn>
+
+                <q-btn
+                  no-caps
+                  color="primary"
+                  align="left"
+                  style="width: 250px"
+                  @click="showAddLocalReposity = true"
+                >
+                  <OctIcon left size="2em" symbol="fileDirectory" />
+                  Add a local repository...
+                </q-btn>
+              </div>
+            </div>
+
+            <div class="col-auto">
+              <div class="q-pa-md row justify-center">
+                <q-list bordered>
+                  <RepositoryItem
+                    v-for="repo in allRepository"
+                    :key="repo"
+                    :repo="repo"
+                  />
+                </q-list>
+              </div>
+            </div>
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
   </div>
 
   <InitRepository v-model="showInitReposity" />
@@ -40,11 +79,13 @@ import RepositoryItem from "@/components/RepositoryItem.vue";
 import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
 import CloneRepository from "@/components/dialog/CloneRepository.vue";
+import OctIcon from "@/components/OctIcon.vue";
 
 export default defineComponent({
   name: "SelectRepository",
 
   components: {
+    OctIcon,
     RepositoryItem,
     // dialog
     InitRepository,

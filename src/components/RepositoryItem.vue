@@ -1,13 +1,11 @@
 <template>
-  <q-item class="item-row">
+  <q-item clickable @click="onItemOpen(repo)">
     <q-item-section>
       <q-item-label>{{ repo }}</q-item-label>
     </q-item-section>
-
-    <q-btn rounded no-caps color="primary" @click="onItemOpen(repo)">
-      Open
-    </q-btn>
-    <q-btn rounded icon="delete" @click="onItemDelete(repo)" />
+    <q-item-section side>
+      <q-btn rounded icon="delete" @click="onItemDelete(repo)" />
+    </q-item-section>
   </q-item>
 </template>
 

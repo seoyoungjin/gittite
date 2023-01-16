@@ -12,7 +12,7 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-//#![deny(warnings)]
+#![deny(warnings)]
 
 use super::remotes::push::ProgressNotification;
 use super::{ProgressPercent, RemoteProgress};
@@ -43,6 +43,7 @@ struct State {
 }
 
 // prevent too many progress
+// rust 1.63
 static PREV_PERCENT: Mutex<u8> = Mutex::new(0);
 
 fn transfer_progress(
