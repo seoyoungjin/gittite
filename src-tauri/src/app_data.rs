@@ -91,6 +91,7 @@ pub fn set_prop(
         "add-local",
         "clone",
         "show-devtools",
+        "repo-settings",
         "branch-create",
         "branch-rename",
         "branch-delete",

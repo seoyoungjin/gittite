@@ -24,7 +24,7 @@
 
         <q-tab-panels v-model="tab" animated class="fit">
           <q-tab-panel name="changes" class="q-pa-none">
-            <ChangesList @discardChanges="onDiscardChanges"/>
+            <ChangesList @discardChanges="onDiscardChanges" />
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-xs">
@@ -55,6 +55,7 @@
   <AddLocalRepository v-model="showAddLocalReposity" />
   <CloneRepository v-model="showCloneReposity" />
   <Preference v-model="showPreference" />
+  <RepoSettings v-model="showRepoSettings" />
   <BranchCreate v-model="showBranchCreate" @branchSwitch="onBranchSwitch" />
   <BranchRename v-model="showBranchRename" />
   <BranchDelete v-model="showBranchDelete" />
@@ -77,6 +78,7 @@ import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
 import CloneRepository from "@/components/dialog/CloneRepository.vue";
 import Preference from "@/components/dialog/Preference.vue";
+import RepoSettings from "@/components/dialog/RepoSettings.vue";
 import BranchCreate from "@/components/dialog/BranchCreate.vue";
 import BranchRename from "@/components/dialog/BranchRename.vue";
 import BranchDelete from "@/components/dialog/BranchDelete.vue";
@@ -117,6 +119,8 @@ export default defineComponent({
         this.showCloneReposity = true;
       } else if (ev.payload == "preference") {
         this.showPreference = true;
+      } else if (ev.payload == "repo-settings") {
+        this.showRepoSettings = true;
       } else if (ev.payload == "branch-create") {
         this.showBranchCreate = true;
       } else if (ev.payload == "branch-rename") {
@@ -148,6 +152,7 @@ export default defineComponent({
       showAddLocalReposity: false,
       showCloneReposity: false,
       showPreference: false,
+      showRepoSettings: false,
       showBranchCreate: false,
       showBranchRename: false,
       showBranchDelete: false,
@@ -168,6 +173,7 @@ export default defineComponent({
     AddLocalRepository,
     CloneRepository,
     Preference,
+    RepoSettings,
     BranchCreate,
     BranchRename,
     BranchDelete,

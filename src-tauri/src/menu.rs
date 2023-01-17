@@ -49,6 +49,12 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     view_menu = view_menu.add_item(CustomMenuItem::new("show-devtools", "Show DevTools..."));
     menu = menu.add_submenu(Submenu::new("View", view_menu));
 
+    // repository
+    let repo_menu = Menu::with_items([
+        CustomMenuItem::new("repo-settings", "Repository Settings...").into(),
+    ]);
+    menu = menu.add_submenu(Submenu::new("Repository", repo_menu));
+
     // branch
     let branch_menu = Menu::with_items([
         CustomMenuItem::new("branch-create", "Create...").into(),

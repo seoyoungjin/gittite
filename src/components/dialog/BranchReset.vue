@@ -35,14 +35,19 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ModalMixin from "@/mixins/modal";
-import OctIcon from "@/components/OctIcon.vue";
-import { mapState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commit-stage";
+import OctIcon from "@/components/OctIcon.vue";
+import type { StatusItem } from "@/models/status";
 import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
-  name: "BranchCreate",
+  name: "BranchReset",
   mixins: [ModalMixin],
+
+  props: {
+    target: null,
+  },
 
   components: {
     OctIcon,
@@ -66,6 +71,8 @@ export default defineComponent({
   },
 
   methods: {
+    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+
     show() {
       (this.$refs.dialog as any).show();
     },
@@ -93,8 +100,8 @@ export default defineComponent({
         .then(async () => {
           await this.updateCommitStage();
         })
-        .catch((e) => {
-          this.showNotification(e.toString());
+        .catch(() => {
+          // this.showNotification(e.toString());
         });
     },
   },

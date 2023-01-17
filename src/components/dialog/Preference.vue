@@ -9,12 +9,25 @@
 
       <q-separator />
 
-      <q-card-section class="q-pt-none">
+      <q-card-section class="q-pa-none">
         <q-splitter v-model="splitterModel" style="height: 250px">
           <template v-slot:before>
-            <q-tabs v-model="tab" inline-label vertical class="text-blue">
-              <q-tab no-caps name="profile" icon="settings" label="Profile" />
-            </q-tabs>
+            <q-list>
+              <q-item
+                v-for="item in sections"
+                clickable
+                v-ripple
+                :key="item.link"
+                :active="tab === item.link"
+                @click="tab = item.link"
+                active-class="text-white bg-primary"
+              >
+                <q-item-section avatar>
+                  <q-icon :name="item.icon" />
+                </q-item-section>
+                <q-item-section>{{ item.text }}</q-item-section>
+              </q-item>
+            </q-list>
           </template>
 
           <template v-slot:after>
@@ -49,7 +62,11 @@ export default defineComponent({
   setup() {
     return {
       tab: ref("profile"),
-      splitterModel: ref(25),
+      splitterModel: ref(30),
+      sections: [
+        { icon: "home", text: "Profile", link: "profile" },
+        { icon: "home", text: "Test", link: "test" },
+      ],
     };
   },
 

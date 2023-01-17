@@ -32,18 +32,10 @@
             <!-- popup -->
             <q-menu touch-position context-menu>
               <q-list dense style="min-width: 100px">
-                <q-item
-                  clickable
-                  @click="discardChanges(item)"
-                  v-close-popup
-                >
+                <q-item clickable @click="discardChanges(item)" v-close-popup>
                   <q-item-section>Discard Changes...</q-item-section>
                 </q-item>
-                <q-item
-                  clickable
-                  @click="addToIgnore(item)"
-                  v-close-popup
-                >
+                <q-item clickable @click="addToIgnore(item)" v-close-popup>
                   <q-item-section>Add to Ignore...</q-item-section>
                 </q-item>
               </q-list>
@@ -82,18 +74,10 @@
             <!-- popup -->
             <q-menu touch-position context-menu>
               <q-list dense style="min-width: 100px">
-                <q-item
-                  clickable
-                  @click="discardChanges(item)"
-                  v-close-popup
-                >
+                <q-item clickable @click="discardChanges(item)" v-close-popup>
                   <q-item-section>Discard Changes...</q-item-section>
                 </q-item>
-                <q-item
-                  clickable
-                  @click="addToIgnore(item)"
-                  v-close-popup
-                >
+                <q-item clickable @click="addToIgnore(item)" v-close-popup>
                   <q-item-section>Add to Ignore...</q-item-section>
                 </q-item>
               </q-list>
@@ -183,8 +167,8 @@ export default defineComponent({
 
     async addToIgnore(item: StatusItem) {
       await git2rs.addToIgnore(item.path).catch((e) => {
-          this.showNotification(e.toString());
-        });
+        this.showNotification(e.toString());
+      });
     },
 
     showNotification(message: string) {
