@@ -21,9 +21,9 @@ but I'm going to continue this for personal use.
 - [ ] unitest
 - [ ] amend
 - [ ] repository preference
-- [ ] open repository page
+- [x] open repository page
 - [x] devtools menu
-- [ ] popup menu with right button click
+- [x] popup menu with right button click
 
 ### v0.3.0
 

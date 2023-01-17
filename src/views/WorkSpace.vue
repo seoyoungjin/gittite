@@ -24,11 +24,11 @@
 
         <q-tab-panels v-model="tab" animated class="fit">
           <q-tab-panel name="changes" class="q-pa-none">
-            <ChangesList />
+            <ChangesList @discardChanges="onDiscardChanges"/>
           </q-tab-panel>
 
           <q-tab-panel name="history" class="q-pa-xs">
-            <HistoryList v-on:selectItem="handleSelectItem" />
+            <HistoryList />
           </q-tab-panel>
         </q-tab-panels>
       </template>
@@ -68,11 +68,10 @@ import { defineComponent } from "vue";
 import { listen } from "@tauri-apps/api/event";
 import ToolBar from "@/layouts/ToolBar.vue";
 import ToolBar2 from "@/layouts/ToolBar2.vue";
-import ChangesList from "@/components/ChangesList.vue";
-// import ChangesOption from "@/components/ChangesOption.vue";
+import ChangesList from "@/components/changes/ChangesList.vue";
+import ContentForChanges from "@/components/changes/ContentForChanges.vue";
 import HistoryList from "@/components/history/HistoryList.vue";
-import ContentForChanges from "@/components/ContentForChanges.vue";
-import ContentForHistory from "@/components/ContentForHistory.vue";
+import ContentForHistory from "@/components/history/ContentForHistory.vue";
 // dialog
 import InitRepository from "@/components/dialog/InitRepository.vue";
 import AddLocalRepository from "@/components/dialog/AddLocalRepository.vue";
@@ -87,6 +86,7 @@ import { useRepositoryStore } from "@/stores/repository";
 import { useSettingsStore } from "@/stores/settings";
 import { useCommitStageStore } from "@/stores/commit-stage";
 import { useAppStore } from "@/stores/app";
+import type { StatusItem } from "@/models/status";
 import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
@@ -160,7 +160,6 @@ export default defineComponent({
     ToolBar,
     ToolBar2,
     ChangesList,
-    // ChangesOption,
     HistoryList,
     ContentForChanges,
     ContentForHistory,
@@ -180,7 +179,8 @@ export default defineComponent({
     setRepository(path: string) {
       this.repoStore.setRepository(path);
     },
-    branchSwich() {
+
+    async branchSwitch() {
       const branchName = this.repoStore.branchToSwitch;
       const info = this.repoStore.getBranchInfo(branchName);
       git2rs
@@ -206,14 +206,20 @@ export default defineComponent({
           });
         });
     },
+
     async onBranchSwitch(branchName: string) {
       console.log("onBranchSwithch", branchName);
       await this.repoStore.setBranchToSwitch(branchName);
       if (this.stageStore.hasChanges) {
         this.showBranchSwitch = true;
       } else {
-        await this.branchSwich();
+        await this.branchSwitch();
       }
+    },
+
+    async onDiscardChanges(item: StatusItem) {
+      console.log("onDiscardChanges", item.path);
+      this.showBranchReset = true;
     },
   },
 });

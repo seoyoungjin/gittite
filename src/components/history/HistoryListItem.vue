@@ -1,5 +1,5 @@
 <template>
-  <q-item @mouseover="showOptions = true" @mouseout="showOptions = false">
+  <q-item>
     <!--Main Part-->
     <q-item-section>
       <q-item-label class="text-subtitle2 ellipsis">{{
@@ -15,19 +15,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import RelativeTime from "../RelativeTime.vue";
+import RelativeTime from "@/components/RelativeTime.vue";
 
 export default defineComponent({
   name: "HistoryListItem",
   props: ["item"],
   components: {
     RelativeTime,
-  },
-  data() {
-    return {
-      showOptions: false,
-      showPopover: false,
-    };
   },
 });
 </script>

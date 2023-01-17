@@ -29,6 +29,25 @@
             <q-item-section>
               <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
+            <!-- popup -->
+            <q-menu touch-position context-menu>
+              <q-list dense style="min-width: 100px">
+                <q-item
+                  clickable
+                  @click="discardChanges(item)"
+                  v-close-popup
+                >
+                  <q-item-section>Discard Changes...</q-item-section>
+                </q-item>
+                <q-item
+                  clickable
+                  @click="addToIgnore(item)"
+                  v-close-popup
+                >
+                  <q-item-section>Add to Ignore...</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
           </q-item>
         </q-virtual-scroll>
       </div>
@@ -60,6 +79,25 @@
             <q-item-section>
               <q-item-label><PathLabel v-bind:path="item.path" /></q-item-label>
             </q-item-section>
+            <!-- popup -->
+            <q-menu touch-position context-menu>
+              <q-list dense style="min-width: 100px">
+                <q-item
+                  clickable
+                  @click="discardChanges(item)"
+                  v-close-popup
+                >
+                  <q-item-section>Discard Changes...</q-item-section>
+                </q-item>
+                <q-item
+                  clickable
+                  @click="addToIgnore(item)"
+                  v-close-popup
+                >
+                  <q-item-section>Add to Ignore...</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
           </q-item>
         </q-virtual-scroll>
       </div>
@@ -74,10 +112,11 @@
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commit-stage";
-// import ChangesOption from "@/components/ChangesOption.vue";
-import CommitMessage from "@/components/CommitMessage.vue";
+// import ChangesOption from "./ChangesOption.vue";
+import CommitMessage from "./CommitMessage.vue";
 import OctStatusIcon from "@/components/OctStatusIcon.vue";
 import PathLabel from "@/components/PathLabel.vue";
+import type { StatusItem } from "@/models/status";
 import * as git2rs from "@/lib/git2rs";
 
 export default defineComponent({
@@ -102,7 +141,6 @@ export default defineComponent({
     ...mapActions(useCommitStageStore, ["updateCommitStage", "setCurrentItem"]),
 
     onChildResize(size: any) {
-      // alert(JSON.stringify(size));
       // (this.$q.screen.height - 90 - size.height) + "px";
       this.stageStyle.height = "calc(100% - " + (size.height + 5) + "pt)";
     },
@@ -111,7 +149,7 @@ export default defineComponent({
       this.setCurrentItem(item);
     },
 
-    stageFile(item: any) {
+    stageFile(item: StatusItem) {
       let stage_function: (path: string) => Promise<boolean>;
 
       if (item.wtree == "Deleted") {
@@ -124,20 +162,28 @@ export default defineComponent({
           await this.updateCommitStage();
         })
         .catch(async (e) => {
-          var message = JSON.stringify(e, null, 4);
-          await this.showNotification(message);
+          this.showNotification(e.toString());
         });
     },
 
-    unstageFile(item: any) {
+    unstageFile(item: StatusItem) {
       git2rs
         .resetStage(item.path)
         .then(async () => {
           await this.updateCommitStage();
         })
         .catch((e) => {
-          var message = JSON.stringify(e, null, 4);
-          this.showNotification(message);
+          this.showNotification(e.toString());
+        });
+    },
+
+    discardChanges(item: StatusItem) {
+      this.$emit("discardChanges", item);
+    },
+
+    async addToIgnore(item: StatusItem) {
+      await git2rs.addToIgnore(item.path).catch((e) => {
+          this.showNotification(e.toString());
         });
     },
 

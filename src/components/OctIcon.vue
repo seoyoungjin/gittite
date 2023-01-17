@@ -5,6 +5,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
+  octAlert16,
   octRepoClone16,
   octLightBulb16,
   octSquare16,
@@ -17,6 +18,7 @@ export default defineComponent({
 
   setup() {
     return {
+      octAlert16,
       octRepoClone16,
       octLightBulb16,
       octSquare16,
@@ -28,13 +30,14 @@ export default defineComponent({
   props: {
     symbol: {
       type: String,
-      default: "",
+      required: true,
     },
   },
   methods: {
     octIconForSymbol(symbol: string | undefined): any {
-      // alert(symbol);
       switch (symbol) {
+        case "alert":
+          return octAlert16;
         case "repoClone":
           return octRepoClone16;
         case "lightBulb":
