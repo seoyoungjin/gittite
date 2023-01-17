@@ -4,15 +4,24 @@ use super::{
 };
 use super::{CommitId, RepoPath};
 use git2::{build::CheckoutBuilder, Oid, Repository, StashApplyOptions, StashFlags};
-use serde_json::Value;
 use std::ffi::OsString;
+use serde::Serialize;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
+
+#[derive(Serialize)]
+pub enum StashResponse {
+    StashSave(CommitId),
+    StashList(Vec<CommitId>),
+    StashDrop(()),
+    StashPop(()),
+    StashApply(()),
+}
 
 ///
 #[derive(StructOpt, Debug)]
 #[structopt(setting(AppSettings::NoBinaryName))]
-struct Stash {
+struct StashOpt {
     #[structopt(subcommand)]
     cmd: SubCommand,
 }
@@ -63,12 +72,12 @@ enum SubCommand {
 pub fn stash<I>(
     repo_path: &RepoPath,
     args: I,
-) -> Result<Value>
+) -> Result<StashResponse>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone,
 {
-    let opt = Stash::from_iter_safe(args)?;
+    let opt = StashOpt::from_iter_safe(args)?;
     log::trace!("stash: {:?}", opt);
 
     let res = match opt.cmd {
@@ -79,35 +88,32 @@ where
         } => {
             let msg = message.as_ref().map(String::as_str);
             let res = stash_save(repo_path, msg, untracked, keep_index)?;
-            serde_json::to_value(res)
-        }
+            StashResponse::StashSave(res)
+        },
         SubCommand::List => {
             let res = get_stashes(repo_path)?;
-            serde_json::to_value(res)
-        }
+            StashResponse::StashList(res)
+        },
         SubCommand::Drop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_drop(repo_path, stash)?;
-            serde_json::to_value(res)
-        }
+            StashResponse::StashDrop(res)
+        },
         SubCommand::Pop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_pop(repo_path, stash)?;
-            serde_json::to_value(res)
-        }
+            StashResponse::StashPop(res)
+        },
         SubCommand::Apply { stash, index } => {
-            // if allow_conflicts then keep-index can fail
+            // if allow_conflicts, keep-index can fail
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_apply(repo_path, stash, index)?;
-            serde_json::to_value(res)
-        }
+            StashResponse::StashApply(res)
+        },
         _ => return Err(Error::Generic("stash command not found".to_string())),
     };
 
-    match res {
-        Ok(v) => Ok(v),
-        Err(e) => Err(Error::SerdeError(e)),
-    }
+    Ok(res)
 }
 
 ///
@@ -409,7 +415,7 @@ mod tests {
 
     #[test]
     fn test_stash_subcommand() {
-        let opt = Stash::from_iter(["save"]);
+        let opt = StashOpt::from_iter(["save"]);
         assert_eq!(
             opt.cmd,
             SubCommand::Save {
@@ -418,7 +424,7 @@ mod tests {
                 keep_index: false
             }
         );
-        let opt = Stash::from_iter(["save", "message", "-u", "-k"]);
+        let opt = StashOpt::from_iter(["save", "message", "-u", "-k"]);
         assert_eq!(
             opt.cmd,
             SubCommand::Save {
@@ -428,12 +434,12 @@ mod tests {
             }
         );
 
-        let opt = Stash::from_iter(["list"]);
+        let opt = StashOpt::from_iter(["list"]);
         assert_eq!(opt.cmd, SubCommand::List);
 
-        let opt = Stash::from_iter_safe(["drop"]);
+        let opt = StashOpt::from_iter_safe(["drop"]);
         assert_eq!(opt.is_err(), true);
-        let opt = Stash::from_iter(["drop", "stash"]);
+        let opt = StashOpt::from_iter(["drop", "stash"]);
         assert_eq!(
             opt.cmd,
             SubCommand::Drop {
@@ -441,7 +447,7 @@ mod tests {
             }
         );
 
-        let opt = Stash::from_iter(["apply", "stash"]);
+        let opt = StashOpt::from_iter(["apply", "stash"]);
         assert_eq!(
             opt.cmd,
             SubCommand::Apply {
@@ -449,7 +455,7 @@ mod tests {
                 index: false
             }
         );
-        let opt = Stash::from_iter(["apply", "stash", "--index"]);
+        let opt = StashOpt::from_iter(["apply", "stash", "--index"]);
         assert_eq!(
             opt.cmd,
             SubCommand::Apply {

@@ -1,6 +1,7 @@
 use crate::app_data::AppDataState;
 use crate::git_api::cred::BasicAuthCredential;
 use crate::git_api::repository::RepoInfo;
+use crate::git_api::stash::StashResponse;
 use crate::git_api::*;
 use git2::{Reference, Repository, StatusShow};
 use serde_json::Value;
@@ -400,7 +401,7 @@ pub fn tag(
 pub fn stash(
     args: Vec<String>,
     app_data: AppDataState<'_>,
-) -> Result<Value> {
+) -> Result<StashResponse> {
     log::trace!("stash() with : {:?}", args);
     let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();

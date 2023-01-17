@@ -372,8 +372,11 @@ mod tests_create_branch {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
+        // yjseo - modified not to checkout new branch
         create_branch(repo_path, "branch1").unwrap();
+        assert_eq!(get_branch_name(repo_path).unwrap().as_str(), "master");
 
+        checkout_branch(repo_path, "refs/heads/branch1");
         assert_eq!(get_branch_name(repo_path).unwrap().as_str(), "branch1");
     }
 }

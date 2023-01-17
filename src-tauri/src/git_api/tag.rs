@@ -249,11 +249,8 @@ mod tests {
         let (_td, repo) = repo_init().unwrap();
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
-        // let repo_path = &RepoPath::from("...");
-        // let repo = repo_open(repo_path).unwrap();
 
         let sig = repo.signature().unwrap();
-        let head_id = repo.head().unwrap().target().unwrap();
         let target = repo
             .find_object(
                 repo.head().unwrap().target().unwrap(),

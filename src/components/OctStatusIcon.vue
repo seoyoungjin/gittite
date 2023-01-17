@@ -49,9 +49,9 @@ export default defineComponent({
           return octDiffRemoved16;
         case "Renamed":
           return octDiffRenamed16;
-        // case "Conflicted":
+        case "Conflicted":
         default:
-          throw "Unknown status";
+          return null;
       }
     },
 

@@ -1,8 +1,7 @@
 <template>
   <div class="ellipsis">{{ path }}</div>
   <q-tooltip :class="className">{{ path }}</q-tooltip>
-<!--
-  <span class="row inline no-wrap">
+  <!--<span class="row inline no-wrap">
     <div class="text-grey-7 ellipsis">
       {{ filePath(path) }}
     </div>
@@ -12,8 +11,7 @@
     <q-tooltip :class="className">
       {{ path }}
     </q-tooltip>
-  </span>
--->
+  </span>-->
 </template>
 
 <script lang="ts">
