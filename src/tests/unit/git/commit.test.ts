@@ -9,3 +9,8 @@ describe("git/commit", () => {
     assert.equal(3, 3);
   });
 });
+
+// after commit
+// TODO
+// 1. staged count == 0
+// 2. last commit id == first item of history

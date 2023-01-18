@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import SetLayout from "@/components/SetLayout.vue";
+import SetLayout from "../SetLayout.vue";
 
 export default defineComponent({
   name: "DevToolBar",

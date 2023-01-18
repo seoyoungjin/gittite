@@ -84,7 +84,7 @@
 
 <script lang="ts">
 import { ref } from "vue";
-import ToolBar from "./dev/ToolBar.vue";
+import ToolBar from "@/components/toolbar/dev/ToolBar.vue";
 
 export default {
   name: "DevLayout",

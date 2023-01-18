@@ -67,8 +67,8 @@
 import { ref } from "vue";
 import { defineComponent } from "vue";
 import { listen } from "@tauri-apps/api/event";
-import ToolBar from "@/layouts/ToolBar.vue";
-import ToolBar2 from "@/layouts/ToolBar2.vue";
+import ToolBar from "@/components/toolbar/ToolBar.vue";
+import ToolBar2 from "@/components/toolbar/ToolBar2.vue";
 import ChangesList from "@/components/changes/ChangesList.vue";
 import ContentForChanges from "@/components/changes/ContentForChanges.vue";
 import HistoryList from "@/components/history/HistoryList.vue";

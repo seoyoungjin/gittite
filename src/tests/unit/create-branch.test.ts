@@ -83,4 +83,8 @@ describe("Create Branch", () => {
     });
     assert.equal(rejectedCount, branchNames.length, "validation failed");
   });
+
+  // after create
+  // TODO
+  // 1. if staged count == 0 switch to new branch
 });

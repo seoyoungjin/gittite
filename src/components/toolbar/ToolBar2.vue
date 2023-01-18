@@ -28,6 +28,8 @@
       </q-list>
     </q-btn-dropdown>
 
+    <PushPullBtn />
+
     <q-btn flat dense icon="subscriptions" @click="onInitRepository">
       <q-tooltip> New Repository </q-tooltip>
     </q-btn>
@@ -57,7 +59,8 @@ import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useRepositoryStore } from "@/stores/repository";
 import { octGitBranch16 } from "quasar-extras-svg-icons/oct-icons-v17";
-import SetLayout from "../components/SetLayout.vue";
+import PushPullBtn from "./PushPullBtn.vue";
+import SetLayout from "./SetLayout.vue";
 
 export default defineComponent({
   name: "ToolBar2",
@@ -69,6 +72,7 @@ export default defineComponent({
   },
 
   components: {
+    PushPullBtn,
     SetLayout,
   },
 
