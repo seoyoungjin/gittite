@@ -152,7 +152,6 @@ export default defineComponent({
       (async () => {
         let lastCommitInfo = await git2rs.commitInfo("HEAD");
         this.commitForm.message = "";
-        // TODO message format
         this.amendForm.message = lastCommitInfo.message.subject;
         if (lastCommitInfo.message.body) {
           this.amendForm.message =

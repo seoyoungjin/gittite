@@ -2,11 +2,14 @@
 import { defineComponent } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import VueJsonPretty from "vue-json-pretty";
+import { invoke } from "@tauri-apps/api/tauri";
 import * as git2rs from "../../lib/git2rs";
 
 export default defineComponent({
   data() {
     return {
+      stashIdList: [],
+
       stashSaveForm: {
         message: "",
         includeUntracked: false,
@@ -16,7 +19,7 @@ export default defineComponent({
         stashid: "",
       },
       resStashSave: null,
-      resStashList: null,
+      resStashList: null as any,
       resStashDPA: null,
     };
   },
@@ -25,7 +28,27 @@ export default defineComponent({
     VueJsonPretty,
   },
 
+  async mounted() {
+    await this.stashList();
+  },
+
   methods: {
+    async stashList() {
+      // to show enum serialization, use invoke() instead of git2rs.stashList()
+      this.resStashList = await invoke("stash", { args: ["list"] }).catch(
+        (e) => {
+          alert(JSON.stringify(e, null, 4));
+          return [];
+        }
+      );
+      // decapsulation enum
+      if ("StashList" in this.resStashList) {
+        this.stashIdList = this.resStashList.StashList.map((x: any) => { return x.id })
+      } else {
+        this.stashIdList = this.resStashList.map((x: any) => { return x.id })
+      }
+    },
+
     stashSave() {
       var message = this.stashSaveForm.message;
       var untracked = this.stashSaveForm.includeUntracked;
@@ -36,20 +59,7 @@ export default defineComponent({
           this.resStashSave = message as any;
         })
         .catch((e) => {
-          this.resStashSave = { error: JSON.stringify(e) } as any;
-        });
-    },
-
-    stashList() {
-      git2rs
-        .stashList()
-        .then((message) => {
-          this.resStashList = message as any;
-        })
-        .catch((e) => {
-          if (e) {
-            this.resStashList = { error: JSON.stringify(e) } as any;
-          }
+          this.resStashSave = { kkerror: JSON.stringify(e) } as any;
         });
     },
 
@@ -102,6 +112,15 @@ export default defineComponent({
   <q-page class="q-ma-lg">
     <h5>Git Stash</h5>
 
+    <!-- list -->
+    <q-btn color="primary" no-caps @click="stashList">Stash List</q-btn>
+    <br /><br />
+
+    <div v-if="resStashList">
+      <vue-json-pretty :data="resStashList" />
+    </div>
+    <br />
+
     <!-- save -->
     <q-form v-on:submit="stashSave" id="stash-save">
       <q-input v-model="stashSaveForm.message" label="Stash Message" />
@@ -119,19 +138,12 @@ export default defineComponent({
     </div>
     <br />
 
-    <!-- list -->
-    <q-btn color="primary" no-caps @click="stashList">Stash List</q-btn>
-    <br /><br />
-
-    <div v-if="resStashList">
-      <vue-json-pretty :data="resStashList" />
-    </div>
-    <br />
-
     <!-- drop/pop/apply -->
-    <q-form id="stash-form">
-      <q-input v-model="stashForm.stashid" label="Stash ID" />
-    </q-form>
+    <q-select
+      v-model="stashForm.stashid"
+      :options="stashIdList"
+      label="Stash ID"
+    />
     <div>
       <q-btn color="primary" no-caps @click="stashDrop">Drop</q-btn>
       <q-btn color="primary" no-caps @click="stashPop">Pop</q-btn>

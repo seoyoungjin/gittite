@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
+  <q-dialog ref="dialog" @show="setModal" @hide="onDialogHide">
     <q-card class="q-dialog-plugin">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Discard All Changes?</div>
@@ -36,6 +36,7 @@
 import { defineComponent } from "vue";
 import ModalMixin from "@/mixins/modal";
 import { mapActions, mapState } from "pinia";
+import { useAppStore } from "@/stores/app";
 import { useCommitStageStore } from "@/stores/commit-stage";
 import OctIcon from "@/components/OctIcon.vue";
 import type { StatusItem } from "@/models/status";
@@ -45,10 +46,6 @@ export default defineComponent({
   name: "BranchReset",
   mixins: [ModalMixin],
 
-  props: {
-    target: null,
-  },
-
   components: {
     OctIcon,
   },
@@ -57,21 +54,33 @@ export default defineComponent({
 
   computed: {
     ...mapState(useCommitStageStore, ["allStagedFiles", "allUnstagedFiles"]),
+    ...mapState(useAppStore, ["DiscardItem"]),
 
     allChanges() {
-      // load from git2rs
-      let merged = this.allUnstagedFiles.slice();
-      this.allStagedFiles.forEach((k) => {
-        if (merged.findIndex((i) => k.path === i.path) < 0) {
-          merged.push(k);
-        }
-      });
+      let merged: StatusItem[] = [];
+      if (this.DiscardItem) {
+        merged.push(this.DiscardItem);
+      } else {
+        merged = this.allUnstagedFiles.slice();
+        this.allStagedFiles.forEach((k) => {
+          if (merged.findIndex((i) => k.path === i.path) < 0) {
+            merged.push(k);
+          }
+        });
+      }
       return merged;
     },
+    // async allChanges() {
+    //   let all_changed = await git2rs.getStatus("all").catch(() => {
+    //     return [];
+    //   });
+    //   return all_changed;
+    // },
   },
 
   methods: {
-    ...mapActions(useCommitStageStore, ["updateCommitStage"]),
+    ...mapActions(useCommitStageStore, ["discardAllChanges", "updateCommitStage"]),
+    ...mapActions(useAppStore, ["setDiscardItem"]),
 
     show() {
       (this.$refs.dialog as any).show();
@@ -80,7 +89,11 @@ export default defineComponent({
       (this.$refs.dialog as any).hide();
     },
     onOKClick() {
-      this.discardAllChanges();
+      if (this.DiscardItem) {
+        this.discardChanges(this.DiscardItem);
+      } else {
+        this.discardAllChanges();
+      }
       this.$emit("ok");
       this.hide();
     },
@@ -88,20 +101,17 @@ export default defineComponent({
       this.hide();
     },
     // dialog specific
-    discardAllChanges() {
-      // TODO
+    onDialogHide() {
+      this.setDiscardItem(null);
+      this.unsetModal();
     },
-    discardChanges(item: StatusItem) {
-      // TODO
-      // discard dialog
-      // if staged unstage first after then resetWorkdir
+    async discardChanges(item: StatusItem) {
       git2rs
         .resetWorkdir(item.path)
         .then(async () => {
           await this.updateCommitStage();
         })
         .catch(() => {
-          // this.showNotification(e.toString());
         });
     },
   },

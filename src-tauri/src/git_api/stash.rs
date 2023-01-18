@@ -4,18 +4,25 @@ use super::{
 };
 use super::{CommitId, RepoPath};
 use git2::{build::CheckoutBuilder, Oid, Repository, StashApplyOptions, StashFlags};
-use std::ffi::OsString;
 use serde::Serialize;
+use std::ffi::OsString;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
 #[derive(Serialize)]
 pub enum StashResponse {
     StashSave(CommitId),
-    StashList(Vec<CommitId>),
+    StashList(Vec<StashEntry>),
     StashDrop(()),
     StashPop(()),
     StashApply(()),
+}
+
+#[derive(Serialize)]
+pub struct StashEntry {
+    index: usize,
+    message: String,
+    id: CommitId,
 }
 
 ///
@@ -89,27 +96,27 @@ where
             let msg = message.as_ref().map(String::as_str);
             let res = stash_save(repo_path, msg, untracked, keep_index)?;
             StashResponse::StashSave(res)
-        },
+        }
         SubCommand::List => {
             let res = get_stashes(repo_path)?;
             StashResponse::StashList(res)
-        },
+        }
         SubCommand::Drop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_drop(repo_path, stash)?;
             StashResponse::StashDrop(res)
-        },
+        }
         SubCommand::Pop { stash } => {
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_pop(repo_path, stash)?;
             StashResponse::StashPop(res)
-        },
+        }
         SubCommand::Apply { stash, index } => {
             // if allow_conflicts, keep-index can fail
             let stash = CommitId::from_str(stash.as_str())?;
             let res = stash_apply(repo_path, stash, index)?;
             StashResponse::StashApply(res)
-        },
+        }
         _ => return Err(Error::Generic("stash command not found".to_string())),
     };
 
@@ -117,12 +124,16 @@ where
 }
 
 ///
-pub fn get_stashes(repo_path: &RepoPath) -> Result<Vec<CommitId>> {
+pub fn get_stashes(repo_path: &RepoPath) -> Result<Vec<StashEntry>> {
     let mut repo = repo_open(repo_path)?;
     let mut list = Vec::new();
 
-    repo.stash_foreach(|_index, _msg, id| {
-        list.push((*id).into());
+    repo.stash_foreach(|index, message, id| {
+        list.push(StashEntry {
+            index,
+            message: String::from(message),
+            id: (*id).into(),
+        });
         true
     })?;
 
@@ -135,7 +146,14 @@ pub fn is_stash_commit(
     id: &CommitId,
 ) -> Result<bool> {
     let stashes = get_stashes(repo_path)?;
-    Ok(stashes.contains(id))
+
+    // Ok(stashes.contains(id))
+    for entry in stashes.iter() {
+        if entry.id == *id {
+            return Ok(true)
+        }
+    }
+    return Ok(false)
 }
 
 ///
@@ -273,7 +291,7 @@ mod tests {
         let res = get_stashes(repo_path)?;
         assert_eq!(res.len(), 1);
 
-        let infos = get_commits_info(repo_path, &[res[0]], 100).unwrap();
+        let infos = get_commits_info(repo_path, &[res[0].id], 100).unwrap();
         assert_eq!(infos[0].message.subject, "On master: foo");
 
         Ok(())
@@ -309,7 +327,7 @@ mod tests {
         //cli skips that step when no new files exist
         debug_cmd_print(repo_path, "git stash");
 
-        let stash = get_stashes(repo_path)?[0];
+        let stash = get_stashes(repo_path)?[0].id;
         let diff = get_commit_files(repo_path, stash, None)?;
         assert_eq!(diff.len(), 1);
 

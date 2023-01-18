@@ -102,6 +102,7 @@ export default defineComponent({
     appStore.initStore();
 
     return {
+      appStore,
       repoStore,
       stageStore,
       splitterModel: ref(250),
@@ -130,7 +131,7 @@ export default defineComponent({
       } else if (ev.payload == "branch-reset") {
         this.showBranchReset = true;
       } else if (ev.payload == "branch-stash") {
-        // TODO
+        this.onStashAllChanges();
       } else if (ev.payload == "select") {
         if (this.$route.path != "/select") {
           this.$router.push("/select");
@@ -225,7 +226,32 @@ export default defineComponent({
 
     async onDiscardChanges(item: StatusItem) {
       console.log("onDiscardChanges", item.path);
+      this.appStore.setDiscardItem(item);
       this.showBranchReset = true;
+    },
+
+    async onStashAllChanges() {
+      console.log("onStashAllChanges");
+      git2rs
+        .stashSave("Gittite", true, false)
+        .then((message) => {
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+          this.repoStore.loadRepositoryInfo();
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
     },
   },
 });

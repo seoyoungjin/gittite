@@ -38,5 +38,19 @@ export const useCommitStageStore = defineStore("stage", {
     setCurrentItem(current: StatusItem) {
       this.currentItem = current;
     },
+
+    async discardAllChanges() {
+      this.staged.forEach(async (k) => {
+        await git2rs.resetStage(k.path);
+      });
+      // load unstaged after resetStage()
+      const unstaged = await git2rs.getStatus("workdir").catch(() => {
+        return [] as StatusItem[];
+      });
+      unstaged.forEach(async (k) => {
+        await git2rs.resetWorkdir(k.path);
+      });
+      await this.updateCommitStage();
+    },
   },
 });

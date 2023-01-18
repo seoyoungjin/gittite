@@ -4,6 +4,7 @@ import type { BranchCompare, BranchInfo } from "../models/branch";
 import type { CommitData, CommitInfo } from "../models/commit";
 import type { RepoInfo } from "../models/repository";
 import type { Settings } from "../models/settings";
+import type { StashEntry } from "../models/stash-entry";
 import type { StatusItem } from "../models/status";
 
 import { invoke } from "@tauri-apps/api/tauri";
@@ -201,27 +202,32 @@ export async function stashSave(
   message: string | null,
   includeUntracked: boolean,
   keepIndex: boolean
-) {
+): Promise<string> {
   const arr = ["save", message];
   if (includeUntracked) arr[arr.length] = "-u";
   if (keepIndex) arr[arr.length] = "-k";
-  return await invoke("stash", { args: arr });
+  const res = (await invoke("stash", { args: arr })) as any;
+  return res.StashSave;
 }
 
-export async function stashList() {
-  return await invoke("stash", { args: ["list"] });
+export async function stashList(): Promise<StashEntry[]> {
+  const res = (await invoke("stash", { args: ["list"] })) as any;
+  return res.StashList;
 }
 
-export async function stashApply(stashid: string) {
-  return await invoke("stash", { args: ["apply", stashid] });
+export async function stashApply(stashid: string): Promise<void>  {
+  const res = (await invoke("stash", { args: ["apply", stashid] })) as any;
+  return res.StashApply;
 }
 
-export async function stashPop(stashid: string) {
-  return await invoke("stash", { args: ["pop", stashid] });
+export async function stashPop(stashid: string): Promise<void> {
+  const res = (await invoke("stash", { args: ["pop", stashid] })) as any;
+  return res.StashPop;
 }
 
-export async function stashDrop(stashid: string) {
-  return await invoke("stash", { args: ["drop", stashid] });
+export async function stashDrop(stashid: string): Promise<void> {
+  const res = (await invoke("stash", { args: ["drop", stashid] })) as any;
+  return res.StashDrop;
 }
 
 // remote

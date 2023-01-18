@@ -74,9 +74,6 @@
             <!-- popup -->
             <q-menu touch-position context-menu>
               <q-list dense style="min-width: 100px">
-                <q-item clickable @click="discardChanges(item)" v-close-popup>
-                  <q-item-section>Discard Changes...</q-item-section>
-                </q-item>
                 <q-item clickable @click="addToIgnore(item)" v-close-popup>
                   <q-item-section>Add to Ignore...</q-item-section>
                 </q-item>

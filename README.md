@@ -16,8 +16,10 @@ but I'm going to continue this for personal use.
 - [ ] branch
   - [ ] branch detail - ahead/behind
   - [ ] remote branch
-- [ ] stash
-  - [ ] handle IPC response in tagged json format for rust enum 
+- [x] stash
+  - [x] handle IPC response in tagged json format for rust enum 
+  - [ ] ui - show file list and diff
+  - [ ] ui - list/apply/drop 
 - [ ] unitest
 - [ ] amend
 - [ ] repository preference
