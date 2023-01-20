@@ -4,11 +4,9 @@
       <q-spinner class="on-left" />
     </q-inner-loading>
     <q-item-section align="left">
+      <q-item-label> Fetch </q-item-label>
       <q-item-label>
-        Fetch
-      </q-item-label>
-      <q-item-label>
-        <small>not yet</small>
+        <small>TBD</small>
       </q-item-label>
     </q-item-section>
   </q-btn>
@@ -16,26 +14,24 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useLayoutStore } from "@/stores/layout.js";
 
 export default defineComponent({
-  setup () {
-    const visible = ref(false)
+  setup() {
+    const visible = ref(false);
 
     return {
       visible,
 
-      simulateProgress (event, done) {
+      simulateProgress(event: any, done: any) {
         visible.value = true;
         setTimeout(() => {
           visible.value = false;
-          done()
-        }, 3000)
-      }
-    }
+          done();
+        }, 3000);
+      },
+    };
   },
 
-  methods: {
-  },
+  methods: {},
 });
 </script>

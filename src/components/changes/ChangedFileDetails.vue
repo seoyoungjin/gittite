@@ -1,14 +1,19 @@
 <template>
-  <q-bar class="q-pa-md bg-grey-2">
-    <PathLabel v-bind:path="changedPath" />
-    <q-space />
+  <q-bar dense class="q-py-md bg-grey-2">
     <OctStatusIcon v-bind:status="changedStatus" size="14pt" />
+    <PathLabel v-bind:path="changedPath" />
+
+    <q-space />
+
+    <DiffOptions />
   </q-bar>
+  <q-separator color="grey-4" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import OctStatusIcon from "@/components/OctStatusIcon.vue";
+import DiffOptions from "@/components/diff/DiffOptions.vue";
 import PathLabel from "@/components/PathLabel.vue";
 
 export default defineComponent({
@@ -19,6 +24,7 @@ export default defineComponent({
   },
 
   components: {
+    DiffOptions,
     OctStatusIcon,
     PathLabel,
   },

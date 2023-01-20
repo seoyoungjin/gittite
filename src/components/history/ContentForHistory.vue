@@ -1,9 +1,6 @@
 <template>
   <div class="column" style="height: 100%">
-    <div class="col-auto">{{ historyMessageSubject }}</div>
-    <div class="col-auto bg-grey-2" v-if="historyMessageBody">
-      {{ historyMessageBody }}
-    </div>
+    <CommitSummary />
     <div class="col">
       <q-splitter
         v-model="splitterModel"
@@ -29,7 +26,8 @@
 import { defineComponent, ref } from "vue";
 import { mapState } from "pinia";
 import { useHistoryStore } from "@/stores/history";
-import CommitFileList from "@/components/history/CommitFileList.vue";
+import CommitSummary from "./CommitSummary.vue";
+import CommitFileList from "./CommitFileList.vue";
 import DiffView from "@/components/DiffView.vue";
 import type { StatusItem } from "@/models/status";
 
@@ -43,17 +41,13 @@ export default defineComponent({
   },
 
   components: {
+    CommitSummary,
     CommitFileList,
     DiffView,
   },
 
   computed: {
-    ...mapState(useHistoryStore, [
-      "historyCurrent",
-      "historyMessageSubject",
-      "historyMessageBody",
-      "historyCommitFiles",
-    ]),
+    ...mapState(useHistoryStore, ["historyCurrent", "historyCommitFiles"]),
 
     selectedFile(): string {
       // console.log(this.historyCommitFiles.includes(this.selectedItem));
@@ -75,7 +69,6 @@ export default defineComponent({
   methods: {
     handleSelectItem(item: any) {
       this.selectedItem = item;
-      // alert(JSON.stringify(this.selectedItem));
     },
   },
 });

@@ -43,9 +43,13 @@ export default defineComponent({
       );
       // decapsulation enum
       if ("StashList" in this.resStashList) {
-        this.stashIdList = this.resStashList.StashList.map((x: any) => { return x.id })
+        this.stashIdList = this.resStashList.StashList.map((x: any) => {
+          return x.id;
+        });
       } else {
-        this.stashIdList = this.resStashList.map((x: any) => { return x.id })
+        this.stashIdList = this.resStashList.map((x: any) => {
+          return x.id;
+        });
       }
     },
 

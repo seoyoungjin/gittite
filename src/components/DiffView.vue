@@ -56,3 +56,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+.d2h-file-header {
+  display: none;
+}
+</style>

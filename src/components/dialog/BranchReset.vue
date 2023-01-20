@@ -79,7 +79,10 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapActions(useCommitStageStore, ["discardAllChanges", "updateCommitStage"]),
+    ...mapActions(useCommitStageStore, [
+      "discardAllChanges",
+      "updateCommitStage",
+    ]),
     ...mapActions(useAppStore, ["setDiscardItem"]),
 
     show() {
@@ -111,8 +114,7 @@ export default defineComponent({
         .then(async () => {
           await this.updateCommitStage();
         })
-        .catch(() => {
-        });
+        .catch(() => {});
     },
   },
 });

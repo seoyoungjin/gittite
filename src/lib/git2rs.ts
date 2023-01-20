@@ -215,7 +215,7 @@ export async function stashList(): Promise<StashEntry[]> {
   return res.StashList;
 }
 
-export async function stashApply(stashid: string): Promise<void>  {
+export async function stashApply(stashid: string): Promise<void> {
   const res = (await invoke("stash", { args: ["apply", stashid] })) as any;
   return res.StashApply;
 }

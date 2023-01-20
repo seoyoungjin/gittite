@@ -4,26 +4,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import {
-  octAlert16,
-  octRepoClone16,
-  octLightBulb16,
-  octSquare16,
-  octFileDirectory16,
-  octPlus16,
-} from "quasar-extras-svg-icons/oct-icons-v17";
+import * as OctIcon from "quasar-extras-svg-icons/oct-icons-v17";
 
 export default defineComponent({
   name: "OctIcon",
 
   setup() {
     return {
-      octAlert16,
-      octRepoClone16,
-      octLightBulb16,
-      octSquare16,
-      octFileDirectory16,
-      octPlus16,
+      OctIcon,
     };
   },
 
@@ -37,17 +25,21 @@ export default defineComponent({
     octIconForSymbol(symbol: string | undefined): any {
       switch (symbol) {
         case "alert":
-          return octAlert16;
+          return OctIcon.octAlert16;
         case "repoClone":
-          return octRepoClone16;
+          return OctIcon.octRepoClone16;
         case "lightBulb":
-          return octLightBulb16;
+          return OctIcon.octLightBulb16;
         case "plus":
-          return octPlus16;
+          return OctIcon.octPlus16;
         case "fileDriectory":
-          return octFileDirectory16;
+          return OctIcon.octFileDirectory16;
+        case "gitCommit":
+          return OctIcon.octGitCommit16;
+        case "diff":
+          return OctIcon.octDiff16;
         default:
-          return octSquare16;
+          return OctIcon.octDot16;
       }
     },
   },

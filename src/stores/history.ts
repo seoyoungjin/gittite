@@ -23,20 +23,7 @@ export const useHistoryStore = defineStore("history", {
     commitLogs: (state) => state.commitList,
     // current item
     historyCurrent: (state) => state.currentItem,
-    historyMessageSubject(state): string {
-      if (!state.currentCommitInfo) {
-        return "";
-      } else {
-        return state.currentCommitInfo.message.subject;
-      }
-    },
-    historyMessageBody(state): string | null {
-      if (!state.currentCommitInfo) {
-        return null;
-      } else {
-        return state.currentCommitInfo.message.body;
-      }
-    },
+    historyCommitInfo: (state) => state.currentCommitInfo,
     historyCommitFiles: (state) => state.currentCommitFiles,
   },
 
