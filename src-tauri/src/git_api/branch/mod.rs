@@ -376,7 +376,7 @@ mod tests_create_branch {
         create_branch(repo_path, "branch1").unwrap();
         assert_eq!(get_branch_name(repo_path).unwrap().as_str(), "master");
 
-        checkout_branch(repo_path, "refs/heads/branch1");
+        checkout_branch(repo_path, "refs/heads/branch1").unwrap();
         assert_eq!(get_branch_name(repo_path).unwrap().as_str(), "branch1");
     }
 }

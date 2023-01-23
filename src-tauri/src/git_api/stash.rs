@@ -150,10 +150,11 @@ pub fn is_stash_commit(
     // Ok(stashes.contains(id))
     for entry in stashes.iter() {
         if entry.id == *id {
-            return Ok(true)
+            return Ok(true);
         }
     }
-    return Ok(false)
+
+    Ok(false)
 }
 
 ///
@@ -216,7 +217,9 @@ fn get_stash_index(
         }
     })?;
 
-    idx.ok_or_else(|| Error::Generic("stash commit not found".to_string()))
+    idx.ok_or_else(|| {
+        Error::Generic("stash commit not found".to_string())
+    })
 }
 
 ///

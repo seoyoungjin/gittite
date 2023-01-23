@@ -5,24 +5,22 @@ pub mod cred;
 mod error;
 pub mod init;
 pub mod repository;
+mod state;
 
 pub mod commit;
 pub mod commit_files;
 pub mod commit_info;
 
 // TODO mv
-pub mod stage;
-// TODO reset_workdir
 pub mod reset;
+pub mod stage;
 
 pub mod diff;
 pub mod revlog;
-// spec revspec
-// pub mod rev_parse;
 // show grep
 pub mod status;
 
-// merge rebase reset switch
+// merge rebase
 pub mod blame;
 pub mod branch;
 pub mod stash;
@@ -31,8 +29,6 @@ pub mod tag;
 // TODO push
 pub mod remotes;
 
-// sig tree blob
-// pub mod cat_file;
 pub mod ignore;
 pub mod progress;
 pub mod utils;

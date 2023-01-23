@@ -6,6 +6,7 @@ import type { RepoInfo } from "../models/repository";
 import type { Settings } from "../models/settings";
 import type { StashEntry } from "../models/stash-entry";
 import type { StatusItem } from "../models/status";
+import type { Tag } from "../models/tag";
 
 import { invoke } from "@tauri-apps/api/tauri";
 // import { invoke } from "../tests/helpers/fakeInvoke";
@@ -177,7 +178,7 @@ export async function tagAdd(
   object: string | null,
   message: string | null,
   force: boolean
-) {
+): Promise<void>{
   const arr: string[] = ["add", tagname];
   if (object) arr[arr.length] = object;
   if (force) arr[arr.length] = "-f";
@@ -185,16 +186,20 @@ export async function tagAdd(
     arr[arr.length] = "-m";
     arr[arr.length] = message;
   }
-  return await invoke("tag", { args: arr });
+  await invoke("tag", { args: arr });
 }
 
-export async function tagList(pattern: string | null) {
+export async function tagList(pattern: string | null): Promise<Tag[]> {
   if (pattern == null) pattern = "";
   return await invoke("tag", { args: ["list", pattern] });
 }
 
-export async function tagDelete(tagname: string) {
-  return await invoke("tag", { args: ["delete", tagname] });
+export async function tagDelete(tagname: string): Promise<void> {
+  await invoke("tag", { args: ["delete", tagname] });
+}
+
+export async function getTags(): Promise<any> {
+  return await invoke("get_tags");
 }
 
 // stash

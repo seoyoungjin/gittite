@@ -153,7 +153,7 @@ mod tests {
         // clone2
         let _commit2 = write_commit_file(&clone2, "test2.txt", "test", "commit2");
 
-        assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 0);
+        assert_eq!(tag::get_tags(clone2_dir).unwrap().len(), 0);
 
         //lets fetch from origin
         let bytes = fetch(clone2_dir, "master", None, None).unwrap();
@@ -161,7 +161,7 @@ mod tests {
 
         /* TODO
         tag::merge_upstream_commit(clone2_dir, "master").unwrap();
-        assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 1);
+        assert_eq!(tag::get_tags(clone2_dir).unwrap().len(), 1);
         */
     }
 
@@ -230,7 +230,7 @@ mod tests {
 
         // clone1 - creates tag
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
-        let tags1 = tag::get_tags(clone1_dir, None).unwrap();
+        let tags1 = tag::get_tags(clone1_dir).unwrap();
 
         push_tags(clone1_dir, "origin", None, None).unwrap();
         let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
@@ -238,8 +238,7 @@ mod tests {
 
         // clone 2 - pull
         fetch(clone2_dir, "master", None, None).unwrap();
-
-        let tags2 = tag::get_tags(clone2_dir, None).unwrap();
+        let tags2 = tag::get_tags(clone2_dir).unwrap();
 
         assert_eq!(tags1, tags2);
     }
@@ -260,7 +259,7 @@ mod tests {
 
         // clone1 - creates tag
         commit::tag_commit(clone1_dir, &commit1, "tag1", None).unwrap();
-        let tags1 = tag::get_tags(clone1_dir, None).unwrap();
+        let tags1 = tag::get_tags(clone1_dir).unwrap();
 
         push_tags(clone1_dir, "origin", None, None).unwrap();
         let tags_missing = tags_missing_remote(clone1_dir, "origin", None).unwrap();
@@ -268,7 +267,7 @@ mod tests {
 
         // clone 2 - pull
         fetch_all(clone2_dir, &None, &None).unwrap();
-        let tags2 = tag::get_tags(clone2_dir, None).unwrap();
+        let tags2 = tag::get_tags(clone2_dir).unwrap();
         assert_eq!(tags1, tags2);
     }
 
@@ -292,7 +291,7 @@ mod tests {
 
         // clone 2 - pull
         fetch_all(clone2_dir, &None, &None).unwrap();
-        assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 1);
+        assert_eq!(tag::get_tags(clone2_dir).unwrap().len(), 1);
 
         // delete on clone 1
         tag::tag_delete(clone1_dir, "tag1").unwrap();
@@ -312,6 +311,6 @@ mod tests {
 
         // clone 2
         fetch_all(clone2_dir, &None, &None).unwrap();
-        assert_eq!(tag::get_tags(clone2_dir, None).unwrap().len(), 0);
+        assert_eq!(tag::get_tags(clone2_dir).unwrap().len(), 0);
     }
 }

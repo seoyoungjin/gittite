@@ -2,9 +2,9 @@ use crate::app_data::AppDataState;
 use crate::git_api::cred::BasicAuthCredential;
 use crate::git_api::repository::RepoInfo;
 use crate::git_api::stash::StashResponse;
+use crate::git_api::tag::{Tag, TagResponse};
 use crate::git_api::*;
 use git2::{Reference, Repository, StatusShow};
-use serde_json::Value;
 use std::path::Path;
 
 #[tauri::command]
@@ -123,8 +123,7 @@ pub fn commit_info(
     let args = args.as_str();
     let cid = if Reference::is_valid_name(args) {
         utils::refname_to_id(repo_path, args)?
-    }
-    else {
+    } else {
         CommitId::from_str(args)?
     };
     commit_info::get_commit_info(repo_path, cid)
@@ -142,8 +141,7 @@ pub fn commit_files(
     let args = args.as_str();
     let cid = if Reference::is_valid_name(args) {
         utils::refname_to_id(repo_path, args)?
-    }
-    else {
+    } else {
         CommitId::from_str(args)?
     };
     commit_files::get_commit_files(repo_path, cid, None)
@@ -179,8 +177,7 @@ pub fn get_diff_commit(
     let args = commit_id.as_str();
     let cid = if Reference::is_valid_name(args) {
         utils::refname_to_id(repo_path, args)?
-    }
-    else {
+    } else {
         CommitId::from_str(args)?
     };
     // TODO
@@ -389,12 +386,27 @@ pub fn get_remotes(app_data: AppDataState<'_>) -> Result<Vec<String>> {
 pub fn tag(
     args: Vec<String>,
     app_data: AppDataState<'_>,
-) -> Result<Value> {
+) -> Result<TagResponse> {
     log::trace!("tag() with : {:?}", args);
     let app_data = app_data.0.lock().unwrap();
     let repo_path = app_data.repo_path_ref();
 
     tag::tag(repo_path, &args)
+}
+
+#[tauri::command]
+pub fn get_tags(app_data: AppDataState<'_>) -> Result<Vec<(CommitId, Vec<Tag>)>> {
+    log::trace!("get_tags()");
+    let app_data = app_data.0.lock().unwrap();
+    let repo_path = app_data.repo_path_ref();
+
+    let btree = tag::get_tags(repo_path)?;
+    let tags = btree
+        .into_iter()
+        .map(|(key, value)| (key, value))
+        .collect::<Vec<(CommitId, Vec<Tag>)>>();
+
+    Ok(tags)
 }
 
 #[tauri::command]

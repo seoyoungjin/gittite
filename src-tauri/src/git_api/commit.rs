@@ -283,34 +283,18 @@ mod tests {
         let new_id = commit(repo_path, "commit msg")?;
         tag_commit(repo_path, &new_id, "tag", None)?;
 
-        // assert_eq!(
-        //     get_tags(repo_path, Some("tag".to_string())).unwrap(),
-        //     vec![Tag::new("tag")]
-        // );
-        assert_eq!(
-            get_tags(repo_path, Some("tag".to_string())).unwrap()[0].name,
-            Tag::new("tag").name
-        );
-
+        assert_eq!(get_tags(repo_path).unwrap()[&new_id], vec![Tag::new("tag")]);
         assert!(matches!(
             tag_commit(repo_path, &new_id, "tag", None),
             Err(_)
         ));
-        // assert_eq!(
-        //     get_tags(repo_path, Some("tag".to_string())).unwrap(),
-        //     vec![Tag::new("tag")]
-        // );
-        assert_eq!(
-            get_tags(repo_path, Some("tag".to_string())).unwrap()[0].name,
-            Tag::new("tag").name
-        );
+        assert_eq!(get_tags(repo_path).unwrap()[&new_id], vec![Tag::new("tag")]);
 
-        // TODO
-        // tag_commit(repo_path, &new_id, "second-tag", None)?;
-        // assert_eq!(
-        //     get_tags(repo_path, Some("second-tag".to_string())).unwrap(),
-        //     vec![Tag::new("second-tag"), Tag::new("tag")]
-        // );
+        tag_commit(repo_path, &new_id, "second-tag", None)?;
+        assert_eq!(
+            get_tags(repo_path).unwrap()[&new_id],
+            vec![Tag::new("second-tag"), Tag::new("tag")]
+        );
 
         Ok(())
     }
@@ -328,7 +312,7 @@ mod tests {
         tag_commit(repo_path, &new_id, "tag", Some("tag-message"))?;
 
         assert_eq!(
-            get_tags(repo_path, Some("tag".to_string())).unwrap()[0]
+            get_tags(repo_path).unwrap()[&new_id][0]
                 .annotation
                 .as_ref()
                 .unwrap(),

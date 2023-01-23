@@ -84,9 +84,9 @@ pub fn stage_remove_file(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::git_api::tests::debug_cmd_print;
     use crate::git_api::tests::{get_statuses, repo_init};
     use crate::git_api::{commit::commit, repository::RepoPath, status::get_status};
-    use crate::git_api::tests::debug_cmd_print;
     use git2::StatusShow;
     use std::{
         fs::{self, remove_file, File},
@@ -133,8 +133,7 @@ mod tests {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        let status_count =
-            |s: StatusShow| -> usize { get_status(repo_path, s).unwrap().len() };
+        let status_count = |s: StatusShow| -> usize { get_status(repo_path, s).unwrap().len() };
 
         fs::create_dir_all(root.join("a/d"))?;
         File::create(root.join(Path::new("a/d/f1.txt")))?.write_all(b"foo")?;
@@ -214,8 +213,7 @@ mod tests {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        let status_count =
-            |s: StatusShow| -> usize { get_status(repo_path, s).unwrap().len() };
+        let status_count = |s: StatusShow| -> usize { get_status(repo_path, s).unwrap().len() };
 
         let sub = &root.join("sub");
 

@@ -1,18 +1,27 @@
 // TODO
 // #![deny(warnings)]
 
-use super::error::{Error, Result};
+use super::commit_info::{get_commits_info, CommitMessage, CommitSignature};
+use super::error::Result;
+use super::repository::repo_open;
+use super::utils::bytes2string;
 use super::{CommitId, RepoPath};
-use crate::git_api::commit_info::{get_commit_info, CommitMessage, CommitSignature};
-use crate::git_api::repository::repo_open;
-use crate::git_api::utils::bytes2string;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::{ffi::OsString, ops::Not};
+use serde::Serialize;
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    ffi::OsString,
+    ops::Not,
+};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
-///
+#[derive(Serialize)]
+pub enum TagResponse {
+    TagAdd(()),
+    TagList(Vec<Tag>),
+    TagDelete(()),
+}
+
 #[derive(StructOpt, Debug)]
 #[structopt(setting(AppSettings::NoBinaryName))]
 struct TagCommand {
@@ -48,7 +57,7 @@ enum SubCommand {
 pub fn tag<I>(
     repo_path: &RepoPath,
     args: I,
-) -> Result<Value>
+) -> Result<TagResponse>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone,
@@ -64,23 +73,172 @@ where
             object,
         } => {
             // let msg = message.as_ref().map(String::as_str);
-            let res = tag_add(repo_path, tagname, object, message, force)?;
-            serde_json::to_value(res)
+            tag_add(repo_path, tagname, object, message, force)?;
+            TagResponse::TagAdd(())
         }
         SubCommand::List { pattern } => {
-            let res = get_tags(repo_path, pattern)?;
-            serde_json::to_value(res)
+            let res = tag_list(repo_path, pattern)?;
+            TagResponse::TagList(res)
         }
         SubCommand::Delete { tagname } => {
-            let res = tag_delete(repo_path, tagname.as_str())?;
-            serde_json::to_value(res)
+            tag_delete(repo_path, tagname.as_str())?;
+            TagResponse::TagDelete(())
         } // _ => return Err(Error::Generic("invalid tag command".to_string())),
     };
 
-    match res {
-        Ok(v) => Ok(v),
-        Err(e) => Err(Error::Generic(e.to_string())),
+    Ok(res)
+}
+
+///
+#[derive(Serialize, Clone, Hash, PartialEq, Eq, Debug)]
+pub struct Tag {
+    /// tag name
+    pub name: String,
+    /// tag annotation
+    pub annotation: Option<String>,
+}
+
+impl Tag {
+    ///
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.into(),
+            annotation: None,
+        }
     }
+}
+
+/// hashmap of tag target commit hash to tag names
+pub type Tags = BTreeMap<CommitId, Vec<Tag>>;
+
+/// returns `Tags` type filled with all tags found in repo
+pub fn get_tags(repo_path: &RepoPath) -> Result<Tags> {
+    let mut res = Tags::new();
+    let mut adder = |key, value: Tag| {
+        if let Some(key) = res.get_mut(&key) {
+            key.push(value);
+        } else {
+            res.insert(key, vec![value]);
+        }
+    };
+
+    let repo = repo_open(repo_path)?;
+
+    repo.tag_foreach(|id, name| {
+        if let Ok(name) =
+            // skip the `refs/tags/` part
+            String::from_utf8(name[10..name.len()].into())
+        {
+            //NOTE: find_tag (using underlying git_tag_lookup) only
+            // works on annotated tags lightweight tags `id` already
+            // points to the target commit
+            // see https://github.com/libgit2/libgit2/issues/5586
+            let commit = repo
+                .find_tag(id)
+                .and_then(|tag| tag.target())
+                .and_then(|target| target.peel_to_commit())
+                .map_or_else(
+                    |_| {
+                        if repo.find_commit(id).is_ok() {
+                            Some(CommitId::new(id))
+                        } else {
+                            None
+                        }
+                    },
+                    |commit| Some(CommitId::new(commit.id())),
+                );
+            let annotation = repo
+                .find_tag(id)
+                .ok()
+                .as_ref()
+                .and_then(git2::Tag::message_bytes)
+                .and_then(|msg| {
+                    msg.is_empty()
+                        .not()
+                        .then(|| bytes2string(msg).ok())
+                        .flatten()
+                });
+
+            if let Some(commit) = commit {
+                adder(commit, Tag { name, annotation });
+            }
+
+            return true;
+        }
+        false
+    })?;
+
+    Ok(res)
+}
+
+///
+pub struct TagWithMetadata {
+    pub name: String,
+    pub author: CommitSignature,
+    pub time: i64,
+    pub message: CommitMessage,
+    pub commit_id: CommitId,
+    pub annotation: Option<String>,
+}
+
+static MAX_MESSAGE_WIDTH: usize = 100;
+
+///
+pub fn get_tags_with_metadata(repo_path: &RepoPath) -> Result<Vec<TagWithMetadata>> {
+    let tags_grouped_by_commit_id = get_tags(repo_path)?;
+    let tags_with_commit_id: Vec<(&str, Option<&str>, &CommitId)> = tags_grouped_by_commit_id
+        .iter()
+        .flat_map(|(commit_id, tags)| {
+            tags.iter()
+                .map(|tag| (tag.name.as_ref(), tag.annotation.as_deref(), commit_id))
+                .collect::<Vec<_>>()
+        })
+        .collect();
+
+    let unique_commit_ids: HashSet<_> = tags_with_commit_id
+        .iter()
+        .copied()
+        .map(|(_, _, &commit_id)| commit_id)
+        .collect();
+    let mut commit_ids = Vec::with_capacity(unique_commit_ids.len());
+    commit_ids.extend(unique_commit_ids);
+
+    let commit_infos = get_commits_info(repo_path, &commit_ids, MAX_MESSAGE_WIDTH)?;
+    let unique_commit_infos: HashMap<_, _> = commit_infos
+        .iter()
+        .map(|commit_info| (commit_info.id, commit_info))
+        .collect();
+
+    let mut tags: Vec<TagWithMetadata> = tags_with_commit_id
+        .into_iter()
+        .filter_map(|(tag, annotation, commit_id)| {
+            unique_commit_infos
+                .get(commit_id)
+                .map(|commit_info| TagWithMetadata {
+                    name: String::from(tag),
+                    author: commit_info.author.clone(),
+                    time: commit_info.time,
+                    message: commit_info.message.clone(),
+                    commit_id: *commit_id,
+                    annotation: annotation.map(String::from),
+                })
+        })
+        .collect();
+
+    tags.sort_unstable_by(|a, b| b.time.cmp(&a.time));
+
+    Ok(tags)
+}
+
+///
+pub fn tag_delete(
+    repo_path: &RepoPath,
+    tag_name: &str,
+) -> Result<()> {
+    let repo = repo_open(repo_path)?;
+    repo.tag_delete(tag_name)?;
+
+    Ok(())
 }
 
 ///
@@ -106,26 +264,7 @@ pub fn tag_add(
 }
 
 ///
-#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq, Debug)]
-pub struct Tag {
-    /// tag name
-    pub name: String,
-    /// tag annotation
-    pub annotation: Option<String>,
-}
-
-impl Tag {
-    ///
-    pub fn new(name: &str) -> Self {
-        Self {
-            name: name.into(),
-            annotation: None,
-        }
-    }
-}
-
-/// returns `Tags` type filled with all tags found in repo
-pub fn get_tags(
+pub fn tag_list(
     repo_path: &RepoPath,
     pattern: Option<String>,
 ) -> Result<Vec<Tag>> {
@@ -139,7 +278,7 @@ pub fn get_tags(
         if let Some(tag) = obj.as_tag() {
             res.push(Tag {
                 name: tag.name().unwrap().to_owned(),
-                annotation: tag.message().as_deref().map(String::from), // annotation: Some(tag.message().unwrap().to_owned())
+                annotation: tag.message().as_deref().map(String::from),
             });
         } else if let Some(commit) = obj.as_commit() {
             res.push(Tag {
@@ -157,78 +296,6 @@ pub fn get_tags(
     Ok(res)
 }
 
-///
-pub struct TagWithMetadata {
-    pub name: String,
-    pub author: CommitSignature,
-    pub time: i64,
-    pub message: CommitMessage,
-    pub commit_id: CommitId,
-    pub annotation: Option<String>,
-}
-
-///
-pub fn get_tag_metadata(
-    repo_path: &RepoPath,
-    tag_name: &str,
-) -> Result<TagWithMetadata> {
-    let repo = repo_open(&repo_path)?;
-    let obj = repo.revparse_single(tag_name)?;
-    let id = obj.id();
-    let commit = repo
-        .find_tag(id)
-        .and_then(|tag| tag.target())
-        .and_then(|target| target.peel_to_commit())
-        .map_or_else(
-            |_| {
-                if repo.find_commit(id).is_ok() {
-                    Some(CommitId::new(id))
-                } else {
-                    None
-                }
-            },
-            |commit| Some(CommitId::new(commit.id())),
-        );
-    let annotation = repo
-        .find_tag(id)
-        .ok()
-        .as_ref()
-        .and_then(git2::Tag::message_bytes)
-        .and_then(|msg| {
-            msg.is_empty()
-                .not()
-                .then(|| bytes2string(msg).ok())
-                .flatten()
-        });
-
-    if let Some(commit_id) = commit {
-        log::trace!("commit_id {:?}", commit);
-        let commit_info = get_commit_info(repo_path, commit_id)?;
-        let tag_meta = TagWithMetadata {
-            name: String::from(tag_name),
-            author: commit_info.author.clone(),
-            time: commit_info.time,
-            message: commit_info.message.clone(),
-            commit_id: commit_id,
-            annotation: annotation.map(String::from),
-        };
-        return Ok(tag_meta);
-    }
-
-    Err(Error::Generic("no commit_id".to_string()))
-}
-
-///
-pub fn tag_delete(
-    repo_path: &RepoPath,
-    tag_name: &str,
-) -> Result<()> {
-    let repo = repo_open(repo_path)?;
-    repo.tag_delete(tag_name)?;
-
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -241,7 +308,7 @@ mod tests {
         let root = repo.path().parent().unwrap();
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
-        assert_eq!(get_tags(repo_path, None).unwrap().is_empty(), true);
+        assert_eq!(get_tags(repo_path).unwrap().is_empty(), true);
     }
 
     #[test]
@@ -251,6 +318,7 @@ mod tests {
         let repo_path: &RepoPath = &root.as_os_str().to_str().unwrap().into();
 
         let sig = repo.signature().unwrap();
+        let head_id = repo.head().unwrap().target().unwrap();
         let target = repo
             .find_object(
                 repo.head().unwrap().target().unwrap(),
@@ -261,27 +329,31 @@ mod tests {
         repo.tag("a", &target, &sig, "", false).unwrap();
         repo.tag("b", &target, &sig, "", false).unwrap();
 
-        let tags = get_tags(repo_path, None).unwrap();
-        log::trace!("get_tage() {:?}", tags);
         assert_eq!(
-            tags.iter().map(|t| &t.name).collect::<Vec<_>>(),
+            get_tags(repo_path).unwrap()[&CommitId::new(head_id)]
+                .iter()
+                .map(|t| &t.name)
+                .collect::<Vec<_>>(),
             vec!["a", "b"]
         );
 
-        let tag0 = get_tag_metadata(repo_path, "a").unwrap();
-        assert_eq!(tag0.name, "a");
-        assert_eq!(tag0.message.subject, "initial");
-        let tag1 = get_tag_metadata(repo_path, "b").unwrap();
-        assert_eq!(tag1.name, "b");
-        assert_eq!(tag1.message.subject, "initial");
-        assert_eq!(tag0.commit_id, tag1.commit_id);
+        let tags = get_tags_with_metadata(repo_path).unwrap();
+
+        assert_eq!(tags.len(), 2);
+        assert_eq!(tags[0].name, "a");
+        assert_eq!(tags[0].message.subject, "initial");
+        assert_eq!(tags[1].name, "b");
+        assert_eq!(tags[1].message.subject, "initial");
+        assert_eq!(tags[0].commit_id, tags[1].commit_id);
 
         tag_delete(repo_path, "a").unwrap();
-        let tags = get_tags(repo_path, None).unwrap();
+        let tags = get_tags(repo_path).unwrap();
+
         assert_eq!(tags.len(), 1);
 
         tag_delete(repo_path, "b").unwrap();
-        let tags = get_tags(repo_path, None).unwrap();
+
+        let tags = get_tags(repo_path).unwrap();
         assert_eq!(tags.len(), 0);
     }
 

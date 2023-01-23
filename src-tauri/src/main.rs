@@ -93,6 +93,7 @@ fn main() {
             cmd::validate_branch_name,
             // tag/stash/blame
             cmd::tag,
+            cmd::get_tags,
             cmd::stash,
             cmd::blame,
             // cred

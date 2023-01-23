@@ -22,7 +22,10 @@ pub fn hash<T: Hash + ?Sized>(v: &T) -> u64 {
 }
 
 ///
-pub fn refname_to_id(repo_path: &RepoPath, name: &str) -> Result<CommitId> {
+pub fn refname_to_id(
+    repo_path: &RepoPath,
+    name: &str,
+) -> Result<CommitId> {
     // Reference::is_valid_name(str);
     let repo = repo_open(repo_path)?;
     let id = repo.refname_to_id(name)?;

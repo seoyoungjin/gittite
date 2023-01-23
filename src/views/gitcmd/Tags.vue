@@ -22,6 +22,7 @@ export default defineComponent({
       resTagAdd: null,
       resTagList: null,
       resTagDelete: null,
+      resGetTags: null,
     };
   },
   components: {
@@ -72,6 +73,12 @@ export default defineComponent({
           }
         });
     },
+
+    async getTags() {
+      this.resGetTags = await git2rs.getTags().catch((e) => {
+            return { error: JSON.stringify(e) } as any;
+        });
+    },
   },
 });
 </script>
@@ -120,6 +127,15 @@ export default defineComponent({
     <div v-if="resTagDelete">
       <vue-json-pretty :data="resTagDelete" />
     </div>
+    <br />
+
+    <!-- get_tags -->
+    <h6>Get Tags as Map</h6>
+    <q-btn color="primary" no-caps @click="getTags">Get Tags</q-btn>
+    <div v-if="resGetTags">
+      <vue-json-pretty :data="resGetTags" />
+    </div>
+    <br />
     <br />
 
     <!-- usage -->
