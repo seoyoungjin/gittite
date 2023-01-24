@@ -178,7 +178,7 @@ export async function tagAdd(
   object: string | null,
   message: string | null,
   force: boolean
-): Promise<void>{
+): Promise<void> {
   const arr: string[] = ["add", tagname];
   if (object) arr[arr.length] = object;
   if (force) arr[arr.length] = "-f";

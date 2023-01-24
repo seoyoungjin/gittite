@@ -7,7 +7,7 @@
       @load="onLoad"
       :offset="200"
     >
-      <q-list dense bordered separator>
+      <q-list separator>
         <HistoryListItem
           v-for="(item, index) in commitLogs"
           :key="index"

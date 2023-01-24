@@ -4,6 +4,7 @@ import { useHistoryStore } from "./history";
 import * as git2rs from "@/lib/git2rs";
 import { Repository } from "@/models/repository";
 import type { BranchInfo } from "@/models/branch";
+import type { Tag } from "@/models/tag";
 
 export const useRepositoryStore = defineStore("repository", {
   state: () => {
@@ -12,6 +13,7 @@ export const useRepositoryStore = defineStore("repository", {
       current_branch: "",
       all_branches: [] as BranchInfo[],
       branch_to_switch: "",
+      all_tags: new Map<String, Tag[]>(),
     };
   },
 
@@ -26,6 +28,7 @@ export const useRepositoryStore = defineStore("repository", {
     currentBranch: (state) => state.current_branch,
     branchToSwitch: (state) => state.branch_to_switch,
     allBranches: (state) => state.all_branches,
+    allTags: (state) => state.all_tags,
   },
 
   actions: {
@@ -41,10 +44,11 @@ export const useRepositoryStore = defineStore("repository", {
       const repo_info = await git2rs.getRepositoryInfo();
       this.repo = new Repository(repo_info);
 
-      await this.loadAllBranches();
-
       const stageStore = useCommitStageStore();
       await stageStore.updateCommitStage();
+
+      await this.loadAllBranches();
+      await this.loadAllTags();
 
       const historyStore = useHistoryStore();
       historyStore.resetHistory();
@@ -54,6 +58,16 @@ export const useRepositoryStore = defineStore("repository", {
       // remoteOriginUrl
       // last commit time
       // ahead/behind
+    },
+
+    async loadAllTags() {
+      const tags = await git2rs.getTags().catch(() => {
+        return [];
+      });
+      // list => Map
+      for (const item of tags) {
+        this.all_tags.set(item[0], item[1]);
+      }
     },
 
     async loadAllBranches() {

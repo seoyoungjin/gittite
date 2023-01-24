@@ -1,5 +1,3 @@
-// import * as Path from "path";
-
 // invoke
 export interface RepoInfo {
   path: string;

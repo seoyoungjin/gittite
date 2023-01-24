@@ -1,7 +1,10 @@
 <template>
-  <div style="height: 100vh">
+  <div v-if="hasChanges" style="height: 100vh">
     <ChangedFileDetails :selection="changesCurrent" />
     <DiffView :selection="changesCurrent" />
+  </div>
+  <div v-else class="q-pa-lg">
+    <NoChanges />
   </div>
 </template>
 
@@ -10,6 +13,7 @@ import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commit-stage";
 import ChangedFileDetails from "./ChangedFileDetails.vue";
+import NoChanges from "./NoChanges.vue";
 import DiffView from "@/components/DiffView.vue";
 
 export default defineComponent({
@@ -18,10 +22,11 @@ export default defineComponent({
   components: {
     ChangedFileDetails,
     DiffView,
+    NoChanges,
   },
 
   computed: {
-    ...mapState(useCommitStageStore, ["changesCurrent"]),
+    ...mapState(useCommitStageStore, ["changesCurrent", "hasChanges"]),
   },
 });
 </script>

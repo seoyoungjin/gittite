@@ -1,6 +1,6 @@
 <template>
-  <q-item>
-    <!--Main Part-->
+  <q-item class="q-px-xs">
+    <!--main -->
     <q-item-section>
       <q-item-label class="text-subtitle2 ellipsis">{{
         item.summary
@@ -9,6 +9,15 @@
         {{ item.author }} -
         <RelativeTime :date="new Date(item.time * 1000)" />
       </q-item-label>
+    </q-item-section>
+    <!-- tag -->
+    <q-item-section side v-if="item.tags.length">
+      <q-badge color="grey">
+        {{ item.tags[0].name }}
+      </q-badge>
+      <q-badge color="orange" v-if="item.tags.length > 1">
+        {{ item.tags.length }}
+      </q-badge>
     </q-item-section>
   </q-item>
 </template>

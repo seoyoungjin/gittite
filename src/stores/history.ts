@@ -1,7 +1,9 @@
 import { defineStore } from "pinia";
 import * as git2rs from "@/lib/git2rs";
 import type { CommitData, CommitInfo } from "@/models/commit";
+import { Commit } from "@/models/commit";
 import type { StatusItem } from "@/models/status";
+import { useRepositoryStore } from "./repository";
 
 const CommitBatchSize = 100;
 const LoadingHistoryRequestKey = "history";
@@ -11,9 +13,9 @@ const requestsInFight = new Set<string>();
 export const useHistoryStore = defineStore("history", {
   state: () => {
     return {
-      commitList: [] as CommitData[],
+      commitList: [] as Commit[],
       // current item
-      currentItem: null as CommitData | null,
+      currentItem: null as Commit | null,
       currentCommitInfo: null as CommitInfo | null,
       currentCommitFiles: [] as StatusItem[],
     };
@@ -60,11 +62,6 @@ export const useHistoryStore = defineStore("history", {
         return null;
       }
 
-      // select first item at start
-      if (!this.currentItem) {
-        if (commits.length) this.setCurrentItem(commits[0]);
-      }
-
       this.storeCommits_(commits);
       return commits.map((c) => c.commit_id);
     },
@@ -74,11 +71,22 @@ export const useHistoryStore = defineStore("history", {
     },
 
     storeCommits_(newCommits: CommitData[]) {
-      this.commitList = this.commitList.concat(newCommits);
+      const repoStore = useRepositoryStore();
+      for (const item of newCommits) {
+        let commit = new Commit(item);
+        if (repoStore.allTags.has(item.commit_id)) {
+            commit.tags = repoStore.allTags.get(item.commit_id);
+        }
+        this.commitList.push(commit);
+      }
+      // select first item at start
+      if (!this.currentItem && this.commitList.length) {
+          this.setCurrentItem(this.commitList[0]);
+      }
     },
 
     // current item
-    setCurrentItem(current: CommitData) {
+    setCurrentItem(current: Commit) {
       this.currentItem = current;
       this.loadCommitInfoAndFiles(current.commit_id);
     },

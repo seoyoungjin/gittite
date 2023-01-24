@@ -76,8 +76,8 @@ export default defineComponent({
 
     async getTags() {
       this.resGetTags = await git2rs.getTags().catch((e) => {
-            return { error: JSON.stringify(e) } as any;
-        });
+        return { error: JSON.stringify(e) } as any;
+      });
     },
   },
 });
