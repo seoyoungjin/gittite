@@ -99,6 +99,8 @@ fn main() {
             // cred
             cmd::need_username_password,
             cmd::extract_username_password,
+            // remotes
+            cmd::fetch_all,
             // config/ignore
             cmd::add_to_ignore,
             // test

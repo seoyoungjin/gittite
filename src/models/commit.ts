@@ -33,14 +33,14 @@ export class Commit {
   public readonly summary: string;
   public readonly time: number;
   public readonly author: string;
-  public tags: Tag[];
+  public tags: Tag[] | undefined;
 
   public constructor(data: CommitData) {
-      this.commit_id = data.commit_id;
-      this.summary = data.summary;
-      this.time = data.time;
-      this.author = data.author;
+    this.commit_id = data.commit_id;
+    this.summary = data.summary;
+    this.time = data.time;
+    this.author = data.author;
 
-      this.tags = [];
+    this.tags = [];
   }
 }

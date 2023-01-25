@@ -73,15 +73,15 @@ export const useHistoryStore = defineStore("history", {
     storeCommits_(newCommits: CommitData[]) {
       const repoStore = useRepositoryStore();
       for (const item of newCommits) {
-        let commit = new Commit(item);
+        const commit = new Commit(item);
         if (repoStore.allTags.has(item.commit_id)) {
-            commit.tags = repoStore.allTags.get(item.commit_id);
+          commit.tags = repoStore.allTags.get(item.commit_id);
         }
         this.commitList.push(commit);
       }
       // select first item at start
       if (!this.currentItem && this.commitList.length) {
-          this.setCurrentItem(this.commitList[0]);
+        this.setCurrentItem(this.commitList[0]);
       }
     },
 

@@ -1,12 +1,11 @@
 //!
 
-//#![deny(warnings)]
-#![allow(dead_code)]
-
 pub mod callbacks;
 pub(crate) mod fetch;
 pub(crate) mod push;
 pub(crate) mod tags;
+
+pub use fetch::fetch_all;
 
 use crate::git_api::{
     error::{Error, Result},

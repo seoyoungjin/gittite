@@ -453,6 +453,19 @@ pub fn extract_username_password(app_data: AppDataState<'_>) -> Result<BasicAuth
     cred::extract_username_password(app_data.repo_path_ref())
 }
 
+// remote
+
+#[tauri::command]
+pub async fn fetch_all(app_data: AppDataState<'_>) -> Result<()> {
+    log::trace!("fetch_all()");
+    let app_data = app_data.0.lock().unwrap();
+
+    // TODO
+    // cred
+    // progress
+    remotes::fetch_all(app_data.repo_path_ref(), &None, &None)
+}
+
 // ignore
 
 #[tauri::command]

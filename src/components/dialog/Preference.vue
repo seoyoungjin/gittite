@@ -61,8 +61,8 @@ export default defineComponent({
 
   setup() {
     return {
-      tab: ref("profile"),
       splitterModel: ref(30),
+      tab: ref("profile"),
       sections: [
         { icon: "home", text: "Profile", link: "profile" },
         { icon: "home", text: "Test", link: "test" },

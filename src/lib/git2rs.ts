@@ -236,7 +236,9 @@ export async function stashDrop(stashid: string): Promise<void> {
 }
 
 // remote
-export async function fetch() {}
+export async function fetchAll() {
+  await invoke("fetch_all");
+}
 
 export async function push() {}
 

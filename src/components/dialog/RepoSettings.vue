@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @show="setModal" @hide="unsetModal">
-    <q-card style="width: 600px">
+    <q-card class="q-dialog-plugin" style="min-width: 600px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Repository Settings</div>
         <q-space />
@@ -12,11 +12,19 @@
       <q-card-section class="q-pa-none">
         <q-splitter v-model="splitterModel" style="min-height: 250px">
           <template v-slot:before>
-            <q-tabs no-caps v-model="tab" vertical class="text-teal">
-              <q-tab name="remote" label="Remote" />
-              <q-tab name="ignored" label="Ignored Files" />
-              <q-tab name="gitconfig" label="Git Config" />
-            </q-tabs>
+            <q-list>
+              <q-item
+                v-for="item in sections"
+                clickable
+                v-ripple
+                :key="item.link"
+                :active="tab === item.link"
+                @click="tab = item.link"
+                active-class="text-white bg-primary"
+              >
+                <q-item-section>{{ item.text }}</q-item-section>
+              </q-item>
+            </q-list>
           </template>
 
           <template v-slot:after>
@@ -26,7 +34,7 @@
                 <q-input v-model="remoteUrl" dense outlined />
               </q-tab-panel>
 
-              <q-tab-panel name="ignored" class="q-gutter-md">
+              <q-tab-panel name="gitignore" class="q-gutter-md">
                 <div>Editing <code>.gitigore</code>.</div>
                 <q-input
                   v-model="ignoredText"
@@ -40,9 +48,9 @@
                 <div class="text-bold">Repository Git config</div>
                 <q-option-group
                   class="q-pa-none"
-                  :options="options"
+                  :options="config_options"
                   type="radio"
-                  v-model="group"
+                  v-model="config_group"
                 />
                 <div>Name</div>
                 <q-input v-model="accountName" dense outlined />
@@ -74,11 +82,17 @@ export default defineComponent({
 
   setup() {
     return {
-      tab: ref("remote"),
       splitterModel: ref(30),
 
-      group: ref("global"),
-      options: [
+      tab: ref("remote"),
+      sections: [
+        { text: "Remote", link: "remote" },
+        { text: "Ignored Files", link: "gitignore" },
+        { text: "Git Config", link: "gitconfig" },
+      ],
+
+      config_group: ref("global"),
+      config_options: [
         { label: "Use global Git config", value: "global" },
         { label: "Use a local Git config", value: "local" },
       ],

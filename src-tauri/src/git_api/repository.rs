@@ -1,4 +1,5 @@
 use super::error::Result;
+use super::remotes::get_default_remote_in_repo;
 use git2::Repository;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -55,11 +56,13 @@ pub fn repo_open(repo_path: &RepoPath) -> Result<Repository, git2::Error> {
 pub struct RepoInfo {
     path: String,
     is_bare: bool,
-    is_shallow: bool,
+    // is_shallow: bool,
     // is_empty: bool,
     // state
-    // remote: string;
     // current branch
+
+    // origin
+    default_remote: String,
 }
 
 pub fn get_repo_info(repo_path: &RepoPath) -> Result<RepoInfo> {
@@ -75,8 +78,8 @@ pub fn get_repo_info(repo_path: &RepoPath) -> Result<RepoInfo> {
     Ok(RepoInfo {
         path: path.to_string_lossy().into(),
         is_bare: repo.is_bare(),
-        is_shallow: repo.is_shallow(),
-        // is_empty: repo.is_empty(),
+        // is_shallow: repo.is_shallow(),
+        default_remote: get_default_remote_in_repo(&repo)?,
     })
 }
 
