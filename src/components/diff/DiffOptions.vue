@@ -1,7 +1,7 @@
 <template>
   <div class="diff-options">
-    <q-btn flat dense size="10pt">
-      <q-icon name="o_settings" />
+    <q-btn flat dense>
+      <q-icon name="o_settings" size="16pt" />
       <q-icon name="arrow_drop_down" />
     </q-btn>
 

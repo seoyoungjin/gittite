@@ -1,8 +1,9 @@
 <template>
   <div id="commit-summary" class="q-pa-xs">
-    <div class="col-auto text-weight-bold">{{ historyMessageSubject }}</div>
-
-    <div class="row q-gutter-sm" v-if="historyCommitInfo">
+    <q-bar dense class="bg-grey-1 text-weight-bold">
+      {{ historyMessageSubject }}
+    </q-bar>
+    <q-bar dense class="bg-grey-1" v-if="historyCommitInfo">
       <div>
         {{ historyCommitInfo.author.name }}
       </div>
@@ -25,7 +26,7 @@
       <div class="text-red">- TBD</div>
 
       <DiffOptions />
-    </div>
+    </q-bar>
 
     <q-separator color="grey-4" />
 

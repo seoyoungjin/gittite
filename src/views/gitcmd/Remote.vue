@@ -45,7 +45,7 @@ export default defineComponent({
   methods: {
     gitFetch() {
       git2rs
-        .fetch()
+        .fetchAll()
         .then((message) => {
           this.resFetch = message as any;
         })
