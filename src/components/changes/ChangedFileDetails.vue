@@ -1,5 +1,5 @@
 <template>
-  <q-bar dense class="q-py-md bg-grey-2">
+  <q-bar dense class="q-py-md bg-grey-1">
     <OctStatusIcon v-bind:status="changedStatus" size="14pt" />
     <PathLabel v-bind:path="changedPath" />
 

@@ -3,6 +3,10 @@
     windows_subsystem = "windows"
 )]
 
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+
 use crate::app_data::{AppData, ArcAppData};
 use crate::git_api::RemoteProgress;
 use tauri::Manager;

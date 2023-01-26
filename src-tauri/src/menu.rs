@@ -1,6 +1,7 @@
+use std::sync::Mutex;
 #[cfg(target_os = "macos")]
 use tauri::AboutMetadata;
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, Window};
 use tauri::{WindowMenuEvent, Wry};
 
 pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
@@ -46,13 +47,17 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
     {
         view_menu = view_menu.add_native_item(MenuItem::EnterFullScreen);
     }
+    view_menu = view_menu
+        .add_item(CustomMenuItem::new("zoom-in", "Zoom In").accelerator("CommandOrControl+="));
+    view_menu = view_menu
+        .add_item(CustomMenuItem::new("zoom-out", "Zoom Out").accelerator("CommandOrControl+-"));
+    view_menu = view_menu.add_native_item(MenuItem::Separator);
     view_menu = view_menu.add_item(CustomMenuItem::new("show-devtools", "Show DevTools..."));
     menu = menu.add_submenu(Submenu::new("View", view_menu));
 
     // repository
-    let repo_menu = Menu::with_items([
-        CustomMenuItem::new("repo-settings", "Repository Settings...").into(),
-    ]);
+    let repo_menu =
+        Menu::with_items([CustomMenuItem::new("repo-settings", "Repository Settings...").into()]);
     menu = menu.add_submenu(Submenu::new("Repository", repo_menu));
 
     // branch
@@ -81,10 +86,70 @@ pub fn create_menu(#[allow(unused)] app_name: &str) -> Menu {
 
 pub fn event_handler(event: WindowMenuEvent<Wry>) {
     let event_name = event.menu_item_id();
-    if event_name == "show-devtools" {
+    if event_name == "zoom-in" {
+        zoom_in(event.window());
+    } else if event_name == "zoom-out" {
+        zoom_out(event.window());
+    } else if event_name == "show-devtools" {
         event.window().open_devtools();
     } else {
         event.window().emit("menu-event", event_name).unwrap();
     }
     log::trace!("{}", event_name);
+}
+
+// zoom
+const ZOOM_FACTOR: &'static [f64] = &[
+    0.25, 0.33, 0.50, 0.67, 0.75, 1.0, 1.1, 1.25, 1.50, 1.75, 2.0, 2.5, 3.0,
+];
+
+static ZOOM_LEVEL: Mutex<usize> = Mutex::new(5);
+
+fn zoom_in(win: &Window) {
+    *ZOOM_LEVEL.lock().unwrap() += 1;
+    zoom(win, *ZOOM_LEVEL.lock().unwrap());
+}
+
+fn zoom_out(win: &Window) {
+    *ZOOM_LEVEL.lock().unwrap() -= 1;
+    zoom(win, *ZOOM_LEVEL.lock().unwrap());
+}
+
+fn zoom(
+    win: &Window,
+    level: usize,
+) {
+    win.menu_handle()
+        .get_item("zoom-in")
+        .set_enabled(level < 12)
+        .unwrap();
+    win.menu_handle()
+        .get_item("zoom-out")
+        .set_enabled(level > 0)
+        .unwrap();
+
+    let zoom_factor = ZOOM_FACTOR[level];
+
+    win.with_webview(move |webview| {
+        #[cfg(target_os = "linux")]
+        {
+            use webkit2gtk::traits::WebViewExt;
+            webview.inner().set_zoom_level(zoom_factor);
+        }
+
+        #[cfg(windows)]
+        unsafe {
+            webview.controller().SetZoomFactor(zoom_factor).unwrap();
+        }
+
+        #[cfg(target_os = "macos")]
+        unsafe {
+            let () = msg_send![webview.inner(), setPageZoom: zoom_factor];
+            let () = msg_send![webview.controller(), removeAllUserScripts];
+            let bg_color: cocoa::base::id =
+                msg_send![class!(NSColor), colorWithDeviceRed:0.5 green:0.2 blue:0.4 alpha:1.];
+            let () = msg_send![webview.ns_window(), setBackgroundColor: bg_color];
+        }
+    })
+    .unwrap();
 }

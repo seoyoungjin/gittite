@@ -11,26 +11,22 @@ but I'm going to continue this for personal use.
 
 ## Project Roadmap
 
-### v0.2.x
+### v0.4
 
+- [ ] undo last commit
+- [ ] commit amend
+- [ ] repository settings
 - [ ] branch
   - [ ] branch detail - ahead/behind
   - [ ] remote branch
-- [x] stash
-  - [x] handle IPC response in tagged json format for rust enum 
-  - [ ] ui - show file list and diff
-  - [ ] ui - list/apply/drop 
-- [ ] unitest
-- [ ] amend
-- [ ] repository preference
-- [x] open repository page
-- [x] devtools menu
-- [x] popup menu with right button click
-
-### v0.3.0
-
 - [ ] tag
 - [ ] preference
+- [ ] authentication
+
+### v0.5
+- [ ] stash
+  - [ ] ui - show file list and diff
+  - [ ] ui - list/apply/drop 
 - [ ] diff
   - [ ] option
   - [ ] full file
@@ -38,14 +34,22 @@ but I'm going to continue this for personal use.
 
 ### next
 
+- [ ] unitest
 - [ ] push, fetch
-- [ ] authentication
 - [ ] merge
 - [ ] file browser
-- [ ] zoom in/out - if tauri support
-- [ ] badge on stage/history
 - [ ] branch merge graph
 - [ ] frequently use case
+
+### v0.3
+
+- [x] stash
+  - [x] handle IPC response in tagged json format for rust enum 
+- [x] open repository page
+- [x] devtools menu
+- [x] popup menu with right button click
+- [x] tag badge on history
+- [x] zoom in/out
 
 ### v0.2.0
 
