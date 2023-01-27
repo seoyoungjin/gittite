@@ -29,6 +29,7 @@ serial_test = "1.0.0"
 url = "2.3.1"
 serde_with = "2.2.0"
 clap = { version = "4.1.4", features = [ "derive" ] }
+filetime = "0.2.19"
 
 [dev-dependencies]
 tempfile = "3.3.0"

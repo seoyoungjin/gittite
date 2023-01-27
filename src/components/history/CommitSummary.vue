@@ -25,6 +25,18 @@
 
       <div class="text-red">- TBD</div>
 
+      <div v-if="historyCurrent.tags.length">
+        <OctIcon symbol="tag" size="14pt" />
+        <span>
+          {{ historyCurrent.tags.map((e) => e.name).join(", ") }}
+        </span>
+        <q-tooltip>
+          <div
+            v-html="historyCurrent.tags.map((e) => e.name).join('<br/>')"
+          ></div>
+        </q-tooltip>
+      </div>
+
       <DiffOptions />
     </q-bar>
 

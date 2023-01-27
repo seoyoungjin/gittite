@@ -44,7 +44,7 @@ but I'm going to continue this for personal use.
 ### v0.3
 
 - [x] stash
-  - [x] handle IPC response in tagged json format for rust enum 
+  - [x] handle IPC response in tagged json format from rust enum 
 - [x] open repository page
 - [x] devtools menu
 - [x] popup menu with right button click

@@ -11,12 +11,17 @@
       </q-item-label>
     </q-item-section>
     <!-- tag -->
-    <q-item-section side v-if="item.tags.length">
-      <q-badge color="grey">
-        {{ item.tags[0].name }}
-      </q-badge>
-      <q-badge color="orange" v-if="item.tags.length > 1">
-        {{ item.tags.length }}
+    <q-item-section
+      side
+      class="no-padding"
+      style="max-width: 40%"
+      v-if="item.tags.length"
+    >
+      <q-badge color="grey" style="max-width: 100%">
+        <div class="ellipsis">
+          {{ item.tags[0].name }}
+        </div>
+        <q-icon name="arrow_right" v-if="item.tags.length > 1" />
       </q-badge>
     </q-item-section>
   </q-item>

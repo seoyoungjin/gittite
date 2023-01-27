@@ -59,7 +59,7 @@ export default defineComponent({
   data() {
     return {
       // get/set prop
-      propOptions: ["CWD", "modal", "Invalid"],
+      propOptions: ["CWD", "LastFetchedTime", "modal", "Invalid"],
       propKey: "",
       propValue: "",
       propRes: "",

@@ -38,6 +38,8 @@ export default defineComponent({
           return OctIcon.octGitCommit16;
         case "diff":
           return OctIcon.octDiff16;
+        case "tag":
+          return OctIcon.octTag16;
         default:
           return OctIcon.octDot16;
       }

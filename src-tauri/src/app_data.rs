@@ -1,6 +1,8 @@
-use crate::git_api::{RemoteProgress, RepoPath};
+use crate::git_api::repository::{repo_open, RepoPath};
+use crate::git_api::{Error, RemoteProgress, Result};
 use crate::settings::Settings;
 
+use filetime::FileTime;
 use serde_json::Value;
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -62,15 +64,31 @@ pub fn save_settings(
 }
 
 #[tauri::command]
-pub fn get_prop(key: &str) -> Result<String, String> {
+pub fn get_prop(
+    key: &str,
+    app_data: AppDataState<'_>,
+) -> Result<String> {
     log::trace!("get_prop({})", key);
+    let app_data = app_data.0.lock().unwrap();
 
     let res = match key {
         "CWD" => {
             let cwd = std::env::current_dir().unwrap();
             String::from(cwd.to_string_lossy())
         }
-        _ => return Err("invalid prop".into()),
+        "LastFetchedTime" => {
+            let fetch_head = repo_open(app_data.repo_path_ref())?
+                .path()
+                .join("FETCH_HEAD");
+            let stat = std::fs::metadata(fetch_head)?;
+            if stat.len() > 0 {
+                let mtime = FileTime::from_last_modification_time(&stat);
+                mtime.unix_seconds().to_string()
+            } else {
+                "".to_string()
+            }
+        }
+        _ => return Err(Error::Generic("invalid prop".into())),
     };
     Ok(res)
 }
@@ -81,7 +99,7 @@ pub fn set_prop(
     val: &str,
     win: tauri::Window,
     app_data: AppDataState<'_>,
-) -> Result<(), String> {
+) -> Result<()> {
     log::trace!("set_prop({}, {})", key, val);
     let mut app_data = app_data.0.lock().unwrap();
     let all_menu = vec![

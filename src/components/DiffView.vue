@@ -36,12 +36,11 @@ export default defineComponent({
 
   methods: {
     getDiff: async function () {
-      // alert(JSON.stringify(this.selection));
       let current = this.selection;
+      if (!current) this.diffs = "";
       if ("path" in current) {
         this.diffs = await git2rs.getDiff(current.path, "status" in current);
       } else if ("commit_id" in current) {
-        // this.diffs = await git2rs.getDiffCommit(current.commit_id, null);
         this.diffs = await git2rs.getDiffCommit(
           current.commit_id,
           this.selectedFile
