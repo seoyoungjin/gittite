@@ -1,34 +1,35 @@
 <template>
-  <div class="q-pa-xs q-gutter-xs bg-grey-2">
-    <q-resize-observer @resize="onResize" />
-    <q-input
-      :dense="true"
-      bg-color="white"
-      v-model="commitMessageSummary"
-      placeholder="Summary (required)"
-      outlined
-    >
-      <template v-slot:before>
-        <q-icon name="flight_takeoff" />
-      </template>
-    </q-input>
+  <div>
+    <q-card flat bordered class="q-px-xs q-pb-xs q-gutter-xs bg-grey-2">
+      <q-input
+        :dense="true"
+        bg-color="white"
+        v-model="commitMessageSummary"
+        placeholder="Summary (required)"
+        outlined
+      >
+        <template v-slot:before>
+          <q-icon name="flight_takeoff" />
+        </template>
+      </q-input>
 
-    <q-input
-      v-model="commitMessageBody"
-      placeholder="Description"
-      type="textarea"
-      bg-color="white"
-      outlined
-    />
+      <q-input
+        v-model="commitMessageBody"
+        placeholder="Description"
+        type="textarea"
+        bg-color="white"
+        outlined
+      />
 
-    <q-btn
-      :disabled="!(stagedFileLength > 0 && commitMessageSummary)"
-      color="primary"
-      no-caps
-      @click="gitCommit()"
-    >
-      Commit to&nbsp;<strong>{{ currentBranch }}</strong>
-    </q-btn>
+      <q-btn
+        :disabled="!(stagedFileLength > 0 && commitMessageSummary)"
+        color="primary"
+        no-caps
+        @click="gitCommit()"
+      >
+        Commit to&nbsp;<strong>{{ currentBranch }}</strong>
+      </q-btn>
+    </q-card>
   </div>
 </template>
 
@@ -68,16 +69,8 @@ export default defineComponent({
       this.commitMessageSummary = data.commitMessageSummary;
       this.commitMessageBody = data.commitMessageBody;
     },
-    onResize(size: any) {
-      // alert(JSON.stringify(size));
-      if (size.height !== this.clientHeight) {
-        this.clientHeight = size.height;
-        this.$emit("resize", size);
-      }
-    },
     async updateChangesAndHistory() {
       await this.updateCommitStage();
-      // TODO load last commit and prepend history
       this.resetHistory();
       await this.loadCommitBatch("HEAD", 0);
     },

@@ -63,8 +63,13 @@ export default defineComponent({
     };
   },
 
+  watch: {
+    date: function (val: Date) {
+      this.updateWithDate(val);
+    },
+  },
+
   mounted() {
-    // this.relativeText = formatRelative(this.date - Date.now());
     this.updateWithDate(this.date);
   },
 

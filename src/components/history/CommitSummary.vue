@@ -1,9 +1,10 @@
 <template>
   <div id="commit-summary" class="q-pa-xs">
-    <q-bar dense class="bg-grey-1 text-weight-bold">
+    <q-bar dense class="bg-grey-1 text-no-wrap text-weight-bold">
       {{ historyMessageSubject }}
     </q-bar>
-    <q-bar dense class="bg-grey-1" v-if="historyCommitInfo">
+
+    <q-bar dense class="bg-grey-1 text-no-wrap" v-if="historyCommitInfo">
       <div>
         {{ historyCommitInfo.author.name }}
       </div>
@@ -25,15 +26,11 @@
 
       <div class="text-red">- TBD</div>
 
-      <div v-if="historyCurrent.tags.length">
+      <div v-if="historyTagsLength" class="ellipsis">
         <OctIcon symbol="tag" size="14pt" />
-        <span>
-          {{ historyCurrent.tags.map((e) => e.name).join(", ") }}
-        </span>
+        {{ historyTags.join(", ") }}
         <q-tooltip>
-          <div
-            v-html="historyCurrent.tags.map((e) => e.name).join('<br/>')"
-          ></div>
+          <div v-html="historyTags.join('<br/>')" />
         </q-tooltip>
       </div>
 
@@ -89,6 +86,16 @@ export default defineComponent({
       } else {
         return this.historyCommitInfo.message.body;
       }
+    },
+
+    historyTagsLength(): number {
+      if (!this.historyCurrent || !this.historyCurrent.tags) return 0;
+      return this.historyCurrent.tags.length;
+    },
+
+    historyTags(): string[] {
+      if (!this.historyCurrent || !this.historyCurrent.tags) return [];
+      return this.historyCurrent.tags.map((e) => e.name);
     },
   },
 });

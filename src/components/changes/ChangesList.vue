@@ -1,11 +1,10 @@
 <template>
-  <div class="q-pa-none" style="height: 100%">
+  <div class="bg-grey-2" style="height: 100%">
     <div :style="stageStyle">
       <div style="height: 50%">
-        <div class="q-pa-xs bg-grey-2" style="height: 24px">
-          Unstaged Changes
-        </div>
+        <div class="q-pa-xs" style="height: 24px">Unstaged Changes</div>
         <q-virtual-scroll
+          class="bg-white"
           style="height: calc(100% - 25px)"
           :items="allUnstagedFiles"
           bordered
@@ -44,10 +43,11 @@
         </q-virtual-scroll>
       </div>
       <div style="height: 50%">
-        <div class="q-pa-xs bg-grey-2" style="height: 24px">
+        <div class="q-pa-xs" style="height: 24px">
           Staged Changes(Will Commit)
         </div>
         <q-virtual-scroll
+          class="bg-white"
           style="height: calc(100% - 25px)"
           :items="allStagedFiles"
           bordered
@@ -83,17 +83,45 @@
         </q-virtual-scroll>
       </div>
     </div>
+
     <div>
-      <CommitMessage @resize="onChildResize" />
+      <CommitMessage v-if="action === 'commit'" />
+      <ChangesOption v-if="action === 'option'" />
+      <q-btn-toggle
+        clearable
+        unelevated
+        v-model="action"
+        text-color="grey-9"
+        toggle-color="accent"
+        class="fixed-bottom-left"
+        :options="options"
+        @update:model-value="onValueUpdate"
+      >
+        <template v-slot:commit>
+          <q-tooltip class="text-body2">Commit</q-tooltip>
+        </template>
+
+        <template v-slot:option>
+          <q-tooltip class="text-body2">Stage Option</q-tooltip>
+        </template>
+
+        <template v-slot:stash>
+          <q-tooltip class="text-body2">Stash</q-tooltip>
+        </template>
+
+        <template v-slot:undo>
+          <q-tooltip class="text-body2">Undo Last Commit</q-tooltip>
+        </template>
+      </q-btn-toggle>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commit-stage";
-// import ChangesOption from "./ChangesOption.vue";
+import ChangesOption from "./ChangesOption.vue";
 import CommitMessage from "./CommitMessage.vue";
 import OctStatusIcon from "@/components/OctStatusIcon.vue";
 import PathLabel from "@/components/PathLabel.vue";
@@ -103,12 +131,20 @@ import * as git2rs from "@/lib/git2rs";
 export default defineComponent({
   data() {
     return {
-      stageStyle: { height: "calc(100%-230pt)" },
+      stageStyle: { height: "calc(100% - 262pt)" },
+      action: ref("commit"),
+      options: [
+        // disable: true
+        { icon: "commit", value: "commit", slot: "commit" },
+        { icon: "settings", value: "option", slot: "option" },
+        { icon: "save", value: "stash", slot: "stash" },
+        { icon: "undo", value: "undo", slot: "undo" },
+      ],
     };
   },
 
   components: {
-    // ChangesOption,
+    ChangesOption,
     CommitMessage,
     OctStatusIcon,
     PathLabel,
@@ -121,9 +157,14 @@ export default defineComponent({
   methods: {
     ...mapActions(useCommitStageStore, ["updateCommitStage", "setCurrentItem"]),
 
-    onChildResize(size: any) {
-      // (this.$q.screen.height - 90 - size.height) + "px";
-      this.stageStyle.height = "calc(100% - " + (size.height + 5) + "pt)";
+    onValueUpdate(value: any) {
+      if (value === "commit") {
+        this.stageStyle.height = "calc(100% - 262pt)";
+      } else if (value === "option") {
+        this.stageStyle.height = "calc(100% - 259pt)";
+      } else {
+        this.stageStyle.height = "calc(100% - 92pt)";
+      }
     },
 
     clickItem(item: any) {

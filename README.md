@@ -13,7 +13,7 @@ but I'm going to continue this for personal use.
 
 ### v0.4
 
-- [ ] undo last commit
+- [x] undo last commit
 - [ ] commit amend
 - [ ] repository settings
 - [ ] branch
@@ -22,6 +22,7 @@ but I'm going to continue this for personal use.
 - [ ] tag
 - [ ] preference
 - [ ] authentication
+- [x] fetch button
 
 ### v0.5
 - [ ] stash
@@ -35,7 +36,7 @@ but I'm going to continue this for personal use.
 ### next
 
 - [ ] unitest
-- [ ] push, fetch
+- [ ] push
 - [ ] merge
 - [ ] file browser
 - [ ] branch merge graph

@@ -30,6 +30,7 @@
 
     <PushPullBtn />
 
+    <div class="row no-wrap" v-if="$q.screen.gt.sm">
     <q-btn flat dense icon="subscriptions" @click="onInitRepository">
       <q-tooltip> New Repository </q-tooltip>
     </q-btn>
@@ -46,9 +47,11 @@
     <q-btn flat dense icon="settings" @click="onPreference">
       <q-tooltip> Preference </q-tooltip>
     </q-btn>
+    </div>
+
     <q-space />
 
-    <div class="q-gutter-sm row items-center no-wrap">
+    <div class="row no-wrap" v-if="$q.screen.gt.sm">
       <SetLayout />
     </div>
   </q-toolbar>

@@ -1,8 +1,8 @@
 <template>
-  <div class="q-pa-none q-gutter-md">
-    <q-card class="changes-option">
+  <div>
+    <q-card>
       <q-card-section>
-        <div class="text-subtitle2">Status Option</div>
+        <div class="text-weight-bold">Status Option</div>
         <q-select
           v-model="untracked"
           :options="untracked_opts"
@@ -47,7 +47,5 @@ export default {
       ],
     };
   },
-
-  methods: {},
 };
 </script>
