@@ -21,11 +21,25 @@
         outlined
       />
 
+      <div v-if="commitAmend">
+        Your changes will modify your <strong>most recent commit</strong>.
+      </div>
+
+      <q-btn
+        :disabled="!commitMessageSummary"
+        color="primary"
+        no-caps
+        @click="gitCommitAmend()"
+        v-if="commitAmend"
+      >
+        Amend last commit
+      </q-btn>
       <q-btn
         :disabled="!(stagedFileLength > 0 && commitMessageSummary)"
         color="primary"
         no-caps
         @click="gitCommit()"
+        v-else
       >
         Commit to&nbsp;<strong>{{ currentBranch }}</strong>
       </q-btn>
@@ -48,16 +62,34 @@ const initialData = () => ({
 
 export default defineComponent({
   name: "CommitMessage",
+
+  props: {
+    commitAmend: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   data() {
     return {
       ...initialData(),
-      clientHeight: 0,
     };
   },
+
+  async mounted() {
+    if (this.commitAmend) {
+      // TODO no commit
+      let lastCommit = await git2rs.commitInfo("HEAD");
+      this.commitMessageSummary = lastCommit.message.subject;
+      this.commitMessageBody = lastCommit.message.body;
+    }
+  },
+
   computed: {
     ...mapState(useCommitStageStore, ["stagedFileLength"]),
     ...mapState(useRepositoryStore, ["currentBranch"]),
   },
+
   methods: {
     ...mapActions(useCommitStageStore, ["updateCommitStage"]),
     ...mapActions(useHistoryStore, ["resetHistory", "loadCommitBatch"]),
@@ -69,11 +101,13 @@ export default defineComponent({
       this.commitMessageSummary = data.commitMessageSummary;
       this.commitMessageBody = data.commitMessageBody;
     },
+
     async updateChangesAndHistory() {
       await this.updateCommitStage();
       this.resetHistory();
       await this.loadCommitBatch("HEAD", 0);
     },
+
     gitCommit() {
       var msg = this.commitMessageSummary;
       if (!msg) {
@@ -85,6 +119,38 @@ export default defineComponent({
       }
       git2rs
         .commit(msg)
+        .then((message) => {
+          this.$q.notify({
+            color: "green-5",
+            textColor: "white",
+            icon: "cloud",
+            message: message,
+          });
+          this.resetData();
+          this.updateChangesAndHistory();
+        })
+        .catch((e) => {
+          var message = JSON.stringify(e, null, 4);
+          this.$q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: message,
+          });
+        });
+    },
+
+    gitCommitAmend() {
+      var msg = this.commitMessageSummary;
+      if (!msg) {
+        alert("Enter commit message");
+        return;
+      }
+      if (this.commitMessageBody) {
+        msg = msg + "\n\n" + this.commitMessageBody;
+      }
+      git2rs
+        .commitAmend(msg)
         .then((message) => {
           this.$q.notify({
             color: "green-5",

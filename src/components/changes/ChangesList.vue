@@ -86,6 +86,7 @@
 
     <div>
       <CommitMessage v-if="action === 'commit'" />
+      <CommitMessage :commitAmend="true" v-if="action === 'amend'" />
       <ChangesOption v-if="action === 'option'" />
       <q-btn-toggle
         clearable
@@ -99,6 +100,10 @@
       >
         <template v-slot:commit>
           <q-tooltip class="text-body2">Commit</q-tooltip>
+        </template>
+
+        <template v-slot:amend>
+          <q-tooltip class="text-body2">Amend</q-tooltip>
         </template>
 
         <template v-slot:option>
@@ -136,6 +141,7 @@ export default defineComponent({
       options: [
         // disable: true
         { icon: "commit", value: "commit", slot: "commit" },
+        { icon: "edit", value: "amend", slot: "amend" },
         { icon: "settings", value: "option", slot: "option" },
         { icon: "save", value: "stash", slot: "stash" },
         { icon: "undo", value: "undo", slot: "undo" },
@@ -160,6 +166,8 @@ export default defineComponent({
     onValueUpdate(value: any) {
       if (value === "commit") {
         this.stageStyle.height = "calc(100% - 262pt)";
+      } else if (value === "amend") {
+        this.stageStyle.height = "calc(100% - 296pt)";
       } else if (value === "option") {
         this.stageStyle.height = "calc(100% - 259pt)";
       } else {

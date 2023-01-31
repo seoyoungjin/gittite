@@ -12,6 +12,7 @@ import "diff2html/bundles/css/diff2html.min.css";
 
 export default defineComponent({
   name: "DiffView",
+
   props: {
     selection: null,
     selectedFile: null,

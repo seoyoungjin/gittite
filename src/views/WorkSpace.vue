@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fFf" class="bg-grey-1">
     <q-splitter
       v-model="splitterModel"
-      :limits="[300, 600]"
+      :limits="[280, 600]"
       unit="px"
       before-class="overflow-hidden"
       after-class="overflow-hidden"
@@ -105,7 +105,7 @@ export default defineComponent({
       appStore,
       repoStore,
       stageStore,
-      splitterModel: ref(250),
+      splitterModel: ref(280),
       tab: ref("changes"),
     };
   },

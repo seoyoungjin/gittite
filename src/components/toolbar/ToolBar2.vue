@@ -31,22 +31,22 @@
     <PushPullBtn />
 
     <div class="row no-wrap" v-if="$q.screen.gt.sm">
-    <q-btn flat dense icon="subscriptions" @click="onInitRepository">
-      <q-tooltip> New Repository </q-tooltip>
-    </q-btn>
-    <q-btn flat dense icon="list" @click="onAddLocalRepository">
-      <q-tooltip> Add Local Repository </q-tooltip>
-    </q-btn>
-    <q-btn flat dense icon="file_copy" @click="onCloneRepository">
-      <q-tooltip> Clone Repository </q-tooltip>
-    </q-btn>
-    <q-btn flat dense icon="refresh" @click="onRefresh">
-      <q-tooltip> Refresh </q-tooltip>
-    </q-btn>
-    <q-separator vertical />
-    <q-btn flat dense icon="settings" @click="onPreference">
-      <q-tooltip> Preference </q-tooltip>
-    </q-btn>
+      <q-btn flat dense icon="subscriptions" @click="onInitRepository">
+        <q-tooltip> New Repository </q-tooltip>
+      </q-btn>
+      <q-btn flat dense icon="list" @click="onAddLocalRepository">
+        <q-tooltip> Add Local Repository </q-tooltip>
+      </q-btn>
+      <q-btn flat dense icon="file_copy" @click="onCloneRepository">
+        <q-tooltip> Clone Repository </q-tooltip>
+      </q-btn>
+      <q-btn flat dense icon="refresh" @click="onRefresh">
+        <q-tooltip> Refresh </q-tooltip>
+      </q-btn>
+      <q-separator vertical />
+      <q-btn flat dense icon="settings" @click="onPreference">
+        <q-tooltip> Preference </q-tooltip>
+      </q-btn>
     </div>
 
     <q-space />

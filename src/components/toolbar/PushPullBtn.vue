@@ -30,13 +30,13 @@ export default defineComponent({
 
   data() {
     return {
-      loading: null,
-      lastFetched: null as Date,
+      loading: false,
+      lastFetched: null as any,
     };
   },
 
   async mounted() {
-    const lastFetched = await git2rs.get_prop("LastFetchedTime");
+    const lastFetched: any = await git2rs.get_prop("LastFetchedTime");
     this.lastFetched = new Date(lastFetched * 1000);
   },
 
