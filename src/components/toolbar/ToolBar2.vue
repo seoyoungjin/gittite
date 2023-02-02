@@ -51,7 +51,7 @@
 
     <q-space />
 
-    <div class="row no-wrap" v-if="$q.screen.gt.sm">
+    <div class="row no-wrap" v-if="$q.screen.gt.xs">
       <SetLayout />
     </div>
   </q-toolbar>

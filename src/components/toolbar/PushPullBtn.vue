@@ -5,7 +5,7 @@
       <q-item-label> Fetch </q-item-label>
       <q-item-label>
         <small class="text-no-wrap" v-if="lastFetched">
-          Last fetched <RelativeTime :date="lastFetched" />
+          <RelativeTime :date="lastFetched" />
         </small>
         <small v-else>Never fetched</small>
       </q-item-label>

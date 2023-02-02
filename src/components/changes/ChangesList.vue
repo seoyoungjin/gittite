@@ -88,6 +88,8 @@
       <CommitMessage v-if="action === 'commit'" />
       <CommitMessage :commitAmend="true" v-if="action === 'amend'" />
       <ChangesOption v-if="action === 'option'" />
+      <StashedChanges v-if="action === 'stash'" />
+      <UndoCommit v-if="action === 'undo'" />
       <q-btn-toggle
         clearable
         unelevated
@@ -128,6 +130,8 @@ import { mapActions, mapState } from "pinia";
 import { useCommitStageStore } from "@/stores/commit-stage";
 import ChangesOption from "./ChangesOption.vue";
 import CommitMessage from "./CommitMessage.vue";
+import StashedChanges from "./StashedChanges.vue";
+import UndoCommit from "./UndoCommit.vue";
 import OctStatusIcon from "@/components/OctStatusIcon.vue";
 import PathLabel from "@/components/PathLabel.vue";
 import type { StatusItem } from "@/models/status";
@@ -152,6 +156,8 @@ export default defineComponent({
   components: {
     ChangesOption,
     CommitMessage,
+    StashedChanges,
+    UndoCommit,
     OctStatusIcon,
     PathLabel,
   },
@@ -170,6 +176,10 @@ export default defineComponent({
         this.stageStyle.height = "calc(100% - 296pt)";
       } else if (value === "option") {
         this.stageStyle.height = "calc(100% - 259pt)";
+      } else if (value === "stash") {
+        this.stageStyle.height = "calc(100% - 115pt)";
+      } else if (value === "undo") {
+        this.stageStyle.height = "calc(100% - 132pt)";
       } else {
         this.stageStyle.height = "calc(100% - 92pt)";
       }

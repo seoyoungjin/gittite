@@ -40,6 +40,8 @@ export default defineComponent({
           return OctIcon.octDiff16;
         case "tag":
           return OctIcon.octTag16;
+        case "stack":
+          return OctIcon.octStack16;
         default:
           return OctIcon.octDot16;
       }

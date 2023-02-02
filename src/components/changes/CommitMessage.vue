@@ -22,7 +22,10 @@
       />
 
       <div v-if="commitAmend">
-        Your changes will modify your <strong>most recent commit</strong>.
+        <div v-if="lastCommit">
+          Your changes will modify your <strong>most recent commit</strong>.
+        </div>
+        <div v-else>No commit.</div>
       </div>
 
       <q-btn
@@ -30,7 +33,7 @@
         color="primary"
         no-caps
         @click="gitCommitAmend()"
-        v-if="commitAmend"
+        v-if="commitAmend && lastCommit"
       >
         Amend last commit
       </q-btn>
@@ -54,10 +57,13 @@ import * as git2rs from "@/lib/git2rs";
 import { useCommitStageStore } from "@/stores/commit-stage";
 import { useHistoryStore } from "@/stores/history";
 import { useRepositoryStore } from "@/stores/repository";
+import type { CommitInfo } from "@/models/commit";
 
 const initialData = () => ({
   commitMessageSummary: "",
   commitMessageBody: "",
+  // amend
+  lastCommit: null as CommitInfo | null,
 });
 
 export default defineComponent({
@@ -78,10 +84,13 @@ export default defineComponent({
 
   async mounted() {
     if (this.commitAmend) {
-      // TODO no commit
-      let lastCommit = await git2rs.commitInfo("HEAD");
-      this.commitMessageSummary = lastCommit.message.subject;
-      this.commitMessageBody = lastCommit.message.body;
+      this.lastCommit = await git2rs.commitInfo("HEAD").catch(() => {
+        return null;
+      });
+      if (this.lastCommit) {
+        this.commitMessageSummary = this.lastCommit.message.subject;
+        this.commitMessageBody = this.lastCommit.message.body;
+      }
     }
   },
 
@@ -97,7 +106,6 @@ export default defineComponent({
     resetData() {
       // Object.assign(this.$data, this.$options.data.apply(this));
       const data = initialData();
-      // Object.keys(data).forEach((k) => (this[k] = data[k]));
       this.commitMessageSummary = data.commitMessageSummary;
       this.commitMessageBody = data.commitMessageBody;
     },
